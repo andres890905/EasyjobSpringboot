@@ -1,0 +1,358 @@
+/* ======== ESTILOS DE SUCURSALES Y ZONAS - DISEÑO HORIZONTAL PROFESIONAL ======== */
+
+#lista-sucursales, #lista-zonas {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 15px;
+}
+
+/* Tarjetas base - Diseño Horizontal */
+.sucursal-card, .zona-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 12px;
+  padding: 20px 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border-left: 4px solid #0d6efd;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 20px;
+}
+
+.zona-card {
+  border-left-color: #198754;
+}
+
+.sucursal-card::before, .zona-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #0d6efd 0%, #0a58ca 100%);
+  transition: width 0.3s ease;
+}
+
+.zona-card::before {
+  background: linear-gradient(180deg, #198754 0%, #146c43 100%);
+}
+
+.sucursal-card:hover, .zona-card:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  background: #ffffff;
+}
+
+.sucursal-card:hover::before, .zona-card:hover::before {
+  width: 6px;
+}
+
+/* Contenedor de información principal */
+.sucursal-main-info, .zona-main-info {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex: 1;
+}
+
+/* Icono principal */
+.sucursal-icon, .zona-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+}
+
+.zona-icon {
+  background: linear-gradient(135deg, #198754 0%, #146c43 100%);
+  box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3);
+}
+
+/* Contenido de la tarjeta */
+.sucursal-content, .zona-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Cabecera con título y badge */
+.sucursal-header, .zona-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.sucursal-title {
+  color: #1e293b;
+  font-weight: 700;
+  font-size: 1.15rem;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.zona-title {
+  color: #1e293b;
+  font-weight: 700;
+  font-size: 1.15rem;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+/* Grid de información */
+.sucursal-details, .zona-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+
+/* Info items individuales */
+.sucursal-info, .zona-info {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #64748b;
+  gap: 8px;
+}
+
+.sucursal-info i, .zona-info i {
+  color: #94a3b8;
+  width: 16px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.sucursal-info strong, .zona-info strong {
+  color: #475569;
+  font-weight: 600;
+}
+
+/* Acciones */
+.btn-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-actions .btn {
+  border-radius: 8px;
+  font-size: 0.875rem;
+  padding: 8px 12px;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  border-width: 1.5px;
+  min-width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-actions .btn i {
+  font-size: 0.95rem;
+}
+
+.btn-outline-primary {
+  border-color: #0d6efd;
+  color: #0d6efd;
+}
+
+.btn-outline-primary:hover {
+  background-color: #0d6efd;
+  color: #fff !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+}
+
+.btn-outline-success {
+  border-color: #198754;
+  color: #198754;
+}
+
+.btn-outline-success:hover {
+  background-color: #198754;
+  color: #fff !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3);
+}
+
+.btn-outline-danger {
+  border-color: #dc3545;
+  color: #dc3545;
+}
+
+.btn-outline-danger:hover {
+  background-color: #dc3545;
+  color: #fff !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+/* Badges mejorados */
+.badge-zona, .badge-supervisor {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.badge-zona {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e40af;
+  border: 1px solid #93c5fd;
+}
+
+.badge-supervisor {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+
+/* Estado vacío mejorado */
+.empty-state {
+  text-align: center;
+  color: #94a3b8;
+  padding: 60px 20px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 12px;
+  border: 2px dashed #cbd5e1;
+}
+
+.empty-state i {
+  font-size: 3.5rem;
+  color: #cbd5e1;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.empty-state p {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.empty-state small {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+/* Animación de aparición */
+@keyframes fadeInCard {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.sucursal-card, .zona-card {
+  animation: fadeInCard 0.4s ease;
+}
+
+/* Animación escalonada */
+.sucursal-card:nth-child(1), .zona-card:nth-child(1) { animation-delay: 0s; }
+.sucursal-card:nth-child(2), .zona-card:nth-child(2) { animation-delay: 0.05s; }
+.sucursal-card:nth-child(3), .zona-card:nth-child(3) { animation-delay: 0.1s; }
+.sucursal-card:nth-child(4), .zona-card:nth-child(4) { animation-delay: 0.15s; }
+.sucursal-card:nth-child(5), .zona-card:nth-child(5) { animation-delay: 0.2s; }
+
+/* Scroll suave personalizado */
+#lista-sucursales::-webkit-scrollbar,
+#lista-zonas::-webkit-scrollbar {
+  width: 8px;
+}
+
+#lista-sucursales::-webkit-scrollbar-track,
+#lista-zonas::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+#lista-sucursales::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #0d6efd 0%, #0a58ca 100%);
+  border-radius: 10px;
+}
+
+#lista-zonas::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #198754 0%, #146c43 100%);
+  border-radius: 10px;
+}
+
+#lista-sucursales::-webkit-scrollbar-thumb:hover,
+#lista-zonas::-webkit-scrollbar-thumb:hover {
+  background: #0a58ca;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .sucursal-card, .zona-card {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .sucursal-main-info, .zona-main-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .sucursal-details, .zona-details {
+    grid-template-columns: 1fr;
+  }
+  
+  .btn-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+/* Mejoras adicionales para cards */
+.sucursal-card:active, .zona-card:active {
+  transform: translateX(2px);
+}
+
+/* Divider visual */
+.info-divider {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(180deg, transparent 0%, #e2e8f0 50%, transparent 100%);
+  margin: 0 8px;
+}
+
+/* Estado de carga */
+.loading-skeleton {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s ease-in-out infinite;
+  border-radius: 8px;
+  height: 20px;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
