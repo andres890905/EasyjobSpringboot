@@ -1,11 +1,320 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - Easy Job</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Allura&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/dashboard_supervisor.css">
 </head>
 <body>
-    <h5>supervisor</h5>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <a class="navbar-brand" href="#">
+    <img src="imagenes/easy.jpg" alt=""> Supervisor
+  </a>
+  <ul class="nav flex-column">
+    <li><a class="nav-link active" href="#" id="btnDashboard"><i class="fas fa-home me-2"></i>Dashboard</a></li>
+    <li><a class="nav-link" href="#" id="btnEmpleados"><i class="fas fa-users me-2"></i>Empleados</a></li>
+    <li><a class="nav-link" href="#" id="btnHorarios"><i class="fas fa-calendar-alt me-2"></i>Horarios</a></li>
+    <li><a class="nav-link" href="#" id="btnIncapacidades"><i class="fas fa-file-medical me-2"></i>Incapacidades</a></li>
+    <li><a class="nav-link" href="#" id="btnVacaciones"><i class="fas fa-umbrella-beach me-2"></i>Vacaciones</a></li>
+    <li><a class="nav-link" href="#" id="btnTraslados"><i class="fas fa-exchange-alt me-2"></i>Traslados</a></li>
+    <li><a class="nav-link" href="#" id="btnReportes"><i class="fas fa-chart-line me-2"></i>Reportes</a></li>
+    <li><a class="nav-link text-danger" href="#" id="btnCerrarSesion"><i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión</a></li>
+  </ul>
+</nav>
+
+<!-- Main Content -->
+<main class="main-content">
+  
+  <!-- Sección Dashboard -->
+  <div id="seccionDashboard">
+    <h2 class="mb-4"><i class="fas fa-tachometer-alt"></i>Panel de Supervisor</h2>
+    <div class="card card-custom p-4 mb-4">
+      <h3 class="text-primary mb-3"><i class="fas fa-user-shield me-2"></i>¡Bienvenido Jose David Rodriguez, Supervisor!</h3>
+      <p class="lead mb-4">Gestiona todos los aspectos de la empresa desde este panel de control.</p>
+      <ul class="list-unstyled">
+        <li><i class="fas fa-check-circle text-success me-2"></i> Gestionar empleados y su información</li>
+        <li><i class="fas fa-check-circle text-success me-2"></i> Asignar y modificar horarios de trabajo</li>
+        <li><i class="fas fa-check-circle text-success me-2"></i> Consultar reportes e incapacidades</li>
+        <li><i class="fas fa-check-circle text-success me-2"></i> Administrar vacaciones y traslados</li>
+        <li><i class="fas fa-check-circle text-success me-2"></i> Generar reportes detallados</li>
+      </ul>
+    </div>
+
+    <!-- Cards de estadísticas rápidas -->
+    <div class="row g-4 mt-4">
+      <div class="col-md-3">
+        <div class="card card-custom p-3 text-center">
+          <i class="fas fa-users fa-3x text-primary mb-3"></i>
+          <h4 class="mb-2">245</h4>
+          <p class="text-muted mb-0">Empleados Activos</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card card-custom p-3 text-center">
+          <i class="fas fa-calendar-check fa-3x text-success mb-3"></i>
+          <h4 class="mb-2">32</h4>
+          <p class="text-muted mb-0">En Vacaciones</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card card-custom p-3 text-center">
+          <i class="fas fa-file-medical fa-3x text-warning mb-3"></i>
+          <h4 class="mb-2">8</h4>
+          <p class="text-muted mb-0">Incapacidades</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card card-custom p-3 text-center">
+          <i class="fas fa-building fa-3x text-info mb-3"></i>
+          <h4 class="mb-2">5</h4>
+          <p class="text-muted mb-0">Sucursales</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección Empleados -->
+  <div id="seccionEmpleados" style="display: none;">
+    <h2 class="mb-4"><i class="fas fa-user-search"></i>Buscar Empleado</h2>
+    <div class="card card-custom p-4 mb-4">
+      <form id="form-busqueda">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="idEmpleado" class="form-label">ID del Empleado</label>
+            <input type="text" class="form-control" id="idEmpleado" placeholder="Ej: 1001" />
+          </div>
+          <div class="col-md-6">
+            <label for="nombreEmpleado" class="form-label">Nombre del Empleado</label>
+            <input type="text" class="form-control" id="nombreEmpleado" placeholder="Ej: Fernanda" />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">
+          <i class="fas fa-search me-2"></i>Buscar
+        </button>
+      </form>
+    </div>
+
+    <div id="resultadoEmpleado" class="card card-custom p-4 mt-4" style="display: none;"></div>
+  </div>
+
+  <!-- Sección Horarios -->
+  <div id="seccionHorarios" style="display: none;">
+    <h2 class="mb-4"><i class="fas fa-calendar-alt"></i>Asignar Horario</h2>
+    <div class="card card-custom p-4 mb-4">
+      <form id="formBuscarHorario">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="idHorarioEmpleado" class="form-label">ID del Empleado</label>
+            <input type="text" class="form-control" id="idHorarioEmpleado" placeholder="Ej: 1001" />
+          </div>
+          <div class="col-md-6">
+            <label for="nombreHorarioEmpleado" class="form-label">Nombre del Empleado</label>
+            <input type="text" class="form-control" id="nombreHorarioEmpleado" placeholder="Ej: Fernanda" />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">
+          <i class="fas fa-search me-2"></i>Buscar
+        </button>
+      </form>
+    </div>
+
+    <div id="resultadoHorario" class="card card-custom p-4" style="display: none;">
+      <h4 class="mb-3"><i class="fas fa-clock text-primary me-2"></i>Horario de: <span class="text-primary">Fernanda Astrid</span></h4>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label for="fechaHorario" class="form-label">Fecha</label>
+          <input type="date" class="form-control" id="fechaHorario" />
+        </div>
+        <div class="col-md-3">
+          <label for="horaEntrada" class="form-label">Hora Entrada</label>
+          <input type="time" class="form-control" id="horaEntrada" />
+        </div>
+        <div class="col-md-3">
+          <label for="horaSalida" class="form-label">Hora Salida</label>
+          <input type="time" class="form-control" id="horaSalida" />
+        </div>
+      </div>
+      <div class="mt-4">
+        <button class="btn btn-success me-2" onclick="asignarHorario()">
+          <i class="fas fa-check me-2"></i>Asignar Horario
+        </button>
+        <button class="btn btn-warning" onclick="editarHorario()">
+          <i class="fas fa-edit me-2"></i>Editar Horario
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección Incapacidades -->
+  <div id="seccionIncapacidades" style="display: none;">
+    <h2 class="mb-4"><i class="fas fa-file-medical"></i>Gestión de Incapacidades</h2>
+    <div class="card card-custom p-4">
+      <h4 class="mb-4">Registrar Nueva Incapacidad</h4>
+      <form id="formIncapacidades">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="empleadoIncapacidad" class="form-label">Empleado</label>
+            <input type="text" class="form-control" id="empleadoIncapacidad" placeholder="Nombre o ID del empleado" />
+          </div>
+          <div class="col-md-6">
+            <label for="tipoIncapacidad" class="form-label">Tipo de Incapacidad</label>
+            <select class="form-control" id="tipoIncapacidad">
+              <option value="">Seleccione...</option>
+              <option value="enfermedad">Enfermedad General</option>
+              <option value="accidente">Accidente Laboral</option>
+              <option value="maternidad">Maternidad</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="fechaInicioIncapacidad" class="form-label">Fecha Inicio</label>
+            <input type="date" class="form-control" id="fechaInicioIncapacidad" />
+          </div>
+          <div class="col-md-6">
+            <label for="fechaFinIncapacidad" class="form-label">Fecha Fin</label>
+            <input type="date" class="form-control" id="fechaFinIncapacidad" />
+          </div>
+          <div class="col-md-12">
+            <label for="observacionesIncapacidad" class="form-label">Observaciones</label>
+            <textarea class="form-control" id="observacionesIncapacidad" rows="3" placeholder="Detalles adicionales..."></textarea>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">
+          <i class="fas fa-save me-2"></i>Registrar Incapacidad
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Sección Vacaciones -->
+  <div id="seccionVacaciones" style="display: none;">
+    <h2 class="mb-4"><i class="fas fa-umbrella-beach"></i>Gestión de Vacaciones</h2>
+    <div class="card card-custom p-4">
+      <h4 class="mb-4">Solicitar Vacaciones</h4>
+      <form id="formVacaciones">
+  <h5 class="mb-3 text-primary"><i class="fas fa-plane-departure me-2"></i>Gestión de Vacaciones</h5>
+  
+  <div class="mb-3">
+    <label for="idVacacion" class="form-label">ID de Solicitud</label>
+    <input type="number" class="form-control" id="idVacacion" placeholder="Ingrese el ID de la solicitud" required>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Acción</label><br>
+    <label class="me-3"><input type="radio" name="accionVacaciones" value="Aprobado"> Aprobar</label>
+    <label><input type="radio" name="accionVacaciones" value="Rechazado"> Rechazar</label>
+  </div>
+
+  <div class="mb-3">
+    <label for="comentariosVacaciones" class="form-label">Comentarios (opcional)</label>
+    <textarea class="form-control" id="comentariosVacaciones" rows="3" placeholder="Escriba observaciones si lo desea"></textarea>
+  </div>
+
+  <button type="submit" class="btn btn-primary w-100">
+    <i class="fas fa-save me-2"></i>Actualizar Estado
+  </button>
+</form>
+
+
+    </div>
+  </div>
+
+  <!-- Sección Traslados -->
+  <div id="seccionTraslados" style="display: none;">
+    <h2 class="mb-4"><i class="fas fa-exchange-alt"></i>Gestión de Traslados</h2>
+    <div class="card card-custom p-4">
+      <h4 class="mb-4">Registrar Traslado</h4>
+      <form id="formTraslados">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="empleadoTraslado" class="form-label">Empleado</label>
+            <input type="text" class="form-control" id="empleadoTraslado" placeholder="Nombre o ID del empleado" />
+          </div>
+          <div class="col-md-6">
+            <label for="sucursalActual" class="form-label">Sucursal Actual</label>
+            <select class="form-control" id="sucursalActual">
+              <option value="">Seleccione...</option>
+              <option value="principal">Sede Principal</option>
+              <option value="norte">Sede Norte</option>
+              <option value="sur">Sede Sur</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="sucursalDestino" class="form-label">Sucursal Destino</label>
+            <select class="form-control" id="sucursalDestino">
+              <option value="">Seleccione...</option>
+              <option value="principal">Sede Principal</option>
+              <option value="norte">Sede Norte</option>
+              <option value="sur">Sede Sur</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="fechaTraslado" class="form-label">Fecha de Traslado</label>
+            <input type="date" class="form-control" id="fechaTraslado" />
+          </div>
+          <div class="col-md-12">
+            <label for="motivoTraslado" class="form-label">Motivo del Traslado</label>
+            <textarea class="form-control" id="motivoTraslado" rows="3" placeholder="Razón del traslado..."></textarea>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">
+          <i class="fas fa-exchange-alt me-2"></i>Registrar Traslado
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Sección Reportes -->
+  <div id="seccionReportes" style="display: none;">
+    <h2 class="mb-4"><i class="fas fa-chart-line"></i>Reportes y Estadísticas</h2>
+    <div class="card card-custom p-4">
+      <h4 class="mb-4">Generar Reporte</h4>
+      <form id="formReportes">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="tipoReporte" class="form-label">Tipo de Reporte</label>
+            <select class="form-control" id="tipoReporte">
+              <option value="">Seleccione...</option>
+              <option value="asistencia">Asistencia</option>
+              <option value="incapacidades">Incapacidades</option>
+              <option value="vacaciones">Vacaciones</option>
+              <option value="nomina">Nómina</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="periodoReporte" class="form-label">Período</label>
+            <select class="form-control" id="periodoReporte">
+              <option value="">Seleccione...</option>
+              <option value="semanal">Semanal</option>
+              <option value="mensual">Mensual</option>
+              <option value="trimestral">Trimestral</option>
+              <option value="anual">Anual</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="fechaInicioReporte" class="form-label">Fecha Inicio</label>
+            <input type="date" class="form-control" id="fechaInicioReporte" />
+          </div>
+          <div class="col-md-6">
+            <label for="fechaFinReporte" class="form-label">Fecha Fin</label>
+            <input type="date" class="form-control" id="fechaFinReporte" />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">
+          <i class="fas fa-file-download me-2"></i>Generar Reporte
+        </button>
+      </form>
+    </div>
+  </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/dashboard_supervisor.js"></script>
 </body>
 </html>
