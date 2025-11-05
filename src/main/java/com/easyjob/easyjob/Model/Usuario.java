@@ -17,7 +17,7 @@ public class Usuario {
     
     private Long idusuarios;
 
-    @ManyToOne
+    @ManyToOne 
     @JoinColumn(name = "id_sucursal")
     private Sucursal sucursal; 
 
