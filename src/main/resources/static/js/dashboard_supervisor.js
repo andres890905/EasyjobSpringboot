@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (confirm('¿Está seguro que desea cerrar sesión?')) {
       mostrarAlerta('Cerrando sesión...', 'info');
       setTimeout(() => {
-        window.location.href = 'login.html';
+        window.location.href = '/logout';
       }, 1500);
     }
   });
