@@ -14,7 +14,7 @@
 <!-- Sidebar -->
 <nav class="sidebar">
   <a class="navbar-brand" href="#">
-    <img src="imagenes/easy.jpg" alt=""> Supervisor
+    <img th:src="@{/imagenes/Logof.jpeg}" src="/imagenes/Logof.jpeg" alt=""> Supervisor
   </a>
   <ul class="nav flex-column">
     <li><a class="nav-link active" href="#" id="btnDashboard"><i class="fas fa-home me-2"></i>Dashboard</a></li>
@@ -24,7 +24,7 @@
     <li><a class="nav-link" href="#" id="btnVacaciones"><i class="fas fa-umbrella-beach me-2"></i>Vacaciones</a></li>
     <li><a class="nav-link" href="#" id="btnTraslados"><i class="fas fa-exchange-alt me-2"></i>Traslados</a></li>
     <li><a class="nav-link" href="#" id="btnReportes"><i class="fas fa-chart-line me-2"></i>Reportes</a></li>
-    <li><a class="nav-link text-danger" href="#" id="btnCerrarSesion"><i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión</a></li>
+    <li><a class="nav-link text-danger" href="/logout" id="btnCerrarSesion"><i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión</a></li>
   </ul>
 </nav>
 
