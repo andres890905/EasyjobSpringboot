@@ -1,67 +1,55 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Perfil de Usuario</title>
-  <link rel="stylesheet" href="css/dashboard_empleado.css">
+  <title>Easy Job - Dashboard Empleado</title>
+  <link rel="stylesheet" th:href="@{/css/dashboard_empleado.css}">
 </head>
 <body>
   <div class="sidebar">
     <div class="sidebar-header">
-      <div class="logo" style="background: white; padding: 10px;">
-        <img src="img/logo.png.jpg" alt="Easy Job Logo" style="width: 100%; height: 100%; object-fit: contain;">
-      </div>
+      <div class="logo">EJ</div>
       <div class="brand-name">Easy Job</div>
     </div>
 
     <nav class="sidebar-nav">
-      <a class="nav-item active">
-        <span class="nav-icon icon-home"></span>
+      <a class="nav-item active" data-section="mis-datos">
+        <span class="nav-icon">👤</span>
         <span class="nav-text">Mis datos</span>
       </a>
-      <a class="nav-item">
-        <span class="nav-icon icon-chart"></span>
+      <a class="nav-item" data-section="vacaciones">
+        <span class="nav-icon">🌴</span>
         <span class="nav-text">Vacaciones</span>
       </a>
-      <a class="nav-item">
-        <span class="nav-icon icon-users"></span>
+      <a class="nav-item" data-section="incapacidades">
+        <span class="nav-icon">🏥</span>
         <span class="nav-text">Incapacidades</span>
       </a>
-      <a class="nav-item">
-        <span class="nav-icon icon-docs"></span>
+      <a class="nav-item" data-section="programacion">
+        <span class="nav-icon">📅</span>
         <span class="nav-text">Programación</span>
       </a>
-      <a class="nav-item">
-        <span class="nav-icon icon-settings"></span>
+      <a class="nav-item" data-section="certificados">
+        <span class="nav-icon">🧾</span>
         <span class="nav-text">Certificados</span>
       </a>
     </nav>
 
     <div class="sidebar-footer">
       <div class="user-profile">
-        <div class="user-avatar">JD</div>
+        <div class="user-avatar">MA</div>
         <div class="user-info">
-          <div class="user-name">Juan Pérez</div>
+          <div class="user-name">Maicol Amaya</div>
           <div class="user-status">En línea</div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="main-content">
-    <div class="card">
-      <h2>Maicol Estiven Amaya Pachon</h2>
-      <h3>Vendedor</h3>
-      <p><span>Sucursal:</span> Ventura terreros</p>
-      <p><span>Fecha de Registro:</span> 2025-03-24</p>
-      <p><span>Correo:</span> maicolsoy23@gmail.com</p>
-      <p><span>Dirección:</span> carrera 21 este #33-02</p>
-      <p><span>Cédula:</span> 1000364783</p>
-      <p><span>Fecha de nacimiento:</span> 31/10/2001</p>
-    </div>
-  </div>
-
-  <script src="js/dashboard_empleado.js"></script>
+  <div class="main-content" id="mainContent"></div>
+  <div id="mis-datos"></div>
+  <script th:src="@{/js/dashboard_empleado.js}"></script>
 </body>
 </html>
