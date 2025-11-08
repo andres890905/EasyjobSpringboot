@@ -1,5 +1,6 @@
 package com.easyjob.easyjob.Service;
 
+import com.easyjob.easyjob.DTO.SucursalDTO;
 import com.easyjob.easyjob.Model.Sucursal;
 import com.easyjob.easyjob.Repository.SucursalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class SucursalService {
@@ -14,77 +16,92 @@ public class SucursalService {
     @Autowired
     private SucursalRepository sucursalRepository;
 
-    // ✅ 1. Obtener todas las sucursales
-    public List<Sucursal> obtenerTodas() {
-        return sucursalRepository.findAll();
+    // ✅ Obtener todas las sucursales
+    public List<SucursalDTO> obtenerTodas() {
+        return sucursalRepository.findAll().stream()
+                .map(s -> {
+                    SucursalDTO dto = new SucursalDTO();
+                    dto.setIdSucursal(s.getId_sucursal());
+                    dto.setIdZona(s.getId_zona());
+                    dto.setNombreSucursal(s.getNombreSucursal());
+                    dto.setDireccion(s.getDireccion());
+                    dto.setCiudad(s.getCiudad());
+                    dto.setCorreo(s.getCorreo());
+                    dto.setTelefono(s.getTelefono());
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
-    // ✅ 2. Obtener sucursal por ID
-    public Sucursal obtenerPorId(Long id) {
-        Optional<Sucursal> sucursal = sucursalRepository.findById(id);
-        return sucursal.orElse(null);
+    // ✅ Obtener sucursal por ID
+    public SucursalDTO obtenerPorId(Long id) {
+        return sucursalRepository.findById(id)
+                .map(s -> {
+                    SucursalDTO dto = new SucursalDTO();
+                    dto.setIdSucursal(s.getId_sucursal());
+                    dto.setIdZona(s.getId_zona());
+                    dto.setNombreSucursal(s.getNombreSucursal());
+                    dto.setDireccion(s.getDireccion());
+                    dto.setCiudad(s.getCiudad());
+                    dto.setCorreo(s.getCorreo());
+                    dto.setTelefono(s.getTelefono());
+                    return dto;
+                })
+                .orElse(null);
     }
 
-    // ✅ 3. Crear nueva sucursal
-    public Sucursal guardarSucursal(Sucursal sucursal) {
-        // Validar datos obligatorios
-        if (sucursal.getNombreSucursal() == null || sucursal.getNombreSucursal().isEmpty()) {
-            throw new IllegalArgumentException("El nombre de la sucursal es obligatorio");
+    // ✅ Guardar nueva sucursal (Builder)
+    public SucursalDTO guardarSucursal(SucursalDTO dto) {
+        Sucursal nueva = new Sucursal.Builder()
+                .idZona(dto.getIdZona())
+                .nombreSucursal(dto.getNombreSucursal())
+                .direccion(dto.getDireccion())
+                .ciudad(dto.getCiudad())
+                .correo(dto.getCorreo())
+                .telefono(dto.getTelefono())
+                .build();
+
+        Sucursal guardada = sucursalRepository.save(nueva);
+
+        // Convertir a DTO para devolver
+        SucursalDTO guardadaDTO = new SucursalDTO();
+        guardadaDTO.setIdSucursal(guardada.getId_sucursal());
+        guardadaDTO.setIdZona(guardada.getId_zona());
+        guardadaDTO.setNombreSucursal(guardada.getNombreSucursal());
+        guardadaDTO.setDireccion(guardada.getDireccion());
+        guardadaDTO.setCiudad(guardada.getCiudad());
+        guardadaDTO.setCorreo(guardada.getCorreo());
+        guardadaDTO.setTelefono(guardada.getTelefono());
+
+        return guardadaDTO;
+    }
+
+    // ✅ Actualizar sucursal existente (sin Builder)
+    public boolean actualizarSucursal(Long id, SucursalDTO dto) {
+        Optional<Sucursal> sucursalOpt = sucursalRepository.findById(id);
+        if (sucursalOpt.isEmpty()) {
+            return false;
         }
 
-        // Validar duplicados
-        Optional<Sucursal> existente = sucursalRepository.findByNombreSucursal(sucursal.getNombreSucursal());
-        if (existente.isPresent()) {
-            throw new RuntimeException("Ya existe una sucursal con ese nombre");
-        }
+        Sucursal existente = sucursalOpt.get();
 
-        return sucursalRepository.save(sucursal);
+        if (dto.getIdZona() != null) existente.setId_zona(dto.getIdZona());
+        if (dto.getNombreSucursal() != null) existente.setNombreSucursal(dto.getNombreSucursal());
+        if (dto.getDireccion() != null) existente.setDireccion(dto.getDireccion());
+        if (dto.getCiudad() != null) existente.setCiudad(dto.getCiudad());
+        if (dto.getCorreo() != null) existente.setCorreo(dto.getCorreo());
+        if (dto.getTelefono() != null) existente.setTelefono(dto.getTelefono());
+
+        sucursalRepository.save(existente);
+        return true;
     }
 
-    // ✅ 4. Actualizar sucursal existente
-    public boolean actualizarSucursal(Long id, Sucursal datosActualizados) {
-        Optional<Sucursal> sucursalExistente = sucursalRepository.findById(id);
-
-        if (sucursalExistente.isPresent()) {
-            Sucursal sucursal = sucursalExistente.get();
-
-            // Actualizar campos solo si vienen no nulos
-            if (datosActualizados.getNombreSucursal() != null)
-                sucursal.setNombreSucursal(datosActualizados.getNombreSucursal());
-            if (datosActualizados.getDireccion() != null)
-                sucursal.setDireccion(datosActualizados.getDireccion());
-            if (datosActualizados.getCiudad() != null)
-                sucursal.setCiudad(datosActualizados.getCiudad());
-            if (datosActualizados.getCorreo() != null)
-                sucursal.setCorreo(datosActualizados.getCorreo());
-            if (datosActualizados.getTelefono() != null)
-                sucursal.setTelefono(datosActualizados.getTelefono());
-            if (datosActualizados.getId_zona() != null)
-                sucursal.setId_zona(datosActualizados.getId_zona());
-
-            sucursalRepository.save(sucursal);
-            return true;
-        }
-        return false;
-    }
-
-    // ✅ 5. Eliminar sucursal
+    // ✅ Eliminar sucursal
     public boolean eliminarSucursal(Long id) {
-        Optional<Sucursal> sucursal = sucursalRepository.findById(id);
-        if (sucursal.isPresent()) {
+        if (sucursalRepository.existsById(id)) {
             sucursalRepository.deleteById(id);
             return true;
         }
         return false;
-    }
-
-    // ✅ 6. Buscar por nombre (opcional)
-    public List<Sucursal> buscarPorNombre(String nombre) {
-        return sucursalRepository.findByNombreSucursalContainingIgnoreCase(nombre);
-    }
-
-    // ✅ 7. Buscar por zona (ACTUALIZADO: ahora usa findByIdZona)
-    public List<Sucursal> buscarPorZona(Long idZona) {
-        return sucursalRepository.findByIdZona(idZona);
     }
 }
