@@ -98,10 +98,10 @@ const SucursalesZonasModule = {
         this.zonas.map(z => `<option value="${z.idZona}">${z.nombreZona}</option>`).join('');
 
       if (sucursal) {
-        this.sucursalEditando = sucursal.id_sucursal;
+        this.sucursalEditando = sucursal.idSucursal || sucursal.id_sucursal;
         document.getElementById('id_sucursal').value = sucursal.id_sucursal;
         document.getElementById('nombreSucursal').value = sucursal.nombreSucursal || '';
-        document.getElementById('id_zona_sucursal').value = sucursal.id_zona || '';
+        document.getElementById('id_zona_sucursal').value = sucursal.idZona || '';
         document.getElementById('ciudad').value = sucursal.ciudad || '';
         document.getElementById('direccion').value = sucursal.direccion || '';
         document.getElementById('telefono').value = sucursal.telefono || '';
@@ -167,7 +167,7 @@ const SucursalesZonasModule = {
               <h6 class="sucursal-title">${s.nombreSucursal || 'Sin nombre'}</h6>
               <span class="badge-zona">
                 <i class="fas fa-map-marked-alt"></i>
-                ${this.getNombreZona(s.id_zona)}
+                ${this.getNombreZona(s.idZona)}
               </span>
             </div>
             
@@ -201,12 +201,12 @@ const SucursalesZonasModule = {
         
         <div class="btn-actions">
           <button class="btn btn-sm btn-outline-primary" 
-                  onclick="SucursalesZonasModule.editarSucursal(${s.id_sucursal})" 
+                  onclick="SucursalesZonasModule.editarSucursal(${s.idSucursal})" 
                   title="Editar sucursal">
             <i class="fas fa-edit"></i>
           </button>
           <button class="btn btn-sm btn-outline-danger" 
-                  onclick="SucursalesZonasModule.eliminarSucursal(${s.id_sucursal})" 
+                  onclick="SucursalesZonasModule.eliminarSucursal(${s.idSucursal})" 
                   title="Eliminar sucursal">
             <i class="fas fa-trash"></i>
           </button>
@@ -229,7 +229,7 @@ const SucursalesZonasModule = {
 
     const data = {
       nombreSucursal: document.getElementById('nombreSucursal').value.trim(),
-      id_zona: parseInt(document.getElementById('id_zona_sucursal').value),
+      idZona: parseInt(document.getElementById('id_zona_sucursal').value),
       ciudad: document.getElementById('ciudad').value.trim(),
       direccion: document.getElementById('direccion').value.trim(),
       telefono: document.getElementById('telefono').value.trim(),
@@ -266,6 +266,7 @@ const SucursalesZonasModule = {
       if (!response.ok) throw new Error('Error al obtener sucursal');
       
       const sucursal = await response.json();
+	  this.sucursalEditando = id; 
       this.toggleFormSucursal(sucursal);
     } catch (error) {
       console.error('Error:', error);
@@ -415,7 +416,7 @@ const SucursalesZonasModule = {
 
   contarSucursalesPorZona(idZona) {
     const zona = this.zonas.find(z => z.idZona == idZona);
-    const sucursales = this.sucursales.filter(s => s.id_zona == idZona);
+    const sucursales = this.sucursales.filter(s => s.idZona == idZona);
     
     // Log temporal para debugging
     if (zona && zona.nombreZona.includes('Norte')) {
