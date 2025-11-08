@@ -22,5 +22,10 @@ public class UsuarioService {
     public Optional<Usuario> obtenerPorId(Long id) {
         return usuarioRepository.findById(id);
     }
+    
+    // ✅ Nuevo método para guardar o actualizar un usuario
+    public Usuario guardar(Usuario usuario) {
+        return usuarioRepository.save(usuario);
+    }
 }
 

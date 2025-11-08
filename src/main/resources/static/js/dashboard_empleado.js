@@ -1,7 +1,7 @@
 // ========================
 // ESTADO GLOBAL
 // ========================
-let empleadoData = null; // Se llenará desde la API
+let empleadoData = null;
 
 const solicitudes = {
   vacaciones: [],
@@ -82,12 +82,10 @@ function loadMisDatosSection(container) {
     <div class="info-item"><span class="info-label">📍 Dirección:</span> ${direccion || 'N/A'}</div>
     <div class="info-item"><span class="info-label">🎂 Fecha de nacimiento:</span> ${fecha_nacimiento || 'N/A'}</div>
 
-    <!-- Botón dentro de la card -->
     <div class="btn-edit-float" onclick="editarDatosPersonales()" data-tooltip="Editar datos personales">
       <i class="fas fa-pen"></i>
     </div>
   </div>
-
   `;
 }
 
@@ -116,23 +114,27 @@ function editarDatosPersonales() {
         
         <div class="form-group">
           <label>Correo Electrónico: *</label>
-          <input type="email" id="correo" value="${empleadoData.correo}" required>
+          <input type="email" id="correo" value="${empleadoData.correo || ''}" required>
         </div>
         
         <div class="form-group">
           <label>Teléfono: *</label>
-          <input type="tel" id="telefono" value="${empleadoData.telefono}" required>
+          <input type="tel" id="telefono" value="${empleadoData.telefono || ''}" required>
         </div>
         
         <div class="form-group">
           <label>Dirección: *</label>
-          <input type="text" id="direccion" value="${empleadoData.direccion}" required>
+          <input type="text" id="direccion" value="${empleadoData.direccion || ''}" required>
         </div>
         
-        <div class="form-group">
-          <label>Fecha de Nacimiento:</label>
-          <input type="text" value="${empleadoData.fecha_nacimiento || 'N/A'}" disabled>
-        </div>
+		<div class="form-group">
+		    <label>Fecha de Nacimiento:</label>
+		    <input 
+		        type="date" 
+		        id="fecha_nacimiento" 
+		        value="${empleadoData.fecha_nacimiento != null ? empleadoData.fecha_nacimiento : ''}">
+		</div>
+
         
         <p style="color: #666; font-size: 13px; margin: 20px 0;">
           <strong>Nota:</strong> Los campos deshabilitados solo pueden ser modificados por el departamento de Recursos Humanos.
@@ -146,21 +148,42 @@ function editarDatosPersonales() {
     </div>
   `;
   
-  document.getElementById('formEditarDatos').addEventListener('submit', function(e) {
+  document.getElementById('formEditarDatos').addEventListener('submit', async function(e) {
     e.preventDefault();
-    
-    // Actualizar datos locales
-    empleadoData.correo = document.getElementById('correo').value;
-    empleadoData.telefono = document.getElementById('telefono').value;
-    empleadoData.direccion = document.getElementById('direccion').value;
-    
-    // TODO: Enviar actualización al backend
-    // fetch('/api/empleado/actualizar', { method: 'PUT', body: JSON.stringify(datos) })
-    
-    showNotification('Datos actualizados correctamente', 'success');
-    loadSection('mis-datos');
+
+    const datos = {
+      correo: document.getElementById('correo').value,
+      telefono: document.getElementById('telefono').value,
+      direccion: document.getElementById('direccion').value,
+	  fecha_nacimiento: document.getElementById('fecha_nacimiento').value
+    };
+
+    try {
+      const res = await fetch('/api/empleado/actualizar', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(datos)
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Error al actualizar los datos');
+      }
+
+      const updatedUsuario = await res.json();
+      empleadoData = updatedUsuario;
+
+      showNotification('Datos actualizados correctamente', 'success');
+      loadSection('mis-datos');
+
+    } catch (err) {
+      console.error('Error:', err);
+      showNotification(err.message, 'error');
+    }
   });
-}
+} // ← FIX: Cerrar la función correctamente
 
 // ========================
 // SECCIÓN: VACACIONES
@@ -265,7 +288,7 @@ function mostrarFormularioVacaciones() {
   fechaInicioInput.addEventListener('change', calcularDias);
   fechaFinInput.addEventListener('change', calcularDias);
   
-  document.getElementById('formVacaciones').addEventListener('submit', function(e) {
+  document.getElementById('formVacaciones').addEventListener('submit', async function(e) {
     e.preventDefault();
     
     const inicio = document.getElementById('fechaInicio').value;
@@ -279,6 +302,24 @@ function mostrarFormularioVacaciones() {
       showNotification(`No tienes suficientes días disponibles. Solo tienes ${diasDisponibles} días.`, 'error');
       return;
     }
+    
+    // TODO: Integrar con API cuando esté disponible
+    /*
+    try {
+      const res = await fetch('/api/empleado/vacaciones', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inicio, fin, motivo, dias })
+      });
+      
+      if (!res.ok) throw new Error('Error al enviar solicitud');
+      const data = await res.json();
+      solicitudes.vacaciones.push(data);
+    } catch (err) {
+      showNotification(err.message, 'error');
+      return;
+    }
+    */
     
     solicitudes.vacaciones.push({
       fechaInicio: inicio,
@@ -404,7 +445,11 @@ function mostrarFormularioIncapacidad() {
     const dias = Math.ceil((new Date(fin) - new Date(inicio)) / (1000 * 60 * 60 * 24)) + 1;
     
     solicitudes.incapacidades.push({
-      tipo, fechaInicio: inicio, fechaFin: fin, dias, observaciones,
+      tipo, 
+      fechaInicio: inicio, 
+      fechaFin: fin, 
+      dias, 
+      observaciones,
       estado: 'pendiente',
       fecha: new Date().toLocaleDateString('es-CO')
     });
@@ -536,7 +581,7 @@ function mostrarFormularioCertificado() {
         
         <div class="form-group">
           <label>Correo de envío:</label>
-          <input type="email" id="correoEnvio" value="${empleadoData.correo}">
+          <input type="email" id="correoEnvio" value="${empleadoData.correo || ''}">
           <small style="color: #666; font-size: 12px;">El certificado se enviará a este correo</small>
         </div>
         
@@ -590,15 +635,12 @@ function actualizarPerfilUsuario() {
   const { nombre, apellido } = empleadoData;
   const iniciales = `${nombre.charAt(0)}${apellido.charAt(0)}`.toUpperCase();
   
-  // Avatar en el menú lateral
   const userAvatar = document.querySelector('.user-avatar');
   if (userAvatar) userAvatar.textContent = iniciales;
   
-  // Nombre completo
   const userName = document.querySelector('.user-name');
   if (userName) userName.textContent = `${nombre} ${apellido}`;
   
-  // Logo superior
   const logo = document.querySelector('.sidebar-header .logo');
   if (logo) logo.textContent = iniciales;
 }
@@ -649,7 +691,6 @@ async function cargarDatosEmpleado() {
     
     empleadoData = await response.json();
     
-    // Actualizar UI con los datos cargados
     actualizarPerfilUsuario();
     loadSection('mis-datos');
     
