@@ -103,54 +103,133 @@
     <div id="resultadoEmpleado" class="card card-custom p-4 mt-4" style="display: none;"></div>
   </div>
 
-  <!-- Sección Horarios -->
+  <!-- ================= SECCIÓN HORARIOS ================= -->
+  
+
+  <!-- ================= SECCIÓN HORARIOS MEJORADA ================= -->
   <div id="seccionHorarios" style="display: none;">
-    <h2 class="mb-4"><i class="fas fa-calendar-alt"></i>Asignar Horario</h2>
-    <div class="card card-custom p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2>
+        <i class="fas fa-calendar-alt text-primary"></i> 
+        Gestión de Horarios
+      </h2>
+      <button class="btn btn-outline-primary" onclick="cargarHorarios()">
+        <i class="fas fa-sync-alt me-2"></i>Actualizar Lista
+      </button>
+    </div>
+
+    <!-- ===== Card de Búsqueda y Asignación ===== -->
+    <div class="card card-custom p-4 mb-4 shadow-sm">
+      <h4 class="mb-3 text-primary">
+        <i class="fas fa-user-clock me-2"></i>Asignar Nuevo Horario
+      </h4>
+      <p class="text-muted mb-4">
+        Busque al empleado por su cédula para asignarle un horario de trabajo
+      </p>
+
       <form id="formBuscarHorario">
         <div class="row g-3">
-          <div class="col-md-6">
-            <label for="idHorarioEmpleado" class="form-label">ID del Empleado</label>
-            <input type="text" class="form-control" id="idHorarioEmpleado" placeholder="Ej: 1001" />
+          <div class="col-md-8">
+            <label for="idHorarioEmpleado" class="form-label">
+              <i class="fas fa-id-card me-1"></i>Cédula del Empleado *
+            </label>
+            <input 
+              type="number" 
+              class="form-control form-control-lg" 
+              id="idHorarioEmpleado" 
+              placeholder="Ej: 1001234567" 
+              required 
+            />
+            <small class="text-muted">Ingrese el número de cédula completo</small>
           </div>
-          <div class="col-md-6">
-            <label for="nombreHorarioEmpleado" class="form-label">Nombre del Empleado</label>
-            <input type="text" class="form-control" id="nombreHorarioEmpleado" placeholder="Ej: Fernanda" />
+
+          <div class="col-md-4 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary btn-lg w-100">
+              <i class="fas fa-search me-2"></i>Buscar Empleado
+            </button>
           </div>
         </div>
-        <button type="submit" class="btn btn-primary mt-3">
-          <i class="fas fa-search me-2"></i>Buscar
-        </button>
       </form>
     </div>
 
-    <div id="resultadoHorario" class="card card-custom p-4" style="display: none;">
-      <h4 class="mb-3"><i class="fas fa-clock text-primary me-2"></i>Horario de: <span class="text-primary">Fernanda Astrid</span></h4>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label for="fechaHorario" class="form-label">Fecha</label>
-          <input type="date" class="form-control" id="fechaHorario" />
-        </div>
-        <div class="col-md-3">
-          <label for="horaEntrada" class="form-label">Hora Entrada</label>
-          <input type="time" class="form-control" id="horaEntrada" />
-        </div>
-        <div class="col-md-3">
-          <label for="horaSalida" class="form-label">Hora Salida</label>
-          <input type="time" class="form-control" id="horaSalida" />
-        </div>
+    <!-- ===== Resultado de Búsqueda (Se llena dinámicamente) ===== -->
+    <div id="resultadoHorario" class="card card-custom p-4 mb-4 shadow-sm" style="display: none;">
+      <!-- El contenido se genera desde JavaScript -->
+    </div>
+
+    <!-- ===== Tabla de Horarios Registrados ===== -->
+    <div class="card card-custom p-4 shadow-sm">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="text-primary mb-0">
+          <i class="fas fa-list me-2"></i>Horarios Registrados
+        </h4>
+        <span class="badge bg-primary" id="contadorHorarios">0 horarios</span>
       </div>
-      <div class="mt-4">
-        <button class="btn btn-success me-2" onclick="asignarHorario()">
-          <i class="fas fa-check me-2"></i>Asignar Horario
-        </button>
-        <button class="btn btn-warning" onclick="editarHorario()">
-          <i class="fas fa-edit me-2"></i>Editar Horario
-        </button>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle" id="tablaHorarios">
+          <thead class="table-primary">
+            <tr>
+              <th style="width: 80px;">
+                <i class="fas fa-hashtag me-1"></i>ID
+              </th>
+              <th style="width: 200px;">
+                <i class="fas fa-user me-1"></i>Empleado
+              </th>
+              <th>
+                <i class="fas fa-info-circle me-1"></i>Descripción
+              </th>
+              <th style="width: 130px;">
+                <i class="fas fa-calendar-plus me-1"></i>Inicio
+              </th>
+              <th style="width: 130px;">
+                <i class="fas fa-calendar-minus me-1"></i>Fin
+              </th>
+              <th style="width: 100px;" class="text-center">
+                <i class="fas fa-cog me-1"></i>Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- El contenido se carga dinámicamente desde JavaScript -->
+            <tr>
+              <td colspan="6" class="text-center py-4 text-muted">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="mt-2 mb-0">Cargando horarios...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mensaje si no hay horarios -->
+      <div id="mensajeVacio" class="text-center py-5" style="display: none;">
+        <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+        <h5 class="text-muted">No hay horarios registrados</h5>
+        <p class="text-muted">Asigne el primer horario usando el formulario superior</p>
+      </div>
+    </div>
+
+    <!-- ===== Leyenda de Estados ===== -->
+    <div class="card card-custom p-3 mt-3 bg-light">
+      <small class="text-muted mb-2">
+        <i class="fas fa-info-circle me-1"></i><strong>Estados de horarios:</strong>
+      </small>
+      <div class="d-flex gap-3 flex-wrap">
+        <small>
+          <span class="badge bg-info">Próximo</span> Aún no ha iniciado
+        </small>
+        <small>
+          <span class="badge bg-success">Activo</span> Vigente actualmente
+        </small>
+        <small>
+          <span class="badge bg-secondary">Finalizado</span> Ya terminó
+        </small>
       </div>
     </div>
   </div>
-
   <!-- Sección Incapacidades -->
   <div id="seccionIncapacidades" style="display: none;">
     <h2 class="mb-4"><i class="fas fa-file-medical"></i>Gestión de Incapacidades</h2>
