@@ -458,47 +458,469 @@ function mostrarFormularioIncapacidad() {
     loadSection('incapacidades');
   });
 }
-
 // ========================
 // SECCIÓN: PROGRAMACIÓN
 // ========================
-function loadProgramacionSection(container) {
-  const hoy = new Date().toLocaleDateString('es-CO', { 
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
-  });
-  
+async function loadProgramacionSection(container) {
+  if (!empleadoData) {
+    container.innerHTML = `
+      <div class="card">
+        <h2 style="margin-top: 20px;">📅 Programación</h2>
+        <p style="padding: 20px; color: #999;">Cargando información del empleado...</p>
+      </div>
+    `;
+    return;
+  }
+
+  const idEmpleado = empleadoData.idusuarios;
+
+  // Mostrar loading
   container.innerHTML = `
-    <div class="card">
+    <div class="card fade-in">
+      <h2 style="margin-top: 20px;">Programación</h2>
+      <div style="text-align: center; padding: 40px;">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p style="color: #999; margin-top: 10px;">Cargando tu programación...</p>
+      </div>
+    </div>
+  `;
+
+  try {
+    console.log('🔍 Cargando programación para empleado:', idEmpleado);
+
+    // ✅ Obtener horario de hoy
+    const responseHoy = await fetch(`http://localhost:9090/api/programacion/empleado/${idEmpleado}/hoy`);
+    console.log('Status horario hoy:', responseHoy.status);
+    
+    let horarioHoy = null;
+    if (responseHoy.ok) {
+      const text = await responseHoy.text();
+      console.log('Respuesta hoy (raw):', text);
+      horarioHoy = text ? JSON.parse(text) : null;
+    }
+    
+    // ✅ Obtener próximos turnos
+    const responseProximos = await fetch(`http://localhost:9090/api/programacion/empleado/${idEmpleado}/proximos`);
+    console.log('Status próximos turnos:', responseProximos.status);
+    
+    let proximosTurnos = [];
+    if (responseProximos.ok) {
+      const text = await responseProximos.text();
+      console.log('Respuesta próximos (raw):', text);
+      proximosTurnos = text ? JSON.parse(text) : [];
+    }
+
+    console.log('✅ Datos cargados:', { horarioHoy, proximosTurnos });
+    mostrarProgramacion(container, horarioHoy, proximosTurnos);
+
+  } catch (error) {
+    console.error('❌ Error al cargar programación:', error);
+    container.innerHTML = `
+      <div class="card fade-in">
+        <h2 style="margin-top: 20px;">📅 Programación</h2>
+        <div class="alert alert-danger" style="margin: 20px;">
+          <i class="fas fa-exclamation-triangle"></i>
+          Error al cargar la programación: ${error.message}
+        </div>
+        <button class="btn-primary" onclick="location.reload()">
+          Reintentar
+        </button>
+      </div>
+    `;
+  }
+}
+
+function mostrarProgramacion(container, horarioHoy, proximosTurnos) {
+  const hoy = new Date().toLocaleDateString('es-CO', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
+  const sucursal = empleadoData.sucursal?.nombreSucursal || "No asignada";
+
+  // ✅ Construir HTML del horario de hoy
+  let horarioHoyHTML = '';
+  if (horarioHoy && horarioHoy.horaEntrada) {
+    const horaEntrada = horarioHoy.horaEntrada.substring(0, 5);
+    const horaSalida = horarioHoy.horaSalida.substring(0, 5);
+    const horas = calcularHoras(horarioHoy.horaEntrada, horarioHoy.horaSalida);
+    
+    horarioHoyHTML = `
+      <div class="info-box">
+        <h4>✅ Horario de hoy</h4>
+        <div class="info-item" style="border:none;">
+          <span class="info-label">📅 Fecha:</span> ${hoy}
+        </div>
+        <div class="info-item" style="border:none;">
+          <span class="info-label">⏰ Turno:</span> ${horaEntrada} - ${horaSalida}
+        </div>
+        <div class="info-item" style="border:none;">
+          <span class="info-label">📍 Ubicación:</span> ${sucursal}
+        </div>
+        <div class="info-item" style="border:none;">
+          <span class="info-label">⏱️ Horas:</span> ${horas} horas
+        </div>
+        ${horarioHoy.descripcion ? `
+        <div class="info-item" style="border:none;">
+          <span class="info-label">📝 Descripción:</span> ${horarioHoy.descripcion}
+        </div>
+        ` : ''}
+      </div>
+    `;
+  } else {
+    horarioHoyHTML = `
+      <div class="info-box">
+        <h4>📅 Horario de hoy</h4>
+        <div class="alert alert-info" style="margin: 10px 0; padding: 15px; background: #e3f2fd; border-left: 4px solid #2196F3;">
+          <i class="fas fa-info-circle"></i>
+          No tienes horario asignado para hoy. Contacta con tu supervisor.
+        </div>
+      </div>
+    `;
+  }
+
+  // ✅ Construir HTML de próximos turnos
+  let proximosTurnosHTML = '';
+  if (proximosTurnos && proximosTurnos.length > 0) {
+    proximosTurnosHTML = `
+      <div class="info-box">
+        <h4>📆 Próximos turnos (3 días)</h4>
+        <div style="max-height: 300px; overflow-y: auto;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead style="position: sticky; top: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+              <tr style="border-bottom: 2px solid #ddd;">
+                <th style="padding: 10px; text-align: left;">Fecha</th>
+                <th style="padding: 10px; text-align: left;">Entrada</th>
+                <th style="padding: 10px; text-align: left;">Salida</th>
+                <th style="padding: 10px; text-align: left;">Horas</th>
+              </tr>
+            </thead>
+            <tbody>
+    `;
+
+    proximosTurnos.forEach(turno => {
+      const fecha = new Date(turno.fecha + 'T00:00:00').toLocaleDateString('es-CO', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric'
+      });
+      const entrada = turno.horaEntrada.substring(0, 5);
+      const salida = turno.horaSalida.substring(0, 5);
+      const horas = calcularHoras(turno.horaEntrada, turno.horaSalida);
+
+      proximosTurnosHTML += `
+        <tr style="border-bottom: 1px solid #eee;">
+          <td style="padding: 10px;">${fecha}</td>
+          <td style="padding: 10px;"><span style="background: #4caf50; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">${entrada}</span></td>
+          <td style="padding: 10px;"><span style="background: #f44336; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">${salida}</span></td>
+          <td style="padding: 10px;"><strong>${horas}h</strong></td>
+        </tr>
+      `;
+    });
+
+    proximosTurnosHTML += `
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  } else {
+    proximosTurnosHTML = `
+      <div class="info-box">
+        <h4>📆 Próximos turnos</h4>
+        <div class="alert alert-info" style="margin: 10px 0; padding: 15px; background: #e3f2fd; border-left: 4px solid #2196F3;">
+          <i class="fas fa-info-circle"></i>
+          No tienes turnos programados para los próximos 3 días
+        </div>
+      </div>
+    `;
+  }
+
+  // ✅ Renderizar todo
+  container.innerHTML = `
+    <div class="card fade-in">
       <h2 style="margin-top: 20px;">📅 Programación</h2>
       <div style="margin-top: 30px;">
-        <div class="info-box">
-          <h4>Horario de hoy</h4>
-          <div class="info-item" style="border: none;">
-            <span class="info-label">📅 Fecha:</span> ${hoy}
-          </div>
-          <div class="info-item" style="border: none;">
-            <span class="info-label">⏰ Turno:</span> 8:00 AM - 5:00 PM
-          </div>
-          <div class="info-item" style="border: none;">
-            <span class="info-label">📍 Ubicación:</span> ${empleadoData.sucursal?.nombreSucursal || 'N/A'}
-          </div>
-          <div class="info-item" style="border: none;">
-            <span class="info-label">⏱️ Horas:</span> 8 horas
-          </div>
-        </div>
-        
-        <div class="info-box">
-          <h4>Próximos turnos</h4>
-          <p style="color: #999; margin: 0;">Consulta disponible próximamente</p>
-        </div>
-        
-        <button class="btn-primary" onclick="showNotification('Función de calendario en desarrollo', 'info')">
-          📆 Ver Calendario Completo
+        ${horarioHoyHTML}
+        ${proximosTurnosHTML}
+        <button class="btn-primary" onclick="mostrarCalendarioCompleto()">
+          📆 Ver Calendario Completo del Mes
         </button>
       </div>
     </div>
   `;
 }
+
+// ✅ Función auxiliar para calcular horas trabajadas
+function calcularHoras(horaEntrada, horaSalida) {
+  try {
+    const [h1, m1] = horaEntrada.split(':').map(Number);
+    const [h2, m2] = horaSalida.split(':').map(Number);
+    
+    const minutos1 = h1 * 60 + m1;
+    const minutos2 = h2 * 60 + m2;
+    
+    const diff = minutos2 - minutos1;
+    const horas = Math.floor(diff / 60);
+    const minutos = diff % 60;
+    
+    return minutos > 0 ? `${horas}:${minutos.toString().padStart(2, '0')}` : horas;
+  } catch (error) {
+    console.error('Error calculando horas:', error);
+    return '0';
+  }
+}
+
+// ========================
+// BOTÓN: VER CALENDARIO COMPLETO
+// ========================
+async function mostrarCalendarioCompleto() {
+  if (!empleadoData) {
+    showNotification("Error: Datos de empleado no disponibles", "error");
+    return;
+  }
+
+  const idEmpleado = empleadoData.idusuarios;
+  const mesActual = new Date().getMonth() + 1;
+  const anioActual = new Date().getFullYear();
+
+  // Mostrar modal con loading
+  const loadingModal = `
+    <div id="modalCalendario" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+      <div style="background: white; padding: 30px; border-radius: 15px; text-align: center;">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p style="margin-top: 10px; color: #999;">Cargando calendario...</p>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', loadingModal);
+
+  try {
+    const response = await fetch(
+      `http://localhost:9090/api/programacion/empleado/${idEmpleado}/mes?year=${anioActual}&month=${mesActual}`
+    );
+
+    if (!response.ok) {
+      throw new Error('Error al cargar el calendario');
+    }
+
+    const text = await response.text();
+    const programaciones = text ? JSON.parse(text) : [];
+
+    // Remover loading modal
+    document.getElementById('modalCalendario').remove();
+
+    // Mostrar calendario
+    mostrarModalCalendario(programaciones, mesActual, anioActual);
+
+  } catch (error) {
+    console.error('Error al cargar calendario:', error);
+    document.getElementById('modalCalendario').remove();
+    showNotification("Error al cargar el calendario: " + error.message, "error");
+  }
+}
+
+function mostrarModalCalendario(programaciones, mes, anio) {
+  const nombreMes = new Date(anio, mes - 1).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+  
+  // Generar calendario del mes
+  const primerDia = new Date(anio, mes - 1, 1);
+  const ultimoDia = new Date(anio, mes, 0);
+  const diasEnMes = ultimoDia.getDate();
+  const primerDiaSemana = primerDia.getDay(); // 0 = Domingo, 1 = Lunes, etc.
+  
+  // Crear un mapa de programaciones por fecha
+  const programacionesPorFecha = {};
+  programaciones.forEach(prog => {
+    const fecha = prog.fecha; // formato YYYY-MM-DD
+    programacionesPorFecha[fecha] = prog;
+  });
+  
+  let calendarioHTML = `
+    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px;" onclick="this.remove()">
+      <div style="background: white; padding: 30px; border-radius: 20px; max-width: 1200px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);" onclick="event.stopPropagation()">
+        
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+          <h2 style="margin: 0; text-transform: capitalize; color: #333;">
+            📅 ${nombreMes}
+          </h2>
+          <button onclick="this.closest('div[style*=fixed]').remove()" style="background: none; border: none; font-size: 28px; cursor: pointer; color: #999; padding: 0; width: 40px; height: 40px; border-radius: 50%; transition: all 0.3s;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='none'">
+            ×
+          </button>
+        </div>
+
+        <!-- Calendario Grid -->
+        <div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; margin-top: 20px;">
+          
+          <!-- Encabezado de semanas -->
+          <div style="background: linear-gradient(135deg, #00d4aa 0%, #00b894 100%); color: white; padding: 15px; text-align: center; border-radius: 10px; font-weight: bold;">
+            N° Semana
+          </div>
+          
+          <!-- Días de la semana -->
+          <div style="background: #f0f0f0; padding: 15px; text-align: center; border-radius: 10px; font-weight: bold;">Lunes</div>
+          <div style="background: #f0f0f0; padding: 15px; text-align: center; border-radius: 10px; font-weight: bold;">Martes</div>
+          <div style="background: #f0f0f0; padding: 15px; text-align: center; border-radius: 10px; font-weight: bold;">Miércoles</div>
+          <div style="background: #f0f0f0; padding: 15px; text-align: center; border-radius: 10px; font-weight: bold;">Jueves</div>
+          <div style="background: #f0f0f0; padding: 15px; text-align: center; border-radius: 10px; font-weight: bold;">Viernes</div>
+          <div style="background: #f0f0f0; padding: 15px; text-align: center; border-radius: 10px; font-weight: bold;">Sábado</div>
+          <div style="background: #f0f0f0; padding: 15px; text-align: center; border-radius: 10px; font-weight: bold;">Domingo</div>
+  `;
+
+  // Calcular el número de semana del año
+  function getWeekNumber(date) {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+    return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+  }
+
+  let diaActual = 1;
+  let semanaActual = getWeekNumber(primerDia);
+  
+  // Ajustar primerDiaSemana: convertir Domingo=0 a Domingo=7
+  const primerDiaAjustado = primerDiaSemana === 0 ? 7 : primerDiaSemana;
+
+  // Generar filas del calendario
+  for (let semana = 0; semana < 6; semana++) {
+    if (diaActual > diasEnMes) break;
+
+    // Columna de número de semana
+    calendarioHTML += `
+      <div style="background: linear-gradient(135deg, #00d4aa 0%, #00b894 100%); color: white; padding: 15px; text-align: center; border-radius: 10px; font-weight: bold; font-size: 24px;">
+        ${semanaActual}
+      </div>
+    `;
+    semanaActual++;
+
+    // Días de la semana (Lunes a Domingo)
+    for (let dia = 1; dia <= 7; dia++) {
+      // Primera semana: llenar espacios vacíos antes del primer día
+      if (semana === 0 && dia < primerDiaAjustado) {
+        calendarioHTML += `<div style="background: #fafafa; border-radius: 10px;"></div>`;
+        continue;
+      }
+
+      // Si ya terminamos el mes, celdas vacías
+      if (diaActual > diasEnMes) {
+        calendarioHTML += `<div style="background: #fafafa; border-radius: 10px;"></div>`;
+        continue;
+      }
+
+      // Crear fecha en formato YYYY-MM-DD
+      const fechaStr = `${anio}-${String(mes).padStart(2, '0')}-${String(diaActual).padStart(2, '0')}`;
+      const programacion = programacionesPorFecha[fechaStr];
+      
+      // Determinar color de fondo
+      let bgColor = '#ffffff';
+      let borderColor = '#e0e0e0';
+      
+      if (programacion) {
+        // Hay programación para este día
+        if (programacion.esDescanso) {
+          bgColor = '#fff3e0'; // Naranja claro
+          borderColor = '#ff9800';
+        } else if (programacion.esDominical) {
+          bgColor = '#e3f2fd'; // Azul claro
+          borderColor = '#2196F3';
+        } else {
+          bgColor = '#e8f5e9'; // Verde claro
+          borderColor = '#4caf50';
+        }
+      }
+
+      // Contenido de la celda
+      let contenidoCelda = `
+        <div style="background: ${bgColor}; border: 2px solid ${borderColor}; padding: 12px; border-radius: 10px; min-height: 100px; position: relative; transition: all 0.3s; cursor: pointer;" 
+             onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';" 
+             onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
+          
+          <div style="font-size: 20px; font-weight: bold; margin-bottom: 8px; color: #333;">
+            ${diaActual}
+          </div>
+      `;
+
+      if (programacion) {
+        const horaEntrada = programacion.horaEntrada.substring(0, 5);
+        const horaSalida = programacion.horaSalida.substring(0, 5);
+        const tipoTurno = programacion.esDescanso ? 'Descanso' : 
+                         programacion.esDominical ? 'Dominical' : 'Turno Normal';
+        
+        contenidoCelda += `
+          <div style="background: ${borderColor}; color: white; padding: 6px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; text-align: center; margin-bottom: 4px;">
+            ${tipoTurno}
+          </div>
+          <div style="font-size: 12px; color: #555; margin-top: 5px;">
+            <div style="margin: 2px 0;">⏰ ${horaEntrada} - ${horaSalida}</div>
+          </div>
+        `;
+        
+        if (programacion.descripcion) {
+          contenidoCelda += `
+            <div style="font-size: 10px; color: #777; margin-top: 5px; font-style: italic;">
+              ${programacion.descripcion.substring(0, 30)}${programacion.descripcion.length > 30 ? '...' : ''}
+            </div>
+          `;
+        }
+      } else {
+        contenidoCelda += `
+          <div style="color: #bbb; font-size: 12px; margin-top: 10px;">
+            Sin programación
+          </div>
+        `;
+      }
+
+      contenidoCelda += `</div>`;
+      calendarioHTML += contenidoCelda;
+
+      diaActual++;
+    }
+  }
+
+  calendarioHTML += `
+        </div>
+
+        <!-- Leyenda -->
+        <div style="margin-top: 25px; padding: 20px; background: #f9f9f9; border-radius: 10px;">
+          <h4 style="margin: 0 0 15px 0;">📋 Leyenda</h4>
+          <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="width: 24px; height: 24px; background: #e8f5e9; border: 2px solid #4caf50; border-radius: 4px;"></div>
+              <span>Turno Normal</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="width: 24px; height: 24px; background: #e3f2fd; border: 2px solid #2196F3; border-radius: 4px;"></div>
+              <span>Dominical</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="width: 24px; height: 24px; background: #fff3e0; border: 2px solid #ff9800; border-radius: 4px;"></div>
+              <span>Descanso</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="width: 24px; height: 24px; background: white; border: 2px solid #e0e0e0; border-radius: 4px;"></div>
+              <span>Sin programación</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botón cerrar -->
+        <button class="btn-primary" style="margin-top: 20px; width: 100%;" onclick="this.closest('div[style*=fixed]').remove()">
+          Cerrar Calendario
+        </button>
+
+      </div>
+    </div>
+  `;
+
+  document.body.insertAdjacentHTML('beforeend', calendarioHTML);
+}
+
 
 // ========================
 // SECCIÓN: CERTIFICADOS

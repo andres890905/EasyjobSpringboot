@@ -28,11 +28,14 @@
 
     <!-- CSS personalizado -->
     <link rel="stylesheet" th:href="@{/css/dashboard_admin.css}">
+	<link rel="stylesheet" th:href="@{/css/home.css}">
+	<link rel="stylesheet" th:href="@{/css/sucursales.css}">
+	<link rel="stylesheet" th:href="@{/css/reportes.css}">
 </head>
 <body>
 
 <!-- ==================== SIDEBAR ==================== -->
-<nav class="sidebar" role="navigation" aria-label="Menú principal">
+<nav id="sidebar" class="sidebar" role="navigation" aria-label="Menú principal">
   <a class="navbar-brand" href="#home" aria-label="Ir al inicio">
     <img th:src="@{/imagenes/Logof.jpeg}" src="imagenes/Logof.jpeg" alt="Logo EasyJob">
   </a>
@@ -78,64 +81,11 @@
 </nav>
 
 <!-- ==================== CONTENIDO PRINCIPAL ==================== -->
-<main class="main-content">
+<main id="main-content" class="main-content">
 
   <!-- ========== SECCIÓN HOME ========== -->
   <section id="home-section" class="content-section active">
-    <div class="welcome-banner animate__animated animate__fadeIn">
-      <h1>¡Bienvenido al Panel del Administrador!</h1>
-      <p>Desde aquí puedes gestionar todos los aspectos de tu empresa de manera sencilla y eficiente.</p>
-    </div>
-
-    <div class="features-grid">
-      <!-- Tarjeta 1: Roles y permisos -->
-      <div class="feature-card animate__animated animate__fadeInUp" 
-           style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); animation-delay: 0s;">
-        <i class="bi bi-person-badge" aria-hidden="true"></i>
-        <h3>Roles y Permisos</h3>
-        <p>Asigna roles a los empleados y define sus permisos dentro del sistema.</p>
-      </div>
-
-      <!-- Tarjeta 2: Incapacidades -->
-      <div class="feature-card animate__animated animate__fadeInUp" 
-           style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); animation-delay: 0.1s;">
-        <i class="fas fa-file-medical" aria-hidden="true"></i>
-        <h3>Incapacidades</h3>
-        <p>Revisa y aprueba incapacidades o permisos especiales de los trabajadores.</p>
-      </div>
-
-      <!-- Tarjeta 3: Sucursales -->
-      <div class="feature-card animate__animated animate__fadeInUp" 
-           style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); animation-delay: 0.2s;">
-        <i class="fas fa-building" aria-hidden="true"></i>
-        <h3>Sucursales</h3>
-        <p>Crea y administra sucursales, asigna horarios y organiza el personal.</p>
-      </div>
-
-      <!-- Tarjeta 4: Reportes -->
-      <div class="feature-card animate__animated animate__fadeInUp" 
-           style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); animation-delay: 0.3s;">
-        <i class="fas fa-chart-line" aria-hidden="true"></i>
-        <h3>Reportes</h3>
-        <p>Consulta reportes de asistencia, desempeño y productividad de cada área.</p>
-      </div>
-
-      <!-- Tarjeta 5: Configuración -->
-      <div class="feature-card animate__animated animate__fadeInUp" 
-           style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); animation-delay: 0.4s;">
-        <i class="fas fa-cogs" aria-hidden="true"></i>
-        <h3>Configuración</h3>
-        <p>Configura parámetros del sistema para mantener todo actualizado y seguro.</p>
-      </div>
-
-      <!-- Tarjeta 6: Optimización -->
-      <div class="feature-card animate__animated animate__fadeInUp" 
-           style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); animation-delay: 0.5s;">
-        <i class="fas fa-bolt" aria-hidden="true"></i>
-        <h3>Optimización</h3>
-        <p>Optimiza la gestión de recursos humanos con un flujo de trabajo ordenado y eficiente.</p>
-      </div>
-    </div>
+	<div th:replace="~{fragments/home :: home-fragment}"></div>
   </section>
 
   <!-- ========== SECCIÓN EMPLEADOS ========== -->
@@ -145,40 +95,61 @@
       <p>Administra supervisores y empleados de todas las sucursales, controla su estado y realiza cambios fácilmente.</p>
     </div>
 
-    <!-- Filtros y botón nuevo empleado -->
-    <div class="filters-container">
-      <div class="filters">
-        <!-- Filtro Sucursal -->
-        <div class="filter-group">
-          <label for="sucursal">Sucursal:</label>
-          <select id="sucursal" name="sucursal" aria-label="Filtrar por sucursal">
-            <option value="todas">Todas las sucursales</option>
-            <option th:each="sucursal : ${sucursales}" 
-                    th:value="${sucursal.id_sucursal}" 
-                    th:text="${sucursal.nombreSucursal}">
-            </option>
-          </select>
-        </div>
+	<!-- Contenedor de Filtros y Acciones -->
+	<div class="filters-container">
+	  <div class="filters">
+	    <!-- Filtro Sucursal -->
+	    <div class="filter-group">
+	      <label for="sucursal">
+	        <i class="fas fa-building"></i> Sucursal:
+	      </label>
+	      <select id="sucursal" name="sucursal" aria-label="Filtrar por sucursal">
+	        <option value="todas">Todas las sucursales</option>
+	        <option th:each="sucursal : ${sucursales}"
+	                th:value="${sucursal.id_sucursal}"
+	                th:text="${sucursal.nombreSucursal}">
+	        </option>
+	      </select>
+	    </div>
 
-        <!-- Filtro Rol -->
-        <div class="filter-group">
-          <label for="rol">Rol:</label>
-          <select id="rol" name="rol" aria-label="Filtrar por rol">
-            <option value="todos">Todos los roles</option>
-            <option th:each="rol : ${roles}" 
-                    th:value="${rol.id_roles}" 
-                    th:text="${rol.tipo_rol}">
-            </option>
-          </select>
-        </div>
-      </div>
+	    <!-- Filtro Rol -->
+	    <div class="filter-group">
+	      <label for="rol">
+	        <i class="fas fa-user-tag"></i> Rol:
+	      </label>
+	      <select id="rol" name="rol" aria-label="Filtrar por rol">
+	        <option value="todos">Todos los roles</option>
+	        <option th:each="rol : ${roles}"
+	                th:value="${rol.id_roles}"
+	                th:text="${rol.tipo_rol}">
+	        </option>
+	      </select>
+	    </div>
 
-      <!-- Botón nuevo empleado -->
-      <button id="btn-nuevo-empleado" class="btn-primary" type="button" aria-label="Agregar nuevo empleado">
-        <i class="fas fa-user-plus" aria-hidden="true"></i> 
-        <span>Nuevo Empleado</span>
-      </button>
-    </div>
+	    <!-- ✅ NUEVO: Campo de Búsqueda -->
+	    <div class="filter-group" style="flex: 1; min-width: 250px;">
+	      <label for="busqueda-empleado">
+	        <i class="fas fa-search"></i> Buscar:
+	      </label>
+	      <input 
+	        type="text" 
+	        id="busqueda-empleado" 
+	        name="busqueda"
+	        class="form-control"
+	        placeholder="Cédula, nombre o correo..."
+	        aria-label="Buscar empleado por cédula, nombre o correo"
+	      >
+	    </div>
+	  </div>
+
+	  <!-- Botón nuevo empleado -->
+	  <button id="btn-nuevo-empleado" class="btn-primary" type="button" aria-label="Agregar nuevo empleado">
+	    <i class="fas fa-user-plus" aria-hidden="true"></i>
+	    <span>Nuevo Empleado</span>
+	  </button>
+	</div>
+
+	
 
     <!-- Lista de empleados -->
     <div id="empleados-list" class="empleados-list" role="region" aria-live="polite" aria-label="Lista de empleados">
@@ -194,13 +165,9 @@
 
   <!-- ========== SECCIÓN REPORTES ========== -->
   <section id="reportes-section" class="content-section">
-    <div class="section-header">
-      <h1>Reportes y Estadísticas</h1>
-      <p>Consulta métricas y análisis de desempeño.</p>
-    </div>
-    <div class="alert alert-info" role="alert">
-      <i class="fas fa-info-circle"></i> Sección en construcción...
-    </div>
+	<!-- SECCIÓN DE REPORTES -->
+	<div th:replace="~{fragments/reportes :: reportes-fragment}"></div>
+
   </section>
 
   <!-- ========== SECCIÓN CONFIGURACIÓN ========== -->
@@ -394,9 +361,12 @@
 <!-- Bootstrap Bundle (incluye Popper) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
+		<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <!-- JavaScript personalizado -->
 <script th:src="@{/js/dashboard_admin.js}" ></script>
+<script th:src="@{/js/modules/home.js}" ></script>
 <script th:src="@{/js/modules/sucursales.js}"></script>
+<script th:src="@{/js/modules/reportes.js}"></script>
+
 </body>
 </html>

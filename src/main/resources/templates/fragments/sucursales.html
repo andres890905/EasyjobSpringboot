@@ -2,11 +2,11 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-	<link rel="stylesheet" th:href="@{/css/sucursales.css}">
+    <link rel="stylesheet" th:href="@{/css/sucursales.css}">
 </head>
 <body>
 
-<!-- ================= FRAGMENTO: SUCURSALES Y ZONAS ================= -->
+<!-- ================= FRAGMENTO: SUCURSALES Y ZONAS CON TABS ================= -->
 <div th:fragment="sucursales-fragment">
   
   <div class="container-fluid mt-4" id="sucursales-section">
@@ -17,180 +17,243 @@
         <h2 class="fw-bold text-dark">
           Gestión de Sucursales y Zonas
         </h2>
-        <p class="text-muted" >Administra las sucursales y zonas de la empresa</p>
+        <p class="text-muted">Administra las sucursales y zonas de la empresa</p>
       </div>
     </div>
 
-    <!-- Dos Tarjetas Principales -->
-    <div class="row g-4">
+    <!-- Tarjetas de Estadísticas -->
+    <div class="row mb-4">
+      <div class="col-md-3 col-sm-6 mb-3">
+        <div class="stats-card stats-sucursales">
+          <div class="stats-icon">
+            <i class="fas fa-building"></i>
+          </div>
+          <div class="stats-content">
+            <h3 id="total-sucursales">0</h3>
+            <p>Total Sucursales</p>
+          </div>
+        </div>
+      </div>
       
-      <!-- ========== TARJETA 1: SUCURSALES ========== -->
-      <div class="col-lg-6">
-        <div class="card shadow-sm border-0 h-100">
-          <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">
-              <i class="fas fa-building me-2"></i>
-              Sucursales
-            </h5>
-            <button class="btn btn-light btn-sm" id="btn-toggle-form-sucursal">
-              <i class="fas fa-plus"></i> <span id="text-btn-sucursal">Nueva</span>
-            </button>
+      <div class="col-md-3 col-sm-6 mb-3">
+        <div class="stats-card stats-zonas">
+          <div class="stats-icon">
+            <i class="fas fa-map-marked-alt"></i>
           </div>
-          <div class="card-body p-0">
-            
-            <!-- Formulario de Sucursal (Colapsable) -->
-            <div id="form-sucursal-container" class="p-3 bg-light border-bottom" style="display: none;">
-              <form id="formSucursal">
-                <input type="hidden" id="id_sucursal">
-                
-                <div class="row g-2">
-                  <div class="col-md-12 mb-2">
-                    <label class="form-label small mb-1">
-                      <i class="fas fa-building text-primary"></i>
-                      Nombre *
-                    </label>
-                    <input type="text" class="form-control form-control-sm" id="nombreSucursal" required 
-                           placeholder="Ej: Sucursal Norte">
-                  </div>
-
-                  <div class="col-md-6 mb-2">
-                    <label class="form-label small mb-1">
-                      <i class="fas fa-map-marker-alt text-primary"></i>
-                      Zona *
-                    </label>
-                    <select class="form-select form-select-sm" id="id_zona_sucursal" required>
-                      <option value="">Seleccione...</option>
-                    </select>
-                  </div>
-
-                  <div class="col-md-6 mb-2">
-                    <label class="form-label small mb-1">
-                      <i class="fas fa-city text-primary"></i>
-                      Ciudad *
-                    </label>
-                    <input type="text" class="form-control form-control-sm" id="ciudad" required
-                           placeholder="Ej: Bogotá">
-                  </div>
-
-                  <div class="col-md-12 mb-2">
-                    <label class="form-label small mb-1">
-                      <i class="fas fa-map-marker-alt text-primary"></i>
-                      Dirección *
-                    </label>
-                    <input type="text" class="form-control form-control-sm" id="direccion" required
-                           placeholder="Ej: Calle 123 #45-67">
-                  </div>
-
-                  <div class="col-md-6 mb-2">
-                    <label class="form-label small mb-1">
-                      <i class="fas fa-phone text-primary"></i>
-                      Teléfono
-                    </label>
-                    <input type="tel" class="form-control form-control-sm" id="telefono"
-                           placeholder="3001234567">
-                  </div>
-
-                  <div class="col-md-6 mb-2">
-                    <label class="form-label small mb-1">
-                      <i class="fas fa-envelope text-primary"></i>
-                      Correo
-                    </label>
-                    <input type="email" class="form-control form-control-sm" id="correo"
-                           placeholder="sucursal@empresa.com">
-                  </div>
-                </div>
-
-                <div class="d-flex gap-2 mt-3">
-                  <button type="button" class="btn btn-sm btn-primary flex-fill" id="btn-guardar-sucursal">
-                    <i class="fas fa-save"></i> Guardar
-                  </button>
-                  <button type="button" class="btn btn-sm btn-secondary" id="btn-cancelar-sucursal">
-                    <i class="fas fa-times"></i> Cancelar
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            <!-- Lista de Sucursales -->
-            <div class="p-3" style="max-height: 500px; overflow-y: auto;" id="lista-sucursales">
-              <div class="text-center py-4">
-                <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
-                <p class="text-muted mt-2 small">Cargando sucursales...</p>
-              </div>
-            </div>
+          <div class="stats-content">
+            <h3 id="total-zonas">0</h3>
+            <p>Total Zonas</p>
           </div>
         </div>
       </div>
-
-      <!-- ========== TARJETA 2: ZONAS ========== -->
-      <div class="col-lg-6">
-        <div class="card shadow-sm border-0 h-100">
-          <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">
-              <i class="fas fa-map-marked-alt me-2"></i>
-              Zonas
-            </h5>
-            <button class="btn btn-light btn-sm" id="btn-toggle-form-zona">
-              <i class="fas fa-plus"></i> <span id="text-btn-zona">Nueva</span>
-            </button>
+      
+      <div class="col-md-3 col-sm-6 mb-3">
+        <div class="stats-card stats-empleados">
+          <div class="stats-icon">
+            <i class="fas fa-users"></i>
           </div>
-          <div class="card-body p-0">
-            
-            <!-- Formulario de Zona (Colapsable) -->
-            <div id="form-zona-container" class="p-3 bg-light border-bottom" style="display: none;">
-              <form id="formZona">
-                <input type="hidden" id="id_zona">
-
-                <div class="mb-2">
-                  <label class="form-label small mb-1">
-                    <i class="fas fa-map-marked-alt text-success"></i>
-                    Nombre de la Zona *
-                  </label>
-                  <input type="text" class="form-control form-control-sm" id="nombreZona" required
-                         placeholder="Ej: Zona Norte">
-                </div>
-
-                <div class="mb-2">
-                  <label class="form-label small mb-1">
-                    <i class="fas fa-user-tie text-success"></i>
-                    Supervisor *
-                  </label>
-                  <select class="form-select form-select-sm" id="supervisor_zona" required>
-                    <option value="">Seleccione un supervisor...</option>
-                  </select>
-                  <small class="form-text text-muted d-block mt-1">
-                    Solo se muestran usuarios con rol de Supervisor
-                  </small>
-                </div>
-
-                <div class="d-flex gap-2 mt-3">
-                  <button type="button" class="btn btn-sm btn-success flex-fill" id="btn-guardar-zona">
-                    <i class="fas fa-save"></i> Guardar
-                  </button>
-                  <button type="button" class="btn btn-sm btn-secondary" id="btn-cancelar-zona">
-                    <i class="fas fa-times"></i> Cancelar
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            <!-- Lista de Zonas -->
-            <div class="p-3" style="max-height: 500px; overflow-y: auto;" id="lista-zonas">
-              <div class="text-center py-4">
-                <i class="fas fa-spinner fa-spin fa-2x text-success"></i>
-                <p class="text-muted mt-2 small">Cargando zonas...</p>
-              </div>
-            </div>
+          <div class="stats-content">
+            <h3 id="total-empleados">0</h3>
+            <p>Total Empleados</p>
           </div>
         </div>
       </div>
-
+      
+      <div class="col-md-3 col-sm-6 mb-3">
+        <div class="stats-card stats-supervisores">
+          <div class="stats-icon">
+            <i class="fas fa-user-tie"></i>
+          </div>
+          <div class="stats-content">
+            <h3 id="total-supervisores">0</h3>
+            <p>Supervisores</p>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- Tarjeta Principal con Tabs -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card shadow-sm border-0">
+          
+          <!-- Tabs Header -->
+          <div class="tabs-header">
+            <div class="tabs-nav">
+              <button class="tab-btn active" data-tab="sucursales">
+                <i class="fas fa-building"></i>
+                <span>Sucursales</span>
+              </button>
+              <button class="tab-btn" data-tab="zonas">
+                <i class="fas fa-map-marked-alt"></i>
+                <span>Zonas</span>
+              </button>
+            </div>
+            <button class="btn btn-primary btn-nuevo" id="btn-nuevo">
+              <i class="fas fa-plus"></i> Nueva
+            </button>
+          </div>
+
+          <!-- Contenido de los Tabs -->
+          <div class="tabs-content">
+            
+            <!-- ========== TAB: SUCURSALES ========== -->
+            <div class="tab-pane active" id="tab-sucursales">
+              
+              <!-- Formulario de Sucursal (Colapsable) -->
+              <div id="form-sucursal-container" class="form-container" style="display: none;">
+                <div class="form-header">
+                  <h5>
+                    <i class="fas fa-building"></i>
+                    <span id="form-sucursal-title">Nueva Sucursal</span>
+                  </h5>
+                </div>
+                <form id="formSucursal">
+                  <input type="hidden" id="id_sucursal">
+                  
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">
+                        <i class="fas fa-building text-primary"></i>
+                        Nombre de la Sucursal *
+                      </label>
+                      <input type="text" class="form-control" id="nombreSucursal" required 
+                             placeholder="Ej: Sucursal Centro">
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label">
+                        <i class="fas fa-map-marker-alt text-primary"></i>
+                        Zona *
+                      </label>
+                      <select class="form-select" id="id_zona_sucursal" required>
+                        <option value="">Seleccione una zona...</option>
+                      </select>
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label">
+                        <i class="fas fa-city text-primary"></i>
+                        Ciudad *
+                      </label>
+                      <input type="text" class="form-control" id="ciudad" required
+                             placeholder="Ej: Bogotá">
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label">
+                        <i class="fas fa-map-marker-alt text-primary"></i>
+                        Dirección *
+                      </label>
+                      <input type="text" class="form-control" id="direccion" required
+                             placeholder="Ej: Calle 123 #45-67">
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label">
+                        <i class="fas fa-phone text-primary"></i>
+                        Teléfono
+                      </label>
+                      <input type="tel" class="form-control" id="telefono"
+                             placeholder="3001234567">
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label">
+                        <i class="fas fa-envelope text-primary"></i>
+                        Correo
+                      </label>
+                      <input type="email" class="form-control" id="correo"
+                             placeholder="sucursal@empresa.com">
+                    </div>
+                  </div>
+
+                  <div class="form-actions">
+                    <button type="button" class="btn btn-primary" id="btn-guardar-sucursal">
+                      <i class="fas fa-save"></i> Guardar
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="btn-cancelar-sucursal">
+                      <i class="fas fa-times"></i> Cancelar
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Lista de Sucursales -->
+              <div class="lista-container" id="lista-sucursales">
+                <div class="loading-state">
+                  <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+                  <p class="mt-2">Cargando sucursales...</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- ========== TAB: ZONAS ========== -->
+            <div class="tab-pane" id="tab-zonas">
+              
+              <!-- Formulario de Zona (Colapsable) -->
+              <div id="form-zona-container" class="form-container" style="display: none;">
+                <div class="form-header">
+                  <h5>
+                    <i class="fas fa-map-marked-alt"></i>
+                    <span id="form-zona-title">Nueva Zona</span>
+                  </h5>
+                </div>
+                <form id="formZona">
+                  <input type="hidden" id="id_zona">
+
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">
+                        <i class="fas fa-map-marked-alt text-success"></i>
+                        Nombre de la Zona *
+                      </label>
+                      <input type="text" class="form-control" id="nombreZona" required
+                             placeholder="Ej: Zona Norte">
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label">
+                        <i class="fas fa-user-tie text-success"></i>
+                        Supervisor *
+                      </label>
+                      <select class="form-select" id="supervisor_zona" required>
+                        <option value="">Seleccione un supervisor...</option>
+                      </select>
+                      <small class="form-text text-muted d-block mt-1">
+                        Solo se muestran usuarios con rol de Supervisor
+                      </small>
+                    </div>
+                  </div>
+
+                  <div class="form-actions">
+                    <button type="button" class="btn btn-success" id="btn-guardar-zona">
+                      <i class="fas fa-save"></i> Guardar
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="btn-cancelar-zona">
+                      <i class="fas fa-times"></i> Cancelar
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Lista de Zonas -->
+              <div class="lista-container" id="lista-zonas">
+                <div class="loading-state">
+                  <i class="fas fa-spinner fa-spin fa-2x text-success"></i>
+                  <p class="mt-2">Cargando zonas...</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
 </div>
-
-
 
 <!-- Script del módulo -->
 <script th:src="@{/js/modules/sucursales.js}"></script>
