@@ -9,8 +9,12 @@
   --success: #28a745;
   --danger: #dc3545;
   --warning: #ffc107;
+  --info: #17a2b8;
   --white: #ffffff;
   --shadow: rgba(90, 159, 212, 0.15);
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-success: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  --gradient-warning: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
 }
 
 * {
@@ -170,6 +174,13 @@ h4 {
   font-size: 1.25rem;
 }
 
+h5 {
+  color: var(--dark-blue);
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
 /* Card Styles */
 .card-custom {
   background: var(--white);
@@ -211,37 +222,131 @@ h4 {
   transform: translateX(8px);
 }
 
-/* Form Styles */
-.form-label {
+/* ============================================ */
+/* ESTILOS MEJORADOS PARA FORMULARIOS */
+/* ============================================ */
+
+/* Contenedor de Resultados */
+#resultadoEmpleado,
+#resultadoHorario {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 10px 40px rgba(90, 159, 212, 0.15);
+  margin-top: 2rem;
+  animation: slideDown 0.4s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    max-height: 5000px;
+    transform: translateY(0);
+  }
+}
+
+/* Selector de Tipo de Asignación */
+.btn-group {
+  box-shadow: 0 4px 12px rgba(90, 159, 212, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.btn-check:checked + label {
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%) !important;
+  color: var(--white) !important;
+  box-shadow: 0 4px 12px rgba(90, 159, 212, 0.4);
+}
+
+.btn-outline-primary {
+  border: 2px solid var(--primary-blue);
+  color: var(--primary-blue);
   font-weight: 500;
+  padding: 1rem 2rem;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+  background: rgba(90, 159, 212, 0.1);
+  border-color: var(--secondary-blue);
+  color: var(--secondary-blue);
+  transform: translateY(-2px);
+}
+
+/* Form Labels Mejorados */
+.form-label {
+  font-weight: 600;
   color: var(--dark-blue);
   margin-bottom: 0.5rem;
   font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.form-control {
-  border: 2px solid #e1e8ed;
-  border-radius: 10px;
-  padding: 0.75rem 1rem;
-  transition: all 0.3s ease;
+.form-label i {
+  color: var(--primary-blue);
   font-size: 1rem;
 }
 
-.form-control:focus {
+/* Form Controls Mejorados */
+.form-control,
+.form-select {
+  border: 2px solid #e1e8ed;
+  border-radius: 12px;
+  padding: 0.875rem 1.25rem;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  background-color: #f8f9fa;
+}
+
+.form-control:focus,
+.form-select:focus {
   border-color: var(--primary-blue);
-  box-shadow: 0 0 0 0.2rem rgba(90, 159, 212, 0.15);
+  box-shadow: 0 0 0 0.25rem rgba(90, 159, 212, 0.15);
   outline: none;
+  background-color: var(--white);
+  transform: translateY(-2px);
 }
 
 .form-control::placeholder {
   color: #adb5bd;
+  font-style: italic;
 }
 
-/* Button Styles */
+.form-control-sm {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border-radius: 8px;
+}
+
+/* Textarea específico */
+textarea.form-control {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Input de tipo number */
+input[type="number"].form-control {
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Button Styles Mejorados */
 .btn {
-  padding: 0.75rem 2rem;
-  border-radius: 10px;
-  font-weight: 500;
+  padding: 0.875rem 2.5rem;
+  border-radius: 12px;
+  font-weight: 600;
   transition: all 0.3s ease;
   border: none;
   font-size: 1rem;
@@ -249,6 +354,22 @@ h4 {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn i {
+  font-size: 1.1rem;
 }
 
 .btn-primary {
@@ -259,8 +380,7 @@ h4 {
 
 .btn-primary:hover {
   background: linear-gradient(135deg, var(--secondary-blue) 0%, var(--dark-blue) 100%);
-  box-shadow: 0 6px 16px rgba(90, 159, 212, 0.4);
-  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(90, 159, 212, 0.5);
 }
 
 .btn-success {
@@ -271,8 +391,7 @@ h4 {
 
 .btn-success:hover {
   background: linear-gradient(135deg, #20893a 0%, #19692c 100%);
-  box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
-  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.5);
 }
 
 .btn-warning {
@@ -283,8 +402,125 @@ h4 {
 
 .btn-warning:hover {
   background: linear-gradient(135deg, #e0a800 0%, #c69500 100%);
-  box-shadow: 0 6px 16px rgba(255, 193, 7, 0.4);
-  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 193, 7, 0.5);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, #5a6268 0%, #4e555b 100%);
+  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.5);
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  border-radius: 8px;
+}
+
+/* Separador visual */
+hr {
+  border: none;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, var(--primary-blue) 50%, transparent 100%);
+  margin: 2rem 0;
+  opacity: 0.3;
+}
+
+/* ============================================ */
+/* ESTILOS PARA CALENDARIO MENSUAL */
+/* ============================================ */
+
+#calendarioMensual {
+  margin-top: 1.5rem;
+}
+
+#calendarioMensual .card {
+  border: none;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(90, 159, 212, 0.15);
+}
+
+#calendarioMensual .card-header {
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+  color: var(--white);
+  padding: 1.25rem 1.5rem;
+  border: none;
+}
+
+#calendarioMensual .card-header h6 {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#calendarioMensual .card-body {
+  padding: 0;
+}
+
+/* Tabla del Calendario */
+#diasMes {
+  font-size: 0.9rem;
+}
+
+#diasMes tr {
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #e9ecef;
+}
+
+#diasMes tr:hover {
+  background-color: rgba(90, 159, 212, 0.05);
+}
+
+#diasMes td {
+  padding: 0.75rem 0.5rem;
+  vertical-align: middle;
+}
+
+#diasMes td:first-child {
+  font-weight: 600;
+  color: var(--dark-blue);
+}
+
+#diasMes .badge {
+  font-size: 0.75rem;
+  padding: 0.35rem 0.65rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+/* Inputs dentro de la tabla */
+#diasMes input.form-control-sm,
+#diasMes select.form-select-sm {
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+  background-color: var(--white);
+  transition: all 0.2s ease;
+}
+
+#diasMes input.form-control-sm:focus,
+#diasMes select.form-select-sm:focus {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 0.15rem rgba(90, 159, 212, 0.15);
+  background-color: var(--white);
+}
+
+/* Sticky header en tabla */
+.sticky-top {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
 }
 
 /* Icons */
@@ -300,96 +536,70 @@ h4 {
   color: var(--primary-blue) !important;
 }
 
+.text-info {
+  color: var(--info) !important;
+}
+
+.text-warning {
+  color: var(--warning) !important;
+}
+
 i {
   transition: transform 0.3s ease;
 }
 
-.card-custom li:hover i {
-  transform: scale(1.2);
+.card-custom li:hover i,
+.form-label:hover i {
+  transform: scale(1.15) rotate(5deg);
 }
 
-/* Results Section */
-#resultadoEmpleado,
-#resultadoHorario {
-  animation: slideDown 0.4s ease;
+/* Badge Styles */
+.badge {
+  padding: 0.5rem 0.875rem;
+  font-weight: 500;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    max-height: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    max-height: 1000px;
-    transform: translateY(0);
-  }
+.badge.bg-success {
+  background: linear-gradient(135deg, #28a745 0%, #20893a 100%) !important;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 0;
-    overflow: hidden;
-  }
-  
-  .sidebar.active {
-    width: 260px;
-  }
-  
-  .main-content {
-    margin-left: 0;
-    padding: 1rem;
-  }
-  
-  h2 {
-    font-size: 1.5rem;
-  }
-  
-  .btn {
-    padding: 0.625rem 1.5rem;
-    font-size: 0.9rem;
-  }
+.badge.bg-danger {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
 }
 
-/* Loading Animation */
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
+.badge.bg-secondary {
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
 }
 
-.loading {
-  animation: pulse 1.5s ease-in-out infinite;
+/* ============================================ */
+/* ESTILOS PARA INFORMACIÓN DEL EMPLEADO */
+/* ============================================ */
+
+.row.mb-3 {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(90, 159, 212, 0.05) 0%, rgba(90, 159, 212, 0.02) 100%);
+  border-radius: 12px;
+  border-left: 4px solid var(--primary-blue);
 }
 
-/* Scrollbar Styles */
-::-webkit-scrollbar {
-  width: 8px;
+.row.mb-3 strong {
+  color: var(--dark-blue);
+  font-weight: 600;
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
-}
+/* ============================================ */
+/* TABLE STYLES */
+/* ============================================ */
 
-::-webkit-scrollbar-thumb {
-  background: var(--primary-blue);
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--secondary-blue);
-}
-
-/* Table Styles */
 .table-responsive {
   border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 4px 12px rgba(90, 159, 212, 0.1);
 }
 
 .table {
@@ -417,7 +627,7 @@ i {
 
 .table tbody tr:hover {
   background-color: var(--light-blue);
-  transform: scale(1.01);
+  transform: scale(1.005);
   box-shadow: 0 4px 12px rgba(90, 159, 212, 0.1);
 }
 
@@ -426,22 +636,63 @@ i {
   vertical-align: middle;
 }
 
-.badge {
-  padding: 0.5rem 0.875rem;
-  font-weight: 500;
-  border-radius: 8px;
-  font-size: 0.875rem;
+/* ============================================ */
+/* ALERTS */
+/* ============================================ */
+
+.alert {
+  border-radius: 12px;
+  border: none;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  animation: slideInRight 0.3s ease;
 }
 
-/* Modal Styles */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.alert-success {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  color: #155724;
+}
+
+.alert-danger {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  color: #721c24;
+}
+
+.alert-warning {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  color: #856404;
+}
+
+.alert-info {
+  background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+  color: #0c5460;
+}
+
+/* ============================================ */
+/* MODAL STYLES */
+/* ============================================ */
+
 .modal-content {
-  border-radius: 16px;
+  border-radius: 20px;
   border: none;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
 }
 
 .modal-header {
-  border-radius: 16px 16px 0 0;
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+  color: var(--white);
   border-bottom: none;
   padding: 1.5rem 2rem;
 }
@@ -454,22 +705,248 @@ i {
   border-top: 1px solid #e9ecef;
   padding: 1.5rem 2rem;
   background-color: #f8f9fa;
-  border-radius: 0 0 16px 16px;
 }
 
-/* Info Item Styles */
-.info-item {
-  margin-bottom: 1rem;
+/* ============================================ */
+/* RESPONSIVE DESIGN */
+/* ============================================ */
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 0;
+    overflow: hidden;
+  }
+  
+  .sidebar.active {
+    width: 260px;
+  }
+  
+  .main-content {
+    margin-left: 0;
+    padding: 1rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  .btn {
+    padding: 0.625rem 1.5rem;
+    font-size: 0.9rem;
+  }
+
+  #resultadoEmpleado,
+  #resultadoHorario {
+    padding: 1rem;
+  }
+
+  .btn-group {
+    flex-direction: column;
+  }
+
+  .btn-outline-primary {
+    border-radius: 12px;
+    margin-bottom: 0.5rem;
+  }
+
+  #calendarioMensual .table-responsive {
+    font-size: 0.8rem;
+  }
+
+  #diasMes td {
+    padding: 0.5rem 0.25rem;
+  }
 }
 
-.info-item label {
-  display: block;
-  font-size: 0.875rem;
+/* ============================================ */
+/* LOADING & ANIMATIONS */
+/* ============================================ */
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.loading {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner-border {
+  animation: spin 1s linear infinite;
+}
+
+/* ============================================ */
+/* SCROLLBAR STYLES */
+/* ============================================ */
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, var(--secondary-blue) 0%, var(--dark-blue) 100%);
+}
+
+/* ============================================ */
+/* UTILITY CLASSES */
+/* ============================================ */
+
+.shadow-sm {
+  box-shadow: 0 2px 8px rgba(90, 159, 212, 0.1) !important;
+}
+
+.shadow {
+  box-shadow: 0 4px 16px rgba(90, 159, 212, 0.15) !important;
+}
+
+.shadow-lg {
+  box-shadow: 0 8px 32px rgba(90, 159, 212, 0.2) !important;
+}
+
+.rounded-lg {
+  border-radius: 16px !important;
+}
+
+.rounded-xl {
+  border-radius: 20px !important;
+}
+
+/* ============================================ */
+/* ANIMATIONS */
+/* ============================================ */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.5s ease;
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.bounce-in {
+  animation: bounceIn 0.6s ease;
+}
+/* ===== DASHBOARD AVATAR ===== */
+.dashboard-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  border: 4px solid rgba(102, 126, 234, 0.2);
+  transition: all 0.3s ease;
+}
+
+.dashboard-avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+}
+
+.dashboard-avatar span {
+  font-size: 36px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* ===== STAT CARDS ===== */
+.stat-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card i {
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover i {
+  transform: scale(1.1);
+}
+
+/* ===== ACTIVIDAD Y ALERTAS ===== */
+.activity-item {
+  padding: 12px;
+  border-left: 3px solid #667eea;
+  margin-bottom: 10px;
+  background: #f8f9fa;
+  border-radius: 5px;
+  transition: all 0.2s ease;
+}
+
+.activity-item:hover {
+  background: #e9ecef;
+  padding-left: 15px;
+}
+
+.alert-item {
+  padding: 12px;
+  border-left: 3px solid #ffc107;
+  margin-bottom: 10px;
+  background: #fff8e1;
+  border-radius: 5px;
+}
+
+.badge {
+  padding: 6px 12px;
   font-weight: 500;
-  margin-bottom: 0.25rem;
-}
-
-.info-item p {
-  margin-bottom: 0;
-  font-size: 1rem;
 }

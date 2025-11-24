@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/zonas")
+@RequestMapping("/api/zonas")
 public class ZonaController {
 
     @Autowired

@@ -63,5 +63,16 @@ public class UsuarioController {
                     .body(Map.of("error", e.getMessage()));
         }
     }
-
+    
+ // ✅ NUEVO: Endpoint para listar empleados de la zona del supervisor
+    @GetMapping("/zona/{idSupervisor}")
+    public ResponseEntity<List<Usuario>> listarEmpleadosPorZonaSupervisor(@PathVariable Long idSupervisor) {
+        try {
+            List<Usuario> empleados = usuarioService.listarEmpleadosPorZonaSupervisor(idSupervisor);
+            return ResponseEntity.ok(empleados);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+        
+    }
 }

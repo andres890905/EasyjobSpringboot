@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="es">
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard - Easy Job</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Allura&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="css/dashboard_supervisor.css">
@@ -33,47 +34,116 @@
   
   <!-- Sección Dashboard -->
   <div id="seccionDashboard">
-    <h2 class="mb-4"><i class="fas fa-tachometer-alt"></i>Panel de Supervisor</h2>
-    <div class="card card-custom p-4 mb-4">
-      <h3 class="text-primary mb-3"><i class="fas fa-user-shield me-2"></i>¡Bienvenido Jose David Rodriguez, Supervisor!</h3>
-      <p class="lead mb-4">Gestiona todos los aspectos de la empresa desde este panel de control.</p>
-      <ul class="list-unstyled">
-        <li><i class="fas fa-check-circle text-success me-2"></i> Gestionar empleados y su información</li>
-        <li><i class="fas fa-check-circle text-success me-2"></i> Asignar y modificar horarios de trabajo</li>
-        <li><i class="fas fa-check-circle text-success me-2"></i> Consultar reportes e incapacidades</li>
-        <li><i class="fas fa-check-circle text-success me-2"></i> Administrar vacaciones y traslados</li>
-        <li><i class="fas fa-check-circle text-success me-2"></i> Generar reportes detallados</li>
-      </ul>
-    </div>
+    <h2 class="mb-4">Panel de Supervisor</h2>
 
-    <!-- Cards de estadísticas rápidas -->
-    <div class="row g-4 mt-4">
-      <div class="col-md-3">
-        <div class="card card-custom p-3 text-center">
-          <i class="fas fa-users fa-3x text-primary mb-3"></i>
-          <h4 class="mb-2">245</h4>
-          <p class="text-muted mb-0">Empleados Activos</p>
+    <!-- ✅ NUEVO: Tarjeta de Bienvenida con Avatar -->
+    <div class="card card-custom p-4 mb-4">
+      <div class="row align-items-center">
+        <!-- Avatar del Supervisor -->
+        <div class="col-md-2 text-center">
+          <div class="dashboard-avatar">
+            <span th:text="${usuario.nombre.substring(0,1) + usuario.apellido.substring(0,1)}">JD</span>
+          </div>
+        </div>
+        
+        <!-- Información del Supervisor -->
+        <div class="col-md-10">
+          <h3 class="text-primary mb-2">
+            
+            ¡Bienvenido <span th:text="${usuario.nombre + ' ' + usuario.apellido}">Jose David Rodriguez</span>!
+          </h3>
+          <p class="lead mb-3">
+            <span class="badge bg-primary me-2">
+              <i class="fas fa-user-tie me-1"></i>
+              <span th:text="${usuario.rol.tipo_rol}">Supervisor</span>
+            </span>
+            <span class="badge bg-info">
+              <i class="fas fa-map-marker-alt me-1"></i>
+              <span id="dashboardZone">Cargando zona...</span>
+            </span>
+          </p>
+          <p class="text-muted mb-0">
+            <i class="fas fa-envelope me-2"></i><span th:text="${usuario.correo}">jose.rodriguez@empresa.com</span>
+          </p>
         </div>
       </div>
+      
+      <hr class="my-4">
+      
+      
+    </div>
+
+    <!-- ✅ Cards de estadísticas (actualizadas para la zona) -->
+    <h4 class="mb-3"><i class="fas fa-chart-bar me-2"></i>Estadísticas de mi Zona</h4>
+    <div class="row g-4">
       <div class="col-md-3">
-        <div class="card card-custom p-3 text-center">
+        <div class="card card-custom p-3 text-center stat-card">
+          <i class="fas fa-users fa-3x text-primary mb-3"></i>
+          <h4 class="mb-2" id="totalEmpleados">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+          </h4>
+          <p class="text-muted mb-0">Empleados en mi Zona</p>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="card card-custom p-3 text-center stat-card">
           <i class="fas fa-calendar-check fa-3x text-success mb-3"></i>
-          <h4 class="mb-2">32</h4>
+          <h4 class="mb-2" id="totalVacaciones">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+          </h4>
           <p class="text-muted mb-0">En Vacaciones</p>
         </div>
       </div>
+      
       <div class="col-md-3">
-        <div class="card card-custom p-3 text-center">
+        <div class="card card-custom p-3 text-center stat-card">
           <i class="fas fa-file-medical fa-3x text-warning mb-3"></i>
-          <h4 class="mb-2">8</h4>
-          <p class="text-muted mb-0">Incapacidades</p>
+          <h4 class="mb-2" id="totalIncapacidades">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+          </h4>
+          <p class="text-muted mb-0">Incapacidades Activas</p>
         </div>
       </div>
+      
       <div class="col-md-3">
-        <div class="card card-custom p-3 text-center">
+        <div class="card card-custom p-3 text-center stat-card">
           <i class="fas fa-building fa-3x text-info mb-3"></i>
-          <h4 class="mb-2">5</h4>
+          <h4 class="mb-2" id="totalSucursales">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+          </h4>
           <p class="text-muted mb-0">Sucursales</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ✅ NUEVO: Actividad Reciente -->
+    <div class="row mt-4">
+      <div class="col-md-6">
+        <div class="card card-custom p-4">
+          <h5 class="mb-3">
+            <i class="fas fa-clock me-2 text-primary"></i>Actividad Reciente
+          </h5>
+          <div id="actividadReciente">
+            <div class="text-center py-3">
+              <div class="spinner-border text-primary" role="status"></div>
+              <p class="text-muted mt-2">Cargando actividad...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6">
+        <div class="card card-custom p-4">
+          <h5 class="mb-3">
+            <i class="fas fa-exclamation-triangle me-2 text-warning"></i>Alertas Pendientes
+          </h5>
+          <div id="alertasPendientes">
+            <div class="text-center py-3">
+              <div class="spinner-border text-warning" role="status"></div>
+              <p class="text-muted mt-2">Cargando alertas...</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -81,17 +151,35 @@
 
   <!-- Sección Empleados -->
   <div id="seccionEmpleados" style="display: none;">
-    <h2 class="mb-4"><i class="fas fa-user-search"></i>Buscar Empleado</h2>
+    <h2 class="mb-4">
+      <i class="fas fa-users me-2"></i>Gestión de Empleados
+    </h2>
+
+    <!-- ✅ NUEVO: Listado de empleados de la zona -->
+    <div id="listadoEmpleados" class="mb-4">
+      <!-- Se carga dinámicamente con JavaScript -->
+    </div>
+
+    <!-- Búsqueda individual -->
+    <h4 class="mb-3">
+      <i class="fas fa-user-search me-2"></i>Buscar Empleado Específico
+    </h4>
     <div class="card card-custom p-4 mb-4">
       <form id="form-busqueda">
         <div class="row g-3">
           <div class="col-md-6">
-            <label for="idEmpleado" class="form-label">ID del Empleado</label>
-            <input type="text" class="form-control" id="idEmpleado" placeholder="Ej: 1001" />
+            <label for="idEmpleado" class="form-label">
+              <i class="fas fa-id-card me-1"></i>ID/Cédula del Empleado
+            </label>
+            <input type="text" class="form-control" id="idEmpleado" 
+                   placeholder="Ej: 1001" />
           </div>
           <div class="col-md-6">
-            <label for="nombreEmpleado" class="form-label">Nombre del Empleado</label>
-            <input type="text" class="form-control" id="nombreEmpleado" placeholder="Ej: Fernanda" />
+            <label for="nombreEmpleado" class="form-label">
+              <i class="fas fa-user me-1"></i>Nombre del Empleado
+            </label>
+            <input type="text" class="form-control" id="nombreEmpleado" 
+                   placeholder="Ej: Fernanda" />
           </div>
         </div>
         <button type="submit" class="btn btn-primary mt-3">
@@ -100,13 +188,11 @@
       </form>
     </div>
 
+    <!-- Resultado de búsqueda individual -->
     <div id="resultadoEmpleado" class="card card-custom p-4 mt-4" style="display: none;"></div>
   </div>
 
-  <!-- ================= SECCIÓN HORARIOS ================= -->
-  
-
-  <!-- ================= SECCIÓN HORARIOS MEJORADA ================= -->
+  <!-- ================= SECCIÓN HORARIOS COMPLETA ================= -->
   <div id="seccionHorarios" style="display: none;">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h2>
@@ -157,6 +243,90 @@
       <!-- El contenido se genera desde JavaScript -->
     </div>
 
+    <!-- ===== FILTROS AVANZADOS ===== -->
+    <div class="card card-custom p-4 mb-4 shadow-sm">
+      <h5 class="text-primary mb-3">
+        <i class="fas fa-filter me-2"></i>Filtros de Búsqueda
+      </h5>
+      
+      <div class="row g-3">
+        <!-- Filtro por Vista -->
+        <div class="col-md-3">
+          <label class="form-label">
+            <i class="fas fa-eye me-1"></i>Vista
+          </label>
+          <select id="filtroVista" class="form-select" onchange="cambiarVista()">
+            <option value="todos">Todos los horarios</option>
+            <option value="empleado">Por empleado</option>
+            <option value="supervisor">Por supervisor</option>
+            <option value="mes">Por mes</option>
+          </select>
+        </div>
+
+        <!-- Filtro por ID Usuario (se muestra según vista) -->
+        <div class="col-md-3" id="filtroIdContainer" style="display: none;">
+          <label class="form-label">
+            <i class="fas fa-id-card me-1"></i>ID <span id="tipoIdLabel">Usuario</span>
+          </label>
+          <input 
+            type="number" 
+            id="filtroIdUsuario" 
+            class="form-control" 
+            placeholder="Ingrese ID"
+          />
+        </div>
+
+        <!-- Filtro por Año (para vista mensual) -->
+        <div class="col-md-3" id="filtroYearContainer" style="display: none;">
+          <label class="form-label">
+            <i class="fas fa-calendar me-1"></i>Año
+          </label>
+          <input 
+            type="number" 
+            id="filtroYear" 
+            class="form-control" 
+            value="2025"
+            min="2020"
+            max="2030"
+          />
+        </div>
+
+        <!-- Filtro por Mes (para vista mensual) -->
+        <div class="col-md-3" id="filtroMonthContainer" style="display: none;">
+          <label class="form-label">
+            <i class="fas fa-calendar-day me-1"></i>Mes
+          </label>
+          <select id="filtroMonth" class="form-select">
+            <option value="1">Enero</option>
+            <option value="2">Febrero</option>
+            <option value="3">Marzo</option>
+            <option value="4">Abril</option>
+            <option value="5">Mayo</option>
+            <option value="6">Junio</option>
+            <option value="7">Julio</option>
+            <option value="8">Agosto</option>
+            <option value="9">Septiembre</option>
+            <option value="10">Octubre</option>
+            <option value="11">Noviembre</option>
+            <option value="12">Diciembre</option>
+          </select>
+        </div>
+
+        <!-- Botón Aplicar Filtros -->
+        <div class="col-md-3 d-flex align-items-end">
+          <button class="btn btn-success w-100" onclick="aplicarFiltros()">
+            <i class="fas fa-check me-2"></i>Aplicar Filtros
+          </button>
+        </div>
+      </div>
+
+      <!-- Info de filtros aplicados -->
+      <div id="infoFiltros" class="alert alert-info mt-3" style="display: none;">
+        <i class="fas fa-info-circle me-2"></i>
+        <span id="textoFiltros"></span>
+      </div>
+    </div>
+
     <!-- ===== Tabla de Horarios Registrados ===== -->
     <div class="card card-custom p-4 shadow-sm">
       <div class="d-flex justify-content-between align-items-center mb-3">
@@ -170,30 +340,28 @@
         <table class="table table-hover align-middle" id="tablaHorarios">
           <thead class="table-primary">
             <tr>
-              <th style="width: 80px;">
-                <i class="fas fa-hashtag me-1"></i>ID
+              <th style="width: 180px;">Empleado
               </th>
-              <th style="width: 200px;">
-                <i class="fas fa-user me-1"></i>Empleado
+              <th style="width: 120px;">
+                Fecha
+              </th>
+              <th style="width: 100px;">
+                Entrada
+              </th>
+              <th style="width: 100px;">
+                Salida
               </th>
               <th>
-                <i class="fas fa-info-circle me-1"></i>Descripción
+                Descripción
               </th>
-              <th style="width: 130px;">
-                <i class="fas fa-calendar-plus me-1"></i>Inicio
-              </th>
-              <th style="width: 130px;">
-                <i class="fas fa-calendar-minus me-1"></i>Fin
-              </th>
-              <th style="width: 100px;" class="text-center">
-                <i class="fas fa-cog me-1"></i>Acciones
+              <th style="width: 120px;" class="text-center">
+                Acciones
               </th>
             </tr>
           </thead>
           <tbody>
-            <!-- El contenido se carga dinámicamente desde JavaScript -->
             <tr>
-              <td colspan="6" class="text-center py-4 text-muted">
+              <td colspan="8" class="text-center py-4 text-muted">
                 <div class="spinner-border text-primary" role="status">
                   <span class="visually-hidden">Cargando...</span>
                 </div>
@@ -212,23 +380,7 @@
       </div>
     </div>
 
-    <!-- ===== Leyenda de Estados ===== -->
-    <div class="card card-custom p-3 mt-3 bg-light">
-      <small class="text-muted mb-2">
-        <i class="fas fa-info-circle me-1"></i><strong>Estados de horarios:</strong>
-      </small>
-      <div class="d-flex gap-3 flex-wrap">
-        <small>
-          <span class="badge bg-info">Próximo</span> Aún no ha iniciado
-        </small>
-        <small>
-          <span class="badge bg-success">Activo</span> Vigente actualmente
-        </small>
-        <small>
-          <span class="badge bg-secondary">Finalizado</span> Ya terminó
-        </small>
-      </div>
-    </div>
+    
   </div>
   <!-- Sección Incapacidades -->
   <div id="seccionIncapacidades" style="display: none;">
@@ -392,7 +544,28 @@
   </div>
 
 </main>
-
+<script th:inline="javascript">
+        /*<![CDATA[*/
+        // Guardar datos del usuario logueado en sessionStorage
+        const usuarioId = /*[[${usuarioId}]]*/ 0;
+        const usuarioNombre = /*[[${usuarioNombre}]]*/ '';
+        const usuarioApellido = /*[[${usuarioApellido}]]*/ '';
+        const usuarioCorreo = /*[[${usuarioCorreo}]]*/ '';
+        
+        if (usuarioId && usuarioId > 0) {
+            sessionStorage.setItem('idUsuario', usuarioId.toString());
+            sessionStorage.setItem('nombreUsuario', usuarioNombre + ' ' + usuarioApellido);
+            sessionStorage.setItem('correoUsuario', usuarioCorreo);
+            console.log('✅ Datos del supervisor guardados en sessionStorage');
+            console.log('   ID:', usuarioId);
+            console.log('   Nombre:', usuarioNombre, usuarioApellido);
+        } else {
+            console.error('❌ No se recibió ID de usuario desde el servidor');
+            // Opcional: redirigir al login si no hay datos
+            // window.location.href = '/login?error=Sesión+inválida';
+        }
+        /*]]>*/
+    </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="js/dashboard_supervisor.js"></script>
 </body>

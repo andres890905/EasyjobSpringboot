@@ -27,5 +27,10 @@ public class UsuarioService {
     public Usuario guardar(Usuario usuario) {
         return usuarioRepository.save(usuario);
     }
+    
+ // ✅ NUEVO: Listar empleados de la zona del supervisor
+    public List<Usuario> listarEmpleadosPorZonaSupervisor(Long idSupervisor) {
+        return usuarioRepository.findByZonaSupervisor(idSupervisor);
+    }
 }
 
