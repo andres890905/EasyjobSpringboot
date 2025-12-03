@@ -11,15 +11,18 @@ import com.easyjob.easyjob.DTO.UsuarioDTO;
 import com.easyjob.easyjob.Model.Usuario;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
-
+    
     Optional<Usuario> findByCorreo(String correo);
-
+    
+    // ❌ ELIMINAR O COMENTAR ESTA LÍNEA (no funciona sin campo 'supervisor')
+    // List<Usuario> findBySupervisor_Idusuarios(Long idSupervisor);
+    
     @Query("SELECT u FROM Usuario u WHERE u.sucursal.id_sucursal = :sucursalId")
     List<Usuario> findBySucursalId(@Param("sucursalId") Long sucursalId);
-
+    
     @Query("SELECT u FROM Usuario u WHERE u.rol.id_roles = :rolId")
     List<Usuario> findByRolId(@Param("rolId") Integer rolId);
-
+    
     @Query("SELECT u FROM Usuario u WHERE u.sucursal.id_sucursal = :sucursalId AND u.rol.id_roles = :rolId")
     List<Usuario> findBySucursalIdAndRolId(@Param("sucursalId") Long sucursalId, @Param("rolId") Integer rolId);
     
@@ -27,17 +30,17 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     @Query("SELECT u FROM Usuario u WHERE u.rol.tipo_rol = 'SUPERVISOR' AND u.estado = 'ACTIVO'")
     List<Usuario> findSupervisoresActivos();
     
- // ✅ NUEVO: Buscar empleados de la zona del supervisor
+    // ✅ USAR SOLO ESTA QUERY (es la que funciona para tu modelo)
     @Query("SELECT DISTINCT u FROM Usuario u " +
            "JOIN FETCH u.sucursal s " +
            "LEFT JOIN FETCH u.rol " +
            "WHERE s.id_zona IN " +
            "(SELECT z.idZona FROM Zona z WHERE z.supervisor.idusuarios = :idSupervisor) " +
-           "AND u.idusuarios != :idSupervisor " + // Excluir al supervisor mismo
+           "AND u.idusuarios != :idSupervisor " +
            "ORDER BY u.nombre, u.apellido")
     List<Usuario> findByZonaSupervisor(@Param("idSupervisor") Long idSupervisor);
     
- // ================= REPORTES =================
+    // ================= REPORTES =================
     @Query("SELECT new com.easyjob.easyjob.DTO.UsuarioDTO(" +
            "u.idusuarios, CONCAT(u.nombre, ' ', u.apellido), u.correo, u.telefono, u.direccion, " +
            "u.estado, u.salario, s.nombreSucursal, r.tipo_rol) " +
@@ -46,6 +49,4 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
            "JOIN u.rol r " +
            "ORDER BY u.nombre, u.apellido")
     List<UsuarioDTO> findAllUsuariosDTO();
-
-
 }

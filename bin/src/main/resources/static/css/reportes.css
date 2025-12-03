@@ -1,0 +1,453 @@
+/* ======== REPORTES.CSS - SCOPED PARA EVITAR CONFLICTOS ======== */
+
+/* SCOPE: Todo dentro de #reportes-section */
+
+/* Sección principal */
+#reportes-section {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+    position: relative;
+}
+
+/* Header con glassmorphism */
+#reportes-section .reportes-header {
+    background: rgba(30, 60, 114, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    margin-bottom: 2.5rem;
+    box-shadow: 0 8px 32px rgba(30, 60, 114, 0.3);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+#reportes-section .reportes-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+}
+
+#reportes-section .reportes-header h2 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 2.2rem;
+    position: relative;
+}
+
+#reportes-section .reportes-header p {
+    margin: 0.5rem 0 0 0;
+    opacity: 0.95;
+    font-size: 1.05rem;
+    position: relative;
+}
+
+/* Tarjetas de reportes */
+#reportes-section .reporte-card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Shine effect */
+#reportes-section .reporte-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.4) 50%, transparent 70%);
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    transition: transform 0.6s ease;
+}
+
+#reportes-section .reporte-card:hover::after {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
+}
+
+#reportes-section .reporte-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+    border-color: var(--card-color);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+#reportes-section .reporte-card.active {
+    border-color: var(--card-color);
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.95) 0%, rgba(var(--card-rgb), 0.08) 100%);
+    box-shadow: 0 8px 24px rgba(var(--card-rgb), 0.25);
+}
+
+/* Ribbons */
+#reportes-section .reporte-card-usuarios::before,
+#reportes-section .reporte-card-programacion::before,
+#reportes-section .reporte-card-incapacidades::before {
+    content: 'Popular';
+    position: absolute;
+    top: 15px;
+    left: -30px;
+    background: var(--card-color);
+    color: white;
+    padding: 4px 35px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transform: rotate(-45deg);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+#reportes-section .reporte-card-programacion::before {
+    content: 'Nuevo';
+    background: #f44336;
+}
+
+#reportes-section .reporte-card-incapacidades::before {
+    content: 'Vital';
+    background: #ff9800;
+}
+
+#reportes-section .reporte-card-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    color: var(--card-color);
+    transition: all 0.4s ease;
+    position: relative;
+    z-index: 2;
+}
+
+#reportes-section .reporte-card:hover .reporte-card-icon {
+    transform: scale(1.15) rotate(5deg);
+    filter: drop-shadow(0 5px 10px rgba(var(--card-rgb), 0.4));
+}
+
+#reportes-section .reporte-card h3 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+    position: relative;
+    z-index: 2;
+}
+
+#reportes-section .reporte-card p {
+    color: #6c757d;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    position: relative;
+    z-index: 2;
+}
+
+/* Badge animado */
+#reportes-section .reporte-card-badge {
+    display: inline-block;
+    padding: 0.35rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: var(--card-color);
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    z-index: 2;
+    animation: reportePulse 2s infinite;
+}
+
+@keyframes reportePulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(var(--card-rgb), 0.7); }
+    50% { box-shadow: 0 0 0 8px rgba(var(--card-rgb), 0); }
+}
+
+/* Colores de tarjetas */
+#reportes-section .reporte-card-usuarios {
+    --card-color: #1e88e5;
+    --card-rgb: 30, 136, 229;
+}
+
+#reportes-section .reporte-card-programacion {
+    --card-color: #0288d1;
+    --card-rgb: 2, 136, 209;
+}
+
+#reportes-section .reporte-card-incapacidades {
+    --card-color: #039be5;
+    --card-rgb: 3, 155, 229;
+}
+
+/* Botón generar PDF */
+#reportes-section .btn-generar-pdf {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #1e3c72 100%);
+    background-size: 200% 100%;
+    border: none;
+    color: white;
+    padding: 1rem 2.5rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+}
+
+#reportes-section .btn-generar-pdf::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+#reportes-section .btn-generar-pdf:hover:not(:disabled)::before {
+    left: 100%;
+}
+
+#reportes-section .btn-generar-pdf:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(30, 60, 114, 0.4);
+    background-position: 100% 0;
+}
+
+#reportes-section .btn-generar-pdf:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    background: #6c757d;
+    box-shadow: none;
+}
+
+/* Check icon */
+#reportes-section .reporte-card-check {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: var(--card-color);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0) rotate(-180deg);
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 3;
+}
+
+#reportes-section .reporte-card.active .reporte-card-check {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+    animation: reporteCheckPulse 1s ease;
+}
+
+@keyframes reporteCheckPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+/* Área de resultado */
+#reportes-section #resultadoReporte {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Filtros de programación */
+#reportes-section #filtrosProgramacion {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+#reportes-section #filtrosProgramacion .card-header {
+    backdrop-filter: blur(10px);
+    border: none;
+    padding: 1.2rem 1.5rem;
+}
+
+#reportes-section #filtrosProgramacion .card-header h6 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.05rem;
+    letter-spacing: 0.3px;
+}
+
+#reportes-section #filtrosProgramacion .card-body {
+    padding: 1.5rem;
+    background: rgba(250, 251, 252, 0.5);
+}
+
+#reportes-section #filtrosProgramacion .form-label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+#reportes-section #filtrosProgramacion .form-select,
+#reportes-section #filtrosProgramacion .form-control {
+    border: 1px solid rgba(206, 212, 218, 0.6);
+    border-radius: 6px;
+    padding: 0.65rem;
+    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+#reportes-section #filtrosProgramacion .form-select:focus,
+#reportes-section #filtrosProgramacion .form-control:focus {
+    border-color: #1e88e5;
+    box-shadow: 0 0 0 0.2rem rgba(30, 136, 229, 0.15);
+    outline: none;
+    background: white;
+}
+
+#reportes-section #btnAplicarFiltros {
+    background: linear-gradient(135deg, #1e88e5 0%, #1976d2 50%, #1e88e5 100%);
+    background-size: 200% 100%;
+    border: none;
+    padding: 0.75rem;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 12px rgba(30, 136, 229, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#reportes-section #btnAplicarFiltros:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 18px rgba(30, 136, 229, 0.4);
+    background-position: 100% 0;
+}
+
+/* Cards dentro de reportes */
+#reportes-section .card {
+    border: 1px solid rgba(233, 236, 239, 0.6);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+}
+
+#reportes-section .card-header {
+    border-bottom: 2px solid rgba(222, 226, 230, 0.6);
+    font-weight: 600;
+    background: rgba(248, 249, 250, 0.8);
+    padding: 1rem 1.25rem;
+}
+
+#reportes-section .card-header h6,
+#reportes-section .card-header h5 {
+    margin: 0;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+/* Tarjetas de métricas */
+#reportes-section .card.text-center {
+    border-radius: 15px;
+    border: 2px solid;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+#reportes-section .card.text-center:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+#reportes-section .card.text-center i.bi {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+#reportes-section .card.text-center .card-subtitle {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#reportes-section .card.text-center .card-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0.5rem 0;
+}
+
+/* Animaciones */
+@keyframes reporteFadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#reportes-section .reporte-card {
+    animation: reporteFadeInUp 0.5s ease backwards;
+}
+
+#reportes-section .reporte-card:nth-child(1) { animation-delay: 0.1s; }
+#reportes-section .reporte-card:nth-child(2) { animation-delay: 0.2s; }
+#reportes-section .reporte-card:nth-child(3) { animation-delay: 0.3s; }
+
+/* Responsive */
+@media (max-width: 768px) {
+    #reportes-section .reportes-header h2 {
+        font-size: 1.8rem;
+    }
+    
+    #reportes-section .reporte-card-icon {
+        font-size: 3rem;
+    }
+    
+    #reportes-section .btn-generar-pdf {
+        padding: 0.85rem 1.5rem;
+        font-size: 0.95rem;
+    }
+}

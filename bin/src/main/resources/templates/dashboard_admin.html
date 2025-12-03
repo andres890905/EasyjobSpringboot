@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dashboard administrativo para gestión de empleados y sucursales - EasyJob">
+    <title>Dashboard Administrador | EasyJob</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" th:href="@{/imagenes/favicon.ico}">
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" 
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <!-- Fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <!-- Animaciones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" th:href="@{/css/dashboard_admin.css}">
+	<link rel="stylesheet" th:href="@{/css/home.css}">
+	<link rel="stylesheet" th:href="@{/css/sucursales.css}">
+	<link rel="stylesheet" th:href="@{/css/reportes.css}">
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<nav id="sidebar" class="sidebar" role="navigation" aria-label="Menú principal">
+  <a class="navbar-brand" href="#home" aria-label="Ir al inicio">
+    <img th:src="@{/imagenes/Logof.jpeg}" src="imagenes/Logof.jpeg" alt="Logo EasyJob">
+  </a>
+  
+  <ul class="nav flex-column">
+    <li class="nav-item">
+      <a class="nav-link active" href="#home" id="btn-home" aria-current="page">
+        <i class="fas fa-home" aria-hidden="true"></i> 
+        <span>Home</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#empleados" id="btn-empleados">
+        <i class="fas fa-users" aria-hidden="true"></i> 
+        <span>Empleados</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#sucursales" id="btn-sucursales">
+        <i class="fas fa-building" aria-hidden="true"></i> 
+        <span>Sucursales</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#reportes" id="btn-reportes">
+        <i class="fas fa-chart-line" aria-hidden="true"></i> 
+        <span>Reportes</span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#config" id="btn-config">
+        <i class="fas fa-cog" aria-hidden="true"></i> 
+        <span>Configuración</span>
+      </a>
+    </li>
+    <li class="nav-item mt-auto">
+      <a class="nav-link text-danger" href="/logout" id="btn-logout">
+        <i class="fas fa-sign-out-alt" aria-hidden="true"></i> 
+        <span>Cerrar sesión</span>
+      </a>
+    </li>
+  </ul>
+</nav>
+
+<!-- ==================== CONTENIDO PRINCIPAL ==================== -->
+<main id="main-content" class="main-content">
+
+  <!-- ========== SECCIÓN HOME ========== -->
+  <section id="home-section" class="content-section active">
+	<div th:replace="~{fragments/home :: home-fragment}"></div>
+  </section>
+
+  <!-- ========== SECCIÓN EMPLEADOS ========== -->
+  <section id="empleados-section" class="content-section">
+    <div class="section-header">
+      <h1>Gestión de Empleados</h1>
+      <p>Administra supervisores y empleados de todas las sucursales, controla su estado y realiza cambios fácilmente.</p>
+    </div>
+
+	<!-- Contenedor de Filtros y Acciones -->
+	<div class="filters-container">
+	  <div class="filters">
+	    <!-- Filtro Sucursal -->
+	    <div class="filter-group">
+	      <label for="sucursal">
+	        <i class="fas fa-building"></i> Sucursal:
+	      </label>
+	      <select id="sucursal" name="sucursal" aria-label="Filtrar por sucursal">
+	        <option value="todas">Todas las sucursales</option>
+	        <option th:each="sucursal : ${sucursales}"
+	                th:value="${sucursal.id_sucursal}"
+	                th:text="${sucursal.nombreSucursal}">
+	        </option>
+	      </select>
+	    </div>
+
+	    <!-- Filtro Rol -->
+	    <div class="filter-group">
+	      <label for="rol">
+	        <i class="fas fa-user-tag"></i> Rol:
+	      </label>
+	      <select id="rol" name="rol" aria-label="Filtrar por rol">
+	        <option value="todos">Todos los roles</option>
+	        <option th:each="rol : ${roles}"
+	                th:value="${rol.id_roles}"
+	                th:text="${rol.tipo_rol}">
+	        </option>
+	      </select>
+	    </div>
+
+	    <!-- ✅ NUEVO: Campo de Búsqueda -->
+	    <div class="filter-group" style="flex: 1; min-width: 250px;">
+	      <label for="busqueda-empleado">
+	        <i class="fas fa-search"></i> Buscar:
+	      </label>
+	      <input 
+	        type="text" 
+	        id="busqueda-empleado" 
+	        name="busqueda"
+	        class="form-control"
+	        placeholder="Cédula, nombre o correo..."
+	        aria-label="Buscar empleado por cédula, nombre o correo"
+	      >
+	    </div>
+	  </div>
+
+	  <!-- Botón nuevo empleado -->
+	  <button id="btn-nuevo-empleado" class="btn-primary" type="button" aria-label="Agregar nuevo empleado">
+	    <i class="fas fa-user-plus" aria-hidden="true"></i>
+	    <span>Nuevo Empleado</span>
+	  </button>
+	</div>
+
+	
+
+    <!-- Lista de empleados -->
+    <div id="empleados-list" class="empleados-list" role="region" aria-live="polite" aria-label="Lista de empleados">
+      <!-- Aquí se carga dinámicamente la tabla -->
+    </div>
+  </section>
+
+  <!-- ========== SECCIÓN SUCURSALES ========== -->
+  <section id="sucursales-section" class="content-section">
+	
+	<div th:replace="~{fragments/sucursales :: sucursales-fragment}"></div>
+  </section>
+
+  <!-- ========== SECCIÓN REPORTES ========== -->
+  <section id="reportes-section" class="content-section">
+	<!-- SECCIÓN DE REPORTES -->
+	<div th:replace="~{fragments/reportes :: reportes-fragment}"></div>
+
+  </section>
+
+  <!-- ========== SECCIÓN CONFIGURACIÓN ========== -->
+  <section id="config-section" class="content-section">
+    <div class="section-header">
+      <h1>Configuración del Sistema</h1>
+      <p>Ajusta los parámetros generales de la aplicación.</p>
+    </div>
+    <div class="alert alert-info" role="alert">
+      <i class="fas fa-info-circle"></i> Sección en construcción...
+    </div>
+  </section>
+
+  <!-- Contenedor dinámico adicional -->
+  <div id="dynamic-section"></div>
+
+</main>
+
+<!-- ==================== MODAL EDITAR EMPLEADO ==================== -->
+<div id="modal-editar" class="modal" role="dialog" aria-labelledby="titulo-modal-editar" aria-hidden="true">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="titulo-modal-editar">Editar Empleado</h2>
+      <span id="cerrar-modal" class="cerrar-modal" role="button" aria-label="Cerrar modal" tabindex="0">&times;</span>
+    </div>
+
+    <form id="form-editar-empleado" class="modal-body">
+      <!-- Cédula (solo lectura al editar) -->
+      <div class="form-group">
+        <label for="editar-cedula">Cédula:</label>
+        <input type="text" id="editar-cedula" name="idusuarios" readonly 
+               placeholder="Cédula del empleado" aria-label="Cédula del empleado">
+      </div>
+
+      <!-- Nombre -->
+      <div class="form-group">
+        <label for="editar-nombre">Nombre: <span class="text-danger">*</span></label>
+        <input type="text" id="editar-nombre" name="nombre" required 
+               placeholder="Nombre del empleado" aria-required="true">
+      </div>
+
+      <!-- Apellido -->
+      <div class="form-group">
+        <label for="editar-apellido">Apellido: <span class="text-danger">*</span></label>
+        <input type="text" id="editar-apellido" name="apellido" required 
+               placeholder="Apellido del empleado" aria-required="true">
+      </div>
+
+      <!-- Correo -->
+      <div class="form-group">
+        <label for="editar-correo">Correo: <span class="text-danger">*</span></label>
+        <input type="email" id="editar-correo" name="correo" required 
+               placeholder="correo@ejemplo.com" aria-required="true">
+      </div>
+
+      <!-- Rol -->
+      <div class="form-group">
+        <label for="editar-rol">Rol: <span class="text-danger">*</span></label>
+        <select id="editar-rol" name="rol_id" required aria-required="true">
+          <option value="">Seleccione un rol</option>
+          <option th:each="rol : ${roles}" 
+                  th:value="${rol.id_roles}" 
+                  th:text="${rol.tipo_rol}">
+          </option>
+        </select>
+      </div>
+
+      <!-- Sucursal -->
+      <div class="form-group">
+        <label for="editar-sucursal">Sucursal: <span class="text-danger">*</span></label>
+        <select id="editar-sucursal" name="sucursal_id" required aria-required="true">
+          <option value="">Seleccione una sucursal</option>
+          <option th:each="sucursal : ${sucursales}" 
+                  th:value="${sucursal.id_sucursal}" 
+                  th:text="${sucursal.nombreSucursal}">
+          </option>
+        </select>
+      </div>
+
+      <!-- Salario -->
+      <div class="form-group">
+        <label for="editar-salario">Salario:</label>
+        <input type="number" id="editar-salario" name="salario" min="0" step="1000" 
+               placeholder="Ej: 1500000" aria-label="Salario del empleado">
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="modal-actions">
+        <button type="button" id="cancelar-editar" class="btn-secondary">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button type="submit" id="guardar-editar" class="btn-primary">
+          <i class="fas fa-save"></i> Guardar Cambios
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ==================== MODAL NUEVO EMPLEADO ==================== -->
+<div id="modal-nuevo" class="modal" role="dialog" aria-labelledby="titulo-modal-nuevo" aria-hidden="true">
+  <div class="modal-content">
+    <span class="cerrar-modal" id="cerrar-nuevo" role="button" aria-label="Cerrar modal" tabindex="0">&times;</span>
+    <h2 id="titulo-modal-nuevo">Agregar Nuevo Empleado</h2>
+
+    <form id="form-nuevo-empleado" class="modal-body">
+      <!-- Cédula -->
+      <div class="form-group">
+        <label for="nuevo-cedula">Cédula: <span class="text-danger">*</span></label>
+        <input type="text" id="nuevo-cedula" name="cedula" required 
+               placeholder="Número de cédula" aria-required="true" 
+               pattern="[0-9]{7,10}" title="Ingrese entre 7 y 10 dígitos">
+      </div>
+
+      <!-- Nombre -->
+      <div class="form-group">
+        <label for="nuevo-nombre">Nombre: <span class="text-danger">*</span></label>
+        <input type="text" id="nuevo-nombre" name="nombre" required 
+               placeholder="Nombre del empleado" aria-required="true">
+      </div>
+
+      <!-- Apellido -->
+      <div class="form-group">
+        <label for="nuevo-apellido">Apellido: <span class="text-danger">*</span></label>
+        <input type="text" id="nuevo-apellido" name="apellido" required 
+               placeholder="Apellido del empleado" aria-required="true">
+      </div>
+
+      <!-- Correo -->
+      <div class="form-group">
+        <label for="nuevo-correo">Correo: <span class="text-danger">*</span></label>
+        <input type="email" id="nuevo-correo" name="correo" required 
+               placeholder="correo@ejemplo.com" aria-required="true">
+      </div>
+
+      <!-- Rol -->
+      <div class="form-group">
+        <label for="nuevo-rol">Rol: <span class="text-danger">*</span></label>
+        <select id="nuevo-rol" name="rol_id" required aria-required="true">
+          <option value="">Seleccione un rol</option>
+          <option th:each="rol : ${roles}" 
+                  th:value="${rol.id_roles}" 
+                  th:text="${rol.tipo_rol}">
+          </option>
+        </select>
+      </div>
+
+      <!-- Sucursal -->
+      <div class="form-group">
+        <label for="nuevo-sucursal">Sucursal: <span class="text-danger">*</span></label>
+        <select id="nuevo-sucursal" name="sucursal_id" required aria-required="true">
+          <option value="">Seleccione una sucursal</option>
+          <option th:each="sucursal : ${sucursales}" 
+                  th:value="${sucursal.id_sucursal}" 
+                  th:text="${sucursal.nombreSucursal}">
+          </option>
+        </select>
+      </div>
+
+      <!-- Salario -->
+      <div class="form-group">
+        <label for="nuevo-salario">Salario: <span class="text-danger">*</span></label>
+        <input type="number" id="nuevo-salario" name="salario" required min="0" step="1000" 
+               placeholder="Ej: 1500000" aria-required="true">
+      </div>
+
+      <!-- Contraseña temporal -->
+      <div class="form-group">
+        <label for="nuevo-password">Contraseña temporal:</label>
+        <input type="password" id="nuevo-password" name="password" 
+               placeholder="Se generará automáticamente si se deja vacío">
+        <small class="form-text text-muted">
+          <i class="fas fa-info-circle"></i> Si no ingresa una contraseña, se generará automáticamente.
+        </small>
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="modal-actions">
+        <button type="button" id="cancelar-nuevo" class="btn-secondary">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button type="submit" id="guardar-nuevo" class="btn-primary">
+          <i class="fas fa-user-plus"></i> Agregar Empleado
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ==================== SCRIPTS ==================== -->
+<!-- Bootstrap Bundle (incluye Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<!-- JavaScript personalizado -->
+<script th:src="@{/js/dashboard_admin.js}" ></script>
+<script th:src="@{/js/modules/home.js}" ></script>
+<script th:src="@{/js/modules/sucursales.js}"></script>
+<script th:src="@{/js/modules/reportes.js}"></script>
+
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Easy Job</title>
+<link rel="stylesheet" href="css/login.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+  <div class="main-container">
+    
+    <!-- Columna izquierda -->
+    <div class="contenido">
+      <div class="logo-bg">
+        <img src="/imagenes/Logof.jpeg" alt="Logo" class="logo">
+      </div>
+      <h1>Welcome Back</h1>
+      <p>Bienvenido nuevamente a Easy Job. Aquí podrás acceder a nuestra plataforma de manera segura.</p>
+      <div class="social-icons">
+        <i class="fab fa-facebook-f"></i>
+        <i class="fab fa-twitter"></i>
+        <i class="fab fa-instagram"></i>
+      </div>
+    </div>
+
+    <!-- Columna derecha -->
+    <div class="form-container">
+      <!-- Mensaje de error -->
+	  <!-- Actualiza tu div de error así: -->
+	  <div th:if="${errorMensaje}" id="error-message" class="error-message">
+	      <span th:text="${errorMensaje}"></span>
+	      <button class="close-btn" onclick="closeError()">&times;</button>
+	  </div>
+
+      <form th:action="@{/login}" method="POST" class="login-form">
+        <h3>Sing in</h3>
+        <div class="form-group">
+          <label for="correo">Correo</label>
+          <input type="email" id="correo" name="correo" required placeholder="Ingresa tu correo">
+        </div>
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" name="password" required placeholder="Ingresa tu contraseña">
+        </div>
+        <div class="remember">
+          <input type="checkbox" id="remember">
+          <label for="remember">Recordarme</label>
+        </div>
+        <button type="submit" class="btn-primary">Iniciar Sesión</button>
+		<a th:href="@{/}" class="btn btn-primary">Volver</a>
+        <a href="#" class="forgot">¿Olvidaste tu contraseña?</a>
+      </form>
+    </div>
+
+  </div>
+  <script>
+  window.addEventListener('DOMContentLoaded', function() {
+    const errorMsg = document.getElementById('error-message');
+    if (errorMsg) {
+      setTimeout(function() {
+        errorMsg.classList.add('fade-out');
+        setTimeout(function() {
+          errorMsg.style.display = 'none';
+        }, 500);
+      }, 5000); // Se oculta después de 5 segundos
+    }
+  });
+
+  function closeError() {
+    const errorMsg = document.getElementById('error-message');
+    errorMsg.classList.add('fade-out');
+    setTimeout(function() {
+      errorMsg.style.display = 'none';
+    }, 500);
+  }
+  </script>
+</body>
+</html>

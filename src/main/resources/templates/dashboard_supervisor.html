@@ -385,41 +385,27 @@
   <!-- Sección Incapacidades -->
   <div id="seccionIncapacidades" style="display: none;">
     <h2 class="mb-4"><i class="fas fa-file-medical"></i>Gestión de Incapacidades</h2>
-    <div class="card card-custom p-4">
-      <h4 class="mb-4">Registrar Nueva Incapacidad</h4>
-      <form id="formIncapacidades">
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label for="empleadoIncapacidad" class="form-label">Empleado</label>
-            <input type="text" class="form-control" id="empleadoIncapacidad" placeholder="Nombre o ID del empleado" />
-          </div>
-          <div class="col-md-6">
-            <label for="tipoIncapacidad" class="form-label">Tipo de Incapacidad</label>
-            <select class="form-control" id="tipoIncapacidad">
-              <option value="">Seleccione...</option>
-              <option value="enfermedad">Enfermedad General</option>
-              <option value="accidente">Accidente Laboral</option>
-              <option value="maternidad">Maternidad</option>
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label for="fechaInicioIncapacidad" class="form-label">Fecha Inicio</label>
-            <input type="date" class="form-control" id="fechaInicioIncapacidad" />
-          </div>
-          <div class="col-md-6">
-            <label for="fechaFinIncapacidad" class="form-label">Fecha Fin</label>
-            <input type="date" class="form-control" id="fechaFinIncapacidad" />
-          </div>
-          <div class="col-md-12">
-            <label for="observacionesIncapacidad" class="form-label">Observaciones</label>
-            <textarea class="form-control" id="observacionesIncapacidad" rows="3" placeholder="Detalles adicionales..."></textarea>
-          </div>
-        </div>
-        <button type="submit" class="btn btn-primary mt-3">
-          <i class="fas fa-save me-2"></i>Registrar Incapacidad
-        </button>
-      </form>
-    </div>
+	<div id="listaIncapacidadesSupervisor" class="mt-5">
+	  <h3 class="mb-3"><i class="fas fa-list"></i> Lista de Incapacidades</h3>
+
+	  <table class="table table-striped">
+	    <thead>
+	      <tr>
+	        <th>ID</th>
+	        <th>Empleado</th>
+	        <th>Tipo</th>
+	        <th>Fecha Inicio</th>
+	        <th>Fecha Fin</th>
+	        <th>Motivo</th>
+	        <th>Estado</th>
+	        <th>Archivo</th>
+	        <th>Acciones</th>
+	      </tr>
+	    </thead>
+	    <tbody id="tablaIncapacidades"></tbody>
+	  </table>
+	</div>
+
   </div>
 
   <!-- Sección Vacaciones -->

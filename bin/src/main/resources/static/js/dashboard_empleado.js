@@ -339,128 +339,33 @@ function mostrarFormularioVacaciones() {
 // SECCIÓN: INCAPACIDADES
 // ========================
 function loadIncapacidadesSection(container) {
-  if (!empleadoData) {
-    container.innerHTML = `
-      <div class="card">
-        <h2 style="margin-top: 20px;">🏥 Incapacidades</h2>
-        <p style="padding: 20px; color: #999;">Cargando información del empleado...</p>
-      </div>
-    `;
-    return;
-  }
-
-  // Mostrar loading
   container.innerHTML = `
     <div class="card">
       <h2 style="margin-top: 20px;">🏥 Incapacidades</h2>
-      <div style="text-align: center; padding: 40px;">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Cargando...</span>
+      <div style="margin-top: 30px;">
+        <div class="info-box">
+          <h4>Historial de incapacidades</h4>
+          <div id="listaIncapacidades">
+            ${solicitudes.incapacidades.length === 0 ? 
+              '<p style="color: #999; margin: 0;">No hay registros de incapacidades</p>' :
+              solicitudes.incapacidades.map(inc => `
+                <div class="solicitud-item">
+                  <div>
+                    <strong>${inc.fechaInicio} al ${inc.fechaFin}</strong>
+                    <small>${inc.tipo} - ${inc.dias} días</small>
+                  </div>
+                  <span class="badge ${inc.estado}">${inc.estado}</span>
+                </div>
+              `).join('')}
+          </div>
         </div>
-        <p style="color: #999; margin-top: 10px;">Cargando tu historial de incapacidades...</p>
+        
+        <button class="btn-primary" onclick="mostrarFormularioIncapacidad()">
+          ➕ Reportar Incapacidad
+        </button>
       </div>
     </div>
   `;
-
-  // Cargar incapacidades del empleado desde la base de datos
-  fetch(`http://localhost:9090/api/incapacidades/usuario/${empleadoData.idusuarios}`)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-      return response.json();
-    })
-    .then(incapacidades => {
-      console.log('✅ Incapacidades cargadas:', incapacidades);
-
-      // Mapear estados para mostrar con badges de colores
-      const incapacidadesHTML = incapacidades.length === 0 ? 
-        '<p style="color: #999; margin: 0;">No hay registros de incapacidades</p>' :
-        incapacidades.map(inc => {
-          const estadoBadge = inc.estado === 'APROBADA' ? 'success' : 
-                             inc.estado === 'RECHAZADA' ? 'danger' : 'warning';
-          const icono = inc.estado === 'APROBADA' ? '✓' : 
-                       inc.estado === 'RECHAZADA' ? '✗' : '⏳';
-          
-          const botonArchivo = inc.archivoSoporte ? 
-            `<a href="http://localhost:9090/api/incapacidades/archivo/${inc.archivoSoporte}" 
-                class="btn-secondary" style="margin-left: 10px; padding: 5px 10px; border-radius: 3px; text-decoration: none; font-size: 12px;">
-              📥 Descargar
-            </a>` : 
-            '<span style="color: #999; font-size: 12px; margin-left: 10px;">Sin archivo</span>';
-          
-          return `
-            <div class="solicitud-item" style="padding: 15px; border-left: 4px solid #${estadoBadge === 'success' ? '28a745' : estadoBadge === 'danger' ? 'dc3545' : 'ffc107'}; margin-bottom: 10px;">
-              <div>
-                <strong>${inc.fechaInicio} al ${inc.fechaFin}</strong>
-                <small style="display: block; margin-top: 5px;">
-                  <strong>Tipo:</strong> ${inc.tipo || 'General'} | 
-                  <strong>Motivo:</strong> ${inc.motivo || 'N/A'}
-                </small>
-              </div>
-              <div style="display: flex; align-items: center;">
-                <span class="badge bg-${estadoBadge}" style="font-size: 12px;">
-                  ${icono} ${inc.estado}
-                </span>
-                ${botonArchivo}
-              </div>
-            </div>
-          `;
-        }).join('');
-
-      // Actualizar el contenedor con el historial
-      container.innerHTML = `
-        <div class="card">
-          <h2 style="margin-top: 20px;">🏥 Incapacidades</h2>
-          <div style="margin-top: 30px;">
-            <div class="info-box">
-              <h4>Historial de incapacidades</h4>
-              <div id="listaIncapacidades">
-                ${incapacidadesHTML}
-              </div>
-            </div>
-            
-            <button class="btn-primary" onclick="mostrarFormularioIncapacidad()">
-              ➕ Reportar Incapacidad
-            </button>
-          </div>
-        </div>
-      `;
-    })
-    .catch(error => {
-      console.error('❌ Error al cargar incapacidades:', error);
-      container.innerHTML = `
-        <div class="card">
-          <h2 style="margin-top: 20px;">🏥 Incapacidades</h2>
-          <div style="margin-top: 30px;">
-            <div class="alert alert-danger" style="padding: 15px; border-radius: 5px;">
-              <strong>Error:</strong> No se pudieron cargar las incapacidades. ${error.message}
-            </div>
-            
-            <div class="info-box" style="margin-top: 20px;">
-              <h4>Historial de incapacidades (sin sincronizar)</h4>
-              <div id="listaIncapacidades">
-                ${solicitudes.incapacidades.length === 0 ? 
-                  '<p style="color: #999; margin: 0;">No hay registros de incapacidades</p>' :
-                  solicitudes.incapacidades.map(inc => `
-                    <div class="solicitud-item">
-                      <div>
-                        <strong>${inc.fechaInicio} al ${inc.fechaFin}</strong>
-                        <small>${inc.tipo} - ${inc.dias} días</small>
-                      </div>
-                      <span class="badge ${inc.estado}">${inc.estado}</span>
-                    </div>
-                  `).join('')}
-              </div>
-            </div>
-            
-            <button class="btn-primary" onclick="mostrarFormularioIncapacidad()">
-              ➕ Reportar Incapacidad
-            </button>
-          </div>
-        </div>
-      `;
-    });
 }
 
 function mostrarFormularioIncapacidad() {
@@ -502,14 +407,6 @@ function mostrarFormularioIncapacidad() {
           <label>Observaciones: *</label>
           <textarea id="observaciones" rows="4" placeholder="Detalles adicionales..." required></textarea>
         </div>
-
-        <div class="form-group">
-          <label>📎 Archivo de Soporte (PDF, JPG, PNG):</label>
-          <input type="file" id="archivoSoporte" accept=".pdf,.jpg,.jpeg,.png">
-          <small style="color: #666; display: block; margin-top: 5px;">
-            Adjunta el certificado médico o comprobante de la incapacidad (máx. 5MB) - Opcional
-          </small>
-        </div>
         
         <div class="form-actions">
           <button type="button" class="btn-secondary" onclick="loadSection('incapacidades')">Cancelar</button>
@@ -538,88 +435,27 @@ function mostrarFormularioIncapacidad() {
   fechaInicioInput.addEventListener('change', calcularDias);
   fechaFinInput.addEventListener('change', calcularDias);
   
-  document.getElementById('formIncapacidad').addEventListener('submit', async function(e) {
+  document.getElementById('formIncapacidad').addEventListener('submit', function(e) {
     e.preventDefault();
     
     const tipo = document.getElementById('tipoIncapacidad').value;
     const inicio = document.getElementById('fechaInicioInc').value;
     const fin = document.getElementById('fechaFinInc').value;
     const observaciones = document.getElementById('observaciones').value;
-    const archivoInput = document.getElementById('archivoSoporte');
     const dias = Math.ceil((new Date(fin) - new Date(inicio)) / (1000 * 60 * 60 * 24)) + 1;
     
-    // Validar archivo si existe
-    let archivo = null;
-    if (archivoInput.files && archivoInput.files.length > 0) {
-      archivo = archivoInput.files[0];
-      
-      // Validar tamaño del archivo (máx 5MB)
-      const maxSize = 5 * 1024 * 1024; // 5MB
-      if (archivo.size > maxSize) {
-        showNotification('El archivo es demasiado grande. Máximo 5MB', 'error');
-        return;
-      }
-
-      // Validar tipo de archivo
-      const tiposPermitidos = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
-      if (!tiposPermitidos.includes(archivo.type)) {
-        showNotification('Solo se permiten archivos PDF, JPG o PNG', 'error');
-        return;
-      }
-    }
+    solicitudes.incapacidades.push({
+      tipo, 
+      fechaInicio: inicio, 
+      fechaFin: fin, 
+      dias, 
+      observaciones,
+      estado: 'pendiente',
+      fecha: new Date().toLocaleDateString('es-CO')
+    });
     
-    try {
-      // Mostrar loading
-      showNotification('⏳ Guardando incapacidad...', 'info');
-
-      // Crear FormData para enviar archivo y datos
-      const formData = new FormData();
-      formData.append('idusuarios', empleadoData.idusuarios);
-      formData.append('nombreEmpleado', (empleadoData.nombre || '') + ' ' + (empleadoData.apellido || ''));
-      formData.append('nombreEps', empleadoData.nombreEps || empleadoData.eps || 'EPS No especificada');
-      formData.append('tipo', tipo);
-      formData.append('motivo', observaciones);
-      formData.append('fechaInicio', inicio);
-      formData.append('fechaFin', fin);
-      formData.append('estado', 'PENDIENTE');
-      
-      // Incluir archivo solo si existe
-      if (archivo) {
-        formData.append('archivoSoporte', archivo);
-      }
-
-      // Enviar los datos a la base de datos
-      const response = await fetch('http://localhost:9090/api/incapacidades/upload', {
-        method: 'POST',
-        body: formData // No incluir Content-Type, navegador lo establece automáticamente
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Error ${response.status}: ${errorText}`);
-      }
-      
-      const result = await response.json();
-      console.log('✅ Incapacidad guardada:', result);
-      
-      // Guardar también en memoria
-      solicitudes.incapacidades.push({
-        tipo, 
-        fechaInicio: inicio, 
-        fechaFin: fin, 
-        dias, 
-        observaciones,
-        archivo: archivo ? archivo.name : 'Sin archivo',
-        estado: 'PENDIENTE',
-        fecha: new Date().toLocaleDateString('es-CO')
-      });
-      
-      showNotification('✅ Incapacidad reportada exitosamente. Archivo: ' + archivo.name, 'success');
-      loadSection('incapacidades');
-    } catch (error) {
-      console.error('❌ Error al guardar incapacidad:', error);
-      showNotification('Error al reportar incapacidad: ' + error.message, 'error');
-    }
+    showNotification('Incapacidad reportada exitosamente', 'success');
+    loadSection('incapacidades');
   });
 }
 // ========================

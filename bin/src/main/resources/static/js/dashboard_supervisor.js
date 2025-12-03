@@ -1,23 +1,18 @@
 // ================= DASHBOARD SUPERVISOR - OPTIMIZADO Y CORREGIDO ==================
+
+// ====== CONSTANTES Y CONFIGURACIÓN ======
 const API_BASE_URL = 'http://localhost:9090/api';
 const ENDPOINTS = {
   empleados: '/usuarios/empleados',
   buscarUsuario: '/usuarios/buscar',
   empleadosZona: '/usuarios/zona',
   programacion: '/programacion',
-
-  // INCAPACIDADES (CORRECTOS)
-  incapacidades: '/incapacidades',              // listar / crear
-  incapacidadPorUsuario: '/incapacidades/usuario',  
-  aprobarIncapacidad: (id) => `/incapacidades/${id}/aprobar`,
-  rechazarIncapacidad: (id) => `/incapacidades/${id}/rechazar`,
-
+  incapacidades: '/incapacidades/registrar',
   vacaciones: '/vacaciones/actualizar',
   traslados: '/traslados/registrar',
   reportes: '/reportes/generar',
   zonasSupervisor: ''
 };
-
 
 // ====== VARIABLES GLOBALES ======
 let empleadoSeleccionado = null;
@@ -1678,208 +1673,57 @@ const Horarios = {
     this.cargarDesdeURL(url);
   }
   }
- // ====== GESTIÓN DE INCAPACIDADES ======
-  const Incapacidades = {
-    init() {
-      this.cargarIncapacidades();
-      
-      // Vincular botón de refrescar si existe
-      const btnRefresh = document.getElementById('btnRefreshIncapacidades');
-      if (btnRefresh) {
-        btnRefresh.addEventListener('click', () => this.cargarIncapacidades());
-      }
-    },
-
-    async cargarIncapacidades() {
-      const tabla = document.getElementById('tablaIncapacidades');
-      const tbody = tabla?.querySelector('tbody') || tabla;
-      
-      if (!tbody) {
-        console.error('❌ No se encontró la tabla de incapacidades');
-        return;
-      }
-
-      // Mostrar loading
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="8" class="text-center py-4">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Cargando...</span>
-            </div>
-            <p class="mt-3 text-muted">Cargando incapacidades...</p>
-          </td>
-        </tr>
-      `;
-
-      try {
-        // ✅ Cargar incapacidades de la zona del supervisor
-        const url = supervisorActual 
-          ? `${ENDPOINTS.incapacidades}/zona/${supervisorActual}` 
-          : ENDPOINTS.incapacidades;
-        
-        const data = await API.get(url);
-        
-        tbody.innerHTML = '';
-
-        if (!data || data.length === 0) {
-          tbody.innerHTML = `
-            <tr>
-              <td colspan="8" class="text-center text-muted py-4">
-                <i class="fas fa-inbox fa-3x mb-3"></i>
-                <p>No hay incapacidades registradas</p>
-              </td>
-            </tr>
-          `;
-          return;
-        }
-
-        // Renderizar incapacidades
-        data.forEach(inc => {
-          const fila = document.createElement('tr');
-          
-          // Determinar si se pueden mostrar botones (solo PENDIENTES)
-          const esPendiente = inc.estado && inc.estado.toUpperCase() === 'PENDIENTE';
-          const botonesAccion = esPendiente ? `
-            <button 
-              class="btn btn-success btn-sm me-1" 
-              onclick="Incapacidades.aprobar('${inc.idIncapacidad}')"
-              title="Aprobar">
-              <i class="fas fa-check"></i> Aprobar
-            </button>
-            <button 
-              class="btn btn-danger btn-sm" 
-              onclick="Incapacidades.rechazar('${inc.idIncapacidad}')"
-              title="Rechazar">
-              <i class="fas fa-times"></i> Rechazar
-            </button>
-          ` : `
-            <span class="text-muted"><i class="fas fa-check-circle"></i> Procesada</span>
-          `;
-
-          // Botón para descargar archivo si existe
-          const botonArchivo = inc.archivoSoporte ? `
-            <a 
-              href="http://localhost:9090/api/incapacidades/archivo/${inc.archivoSoporte}"
-              class="btn btn-info btn-sm"
-              title="Descargar soporte"
-              download>
-              <i class="fas fa-download"></i> Archivo
-            </a>
-          ` : `
-            <span class="text-muted text-sm"><i class="fas fa-times-circle"></i> Sin archivo</span>
-          `;
-
-          fila.innerHTML = `
-            <td><strong>#${inc.idIncapacidad}</strong></td>
-            <td>
-              <div>
-                <strong>${inc.nombreEmpleado || 'N/A'}</strong>
-                <br>
-                <small class="text-muted">ID: ${inc.idusuarios}</small>
-              </div>
-            </td>
-            <td>
-              <span class="badge bg-info">
-                ${inc.tipo || 'General'}
-              </span>
-            </td>
-            <td>
-              <small>
-                <i class="fas fa-calendar-day me-1"></i>
-                ${Utils.formatearFechaCorta(inc.fechaInicio)}
-              </small>
-            </td>
-            <td>
-              <small>
-                <i class="fas fa-calendar-day me-1"></i>
-                ${Utils.formatearFechaCorta(inc.fechaFin)}
-              </small>
-            </td>
-            <td>
-              <small class="text-muted">
-                ${inc.motivo || '<em>Sin motivo</em>'}
-              </small>
-            </td>
-            <td class="text-center">
-              <span class="badge bg-${this.colorEstado(inc.estado)}">
-                ${inc.estado}
-              </span>
-            </td>
-            <td class="text-center">
-              ${botonArchivo}
-            </td>
-            <td class="text-center">
-              ${botonesAccion}
-            </td>
-          `;
-          
-          tbody.appendChild(fila);
-        });
-
-        Utils.mostrarAlerta(`✅ ${data.length} incapacidad(es) cargada(s)`, 'success');
-
-      } catch (error) {
-        console.error('❌ Error al cargar incapacidades:', error);
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="9" class="text-center text-danger py-4">
-              <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
-              <p>Error al cargar incapacidades: ${error.message}</p>
-              <button class="btn btn-primary btn-sm" onclick="Incapacidades.cargarIncapacidades()">
-                <i class="fas fa-redo me-2"></i>Reintentar
-              </button>
-            </td>
-          </tr>
-        `;
-      }
-    },
-
-    async aprobar(id) {
-      if (!confirm('¿Está seguro de aprobar esta incapacidad?')) return;
-
-      try {
-        // ✅ Usar el endpoint correcto de ENDPOINTS
-        await API.put(ENDPOINTS.aprobarIncapacidad(id), {});
-        Utils.mostrarAlerta('✅ Incapacidad aprobada correctamente', 'success');
-        this.cargarIncapacidades();
-      } catch (error) {
-        console.error('❌ Error al aprobar:', error);
-        Utils.mostrarAlerta('❌ Error al aprobar: ' + error.message, 'danger');
-      }
-    },
-
-    async rechazar(id) {
-      const motivo = prompt('Ingrese el motivo del rechazo (opcional):');
-      
-      if (motivo === null) return; // Usuario canceló
-
-      try {
-        // ✅ Usar el endpoint correcto de ENDPOINTS
-        await API.put(ENDPOINTS.rechazarIncapacidad(id), { 
-          motivo: motivo.trim() || 'Sin motivo especificado' 
-        });
-        Utils.mostrarAlerta('✅ Incapacidad rechazada correctamente', 'success');
-        this.cargarIncapacidades();
-      } catch (error) {
-        console.error('❌ Error al rechazar:', error);
-        Utils.mostrarAlerta('❌ Error al rechazar: ' + error.message, 'danger');
-      }
-    },
-
-    colorEstado(estado) {
-      const colores = {
-        'PENDIENTE': 'warning',
-        'APROBADA': 'success',
-        'APROBADO': 'success',
-        'RECHAZADA': 'danger',
-        'RECHAZADO': 'danger',
-        'CANCELADA': 'secondary',
-        'CANCELADO': 'secondary'
-      };
-      return colores[estado?.toUpperCase()] || 'secondary';
+// ====== GESTIÓN DE INCAPACIDADES ======
+const Incapacidades = {
+  init() {
+    const form = document.getElementById('formIncapacidades');
+    if (form) {
+      form.addEventListener('submit', (e) => this.registrar(e));
     }
-  };
+  },
 
+  async registrar(e) {
+    e.preventDefault();
+
+    const empleado = document.getElementById('empleadoIncapacidad').value;
+    const tipo = document.getElementById('tipoIncapacidad').value;
+    const fechaInicio = document.getElementById('fechaInicioIncapacidad').value;
+    const fechaFin = document.getElementById('fechaFinIncapacidad').value;
+    const observaciones = document.getElementById('observacionesIncapacidad').value;
+
+    if (!empleado || !tipo || !fechaInicio || !fechaFin) {
+      Utils.mostrarAlerta('Complete todos los campos requeridos', 'warning');
+      return;
+    }
+
+    if (!Utils.validarFechas(fechaInicio, fechaFin)) {
+      Utils.mostrarAlerta('La fecha de inicio debe ser anterior a la fecha fin', 'warning');
+      return;
+    }
+
+    const datos = {
+      empleado,
+      tipo,
+      fechaInicio,
+      fechaFin,
+      observaciones
+    };
+
+    try {
+      const data = await API.post(ENDPOINTS.incapacidades, datos);
+      
+      if (data.success) {
+        Utils.mostrarAlerta('Incapacidad registrada correctamente', 'success');
+        e.target.reset();
+      } else {
+        Utils.mostrarAlerta('Error al registrar incapacidad', 'danger');
+      }
+    } catch (error) {
+      Utils.mostrarAlerta('Error de conexión con el servidor', 'danger');
+      console.error('Error:', error);
+    }
+  }
+};
 
 // ====== GESTIÓN DE VACACIONES ======
 const Vacaciones = {
