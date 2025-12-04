@@ -6,13 +6,18 @@ const ENDPOINTS = {
   empleadosZona: '/usuarios/zona',
   programacion: '/programacion',
 
-  // INCAPACIDADES (CORRECTOS)
+  // INCAPACIDADES
   incapacidades: '/incapacidades',              // listar / crear
   incapacidadPorUsuario: '/incapacidades/usuario',  
   aprobarIncapacidad: (id) => `/incapacidades/${id}/aprobar`,
   rechazarIncapacidad: (id) => `/incapacidades/${id}/rechazar`,
 
-  vacaciones: '/vacaciones/actualizar',
+  // VACACIONES
+  vacaciones: '/vacaciones',
+  vacacionesTodas: '/vacaciones/todas',
+  vacacionesPorZona: (id) => `/vacaciones/zona/${id}`,
+  cambiarEstadoVacacion: (id) => `/vacaciones/${id}/estado`,
+
   traslados: '/traslados/registrar',
   reportes: '/reportes/generar',
   zonasSupervisor: ''
@@ -1713,10 +1718,14 @@ const Horarios = {
 
       try {
         // ✅ Cargar incapacidades de la zona del supervisor
-        const url = supervisorActual 
-          ? `${ENDPOINTS.incapacidades}/zona/${supervisorActual}` 
-          : ENDPOINTS.incapacidades;
+        let url = ENDPOINTS.incapacidades;
         
+        if (supervisorActual) {
+          console.log('🔍 Cargando incapacidades del supervisor:', supervisorActual);
+          url = `${ENDPOINTS.incapacidades}/zona/${supervisorActual}`;
+        }
+        
+        console.log('📋 URL de incapacidades:', url);
         const data = await API.get(url);
         
         tbody.innerHTML = '';
@@ -1884,56 +1893,234 @@ const Horarios = {
 // ====== GESTIÓN DE VACACIONES ======
 const Vacaciones = {
   init() {
-    const form = document.getElementById('formVacaciones');
-    if (form) {
-      form.addEventListener('submit', (e) => this.actualizar(e));
+    this.cargarVacaciones();
+    
+    // Vincular botón de refrescar si existe
+    const btnRefresh = document.getElementById('btnRefreshVacaciones');
+    if (btnRefresh) {
+      btnRefresh.addEventListener('click', () => this.cargarVacaciones());
     }
   },
 
-  async actualizar(e) {
-    e.preventDefault();
-
-    const idVacacion = document.getElementById('idVacacion').value;
-    const accion = document.querySelector('input[name="accionVacaciones"]:checked');
-    const comentarios = document.getElementById('comentariosVacaciones').value;
-
-    if (!idVacacion) {
-      Utils.mostrarAlerta('Por favor ingrese el ID de la solicitud', 'warning');
+  async cargarVacaciones() {
+    const tabla = document.getElementById('tablaVacaciones');
+    const tbody = tabla?.querySelector('tbody') || tabla;
+    
+    if (!tbody) {
+      console.error('❌ No se encontró la tabla de vacaciones');
       return;
     }
 
-    if (!accion) {
-      Utils.mostrarAlerta('Por favor seleccione una acción (Aprobar o Rechazar)', 'warning');
-      return;
-    }
-
-    const datos = {
-      idVacacion: parseInt(idVacacion),
-      estado: accion.value,
-      comentarios
-    };
-
-    const btnSubmit = e.target.querySelector('button[type="submit"]');
-    const textoOriginal = btnSubmit.innerHTML;
-    btnSubmit.disabled = true;
-    btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Procesando...';
+    // Mostrar loading
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8" class="text-center py-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+          <p class="mt-3 text-muted">Cargando vacaciones...</p>
+        </td>
+      </tr>
+    `;
 
     try {
-      const data = await API.post(ENDPOINTS.vacaciones, datos);
+      // ✅ Cargar vacaciones de la zona del supervisor
+      let url = ENDPOINTS.vacacionesTodas;
       
-      if (data.success) {
-        Utils.mostrarAlerta(`Solicitud ${accion.value.toLowerCase()}a correctamente`, 'success');
-        e.target.reset();
-      } else {
-        Utils.mostrarAlerta('Error al procesar la solicitud', 'danger');
+      if (supervisorActual) {
+        console.log('🔍 Cargando vacaciones del supervisor:', supervisorActual);
+        url = ENDPOINTS.vacacionesPorZona(supervisorActual);
       }
+      
+      console.log('📋 URL de vacaciones:', url);
+      let data = [];
+      
+      try {
+        data = await API.get(url);
+        console.log('✅ Vacaciones obtenidas:', data);
+      } catch (error) {
+        console.warn('⚠️ Error al cargar vacaciones por zona, intentando sin filtro:', error.message);
+        
+        // Fallback: intentar cargar todas las vacaciones
+        try {
+          data = await API.get(ENDPOINTS.vacacionesTodas);
+          console.log('✅ Vacaciones (sin filtro) obtenidas:', data);
+        } catch (error2) {
+          console.error('❌ Error al cargar vacaciones:', error2.message);
+          throw error2;
+        }
+      }
+      
+      tbody.innerHTML = '';      if (!data || data.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" class="text-center text-muted py-4">
+              <i class="fas fa-inbox fa-3x mb-3"></i>
+              <p>No hay solicitudes de vacaciones registradas</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      // Renderizar vacaciones
+      data.forEach(vac => {
+        const fila = document.createElement('tr');
+        
+        // Determinar si se pueden mostrar botones (solo PENDIENTE)
+        const esPendiente = vac.estado && vac.estado.toUpperCase() === 'PENDIENTE';
+        const botonesAccion = esPendiente ? `
+          <button 
+            class="btn btn-success btn-sm me-1" 
+            onclick="Vacaciones.aprobar('${vac.idVacacion}')"
+            title="Aprobar">
+            <i class="fas fa-check"></i> Aprobar
+          </button>
+          <button 
+            class="btn btn-danger btn-sm" 
+            onclick="Vacaciones.rechazar('${vac.idVacacion}')"
+            title="Rechazar">
+            <i class="fas fa-times"></i> Rechazar
+          </button>
+        ` : `
+          <span class="text-muted"><i class="fas fa-check-circle"></i> Procesada</span>
+        `;
+
+        fila.innerHTML = `
+          <td><strong>#${vac.idVacacion}</strong></td>
+          <td>
+            <div>
+              <strong>${vac.nombreEmpleado || 'N/A'}</strong>
+              <br>
+              <small class="text-muted">ID: ${vac.idUsuario}</small>
+            </div>
+          </td>
+          <td>
+            <small>
+              <i class="fas fa-calendar-day me-1"></i>
+              ${Utils.formatearFechaCorta(vac.fechaInicio)}
+            </small>
+          </td>
+          <td>
+            <small>
+              <i class="fas fa-calendar-day me-1"></i>
+              ${Utils.formatearFechaCorta(vac.fechaFin)}
+            </small>
+          </td>
+          <td class="text-center">
+            <span class="badge bg-info">
+              ${this.calcularDias(vac.fechaInicio, vac.fechaFin)} días
+            </span>
+          </td>
+          <td>
+            <small class="text-muted">
+              ${vac.comentarios || '<em>Sin comentarios</em>'}
+            </small>
+          </td>
+          <td class="text-center">
+            <span class="badge bg-${this.colorEstado(vac.estado)}">
+              ${vac.estado}
+            </span>
+          </td>
+          <td class="text-center">
+            ${botonesAccion}
+          </td>
+        `;
+        
+        tbody.appendChild(fila);
+      });
+
+      Utils.mostrarAlerta(`✅ ${data.length} solicitud(es) de vacaciones cargada(s)`, 'success');
+
     } catch (error) {
-      Utils.mostrarAlerta('Error de conexión con el servidor', 'danger');
-      console.error('Error:', error);
-    } finally {
-      btnSubmit.disabled = false;
-      btnSubmit.innerHTML = textoOriginal;
+      console.error('❌ Error al cargar vacaciones:', error);
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" class="text-center text-danger py-4">
+            <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+            <p><strong>Error al cargar las vacaciones</strong></p>
+            <p class="small">${error.message || 'Intente nuevamente'}</p>
+          </td>
+        </tr>
+      `;
     }
+  },
+
+  async aprobar(idVacacion) {
+    if (!confirm('¿Estás seguro de que deseas APROBAR esta solicitud de vacaciones?')) {
+      return;
+    }
+
+    try {
+      console.log('📤 Aprobando vacación:', idVacacion);
+      const url = `${ENDPOINTS.cambiarEstadoVacacion(idVacacion)}?estado=Aprobado`;
+      console.log('🔗 URL:', url);
+      
+      const response = await API.put(url, {});
+      console.log('✅ Respuesta del servidor:', response);
+      
+      Utils.mostrarAlerta('✅ Solicitud de vacaciones aprobada correctamente', 'success');
+      
+      // Pequeño delay para asegurar que la BD actualizó
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await this.cargarVacaciones();
+    } catch (error) {
+      console.error('❌ Error:', error);
+      Utils.mostrarAlerta('❌ Error al aprobar la solicitud: ' + error.message, 'danger');
+    }
+  },
+
+  async rechazar(idVacacion) {
+    if (!confirm('¿Estás seguro de que deseas RECHAZAR esta solicitud de vacaciones?')) {
+      return;
+    }
+
+    try {
+      console.log('📤 Rechazando vacación:', idVacacion);
+      const url = `${ENDPOINTS.cambiarEstadoVacacion(idVacacion)}?estado=Rechazado`;
+      console.log('🔗 URL:', url);
+      
+      const response = await API.put(url, {});
+      console.log('✅ Respuesta del servidor:', response);
+      
+      Utils.mostrarAlerta('✅ Solicitud de vacaciones rechazada correctamente', 'success');
+      
+      // Pequeño delay para asegurar que la BD actualizó
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      await this.cargarVacaciones();
+    } catch (error) {
+      console.error('❌ Error:', error);
+      Utils.mostrarAlerta('❌ Error al rechazar la solicitud: ' + error.message, 'danger');
+    }
+  },
+
+  calcularDias(inicio, fin) {
+    if (!inicio || !fin) return 0;
+    const start = new Date(inicio);
+    const end = new Date(fin);
+    return Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+  },
+
+  colorEstado(estado) {
+    const colores = {
+      'PENDIENTE': 'warning',
+      'Pendiente': 'warning',
+      'APROBADO': 'success',
+      'Aprobado': 'success',
+      'APROBADA': 'success',
+      'Aprobada': 'success',
+      'RECHAZADO': 'danger',
+      'Rechazado': 'danger',
+      'RECHAZADA': 'danger',
+      'Rechazada': 'danger',
+      'CANCELADO': 'secondary',
+      'Cancelado': 'secondary',
+      'CANCELADA': 'secondary',
+      'Cancelada': 'secondary'
+    };
+    return colores[estado] || 'secondary';
   }
 };
 
