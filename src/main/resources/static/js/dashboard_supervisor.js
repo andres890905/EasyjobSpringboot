@@ -1779,7 +1779,6 @@ const Horarios = {
           `;
 
           fila.innerHTML = `
-            <td><strong>#${inc.idIncapacidad}</strong></td>
             <td>
               <div>
                 <strong>${inc.nombreEmpleado || 'N/A'}</strong>
@@ -1987,7 +1986,6 @@ const Vacaciones = {
         `;
 
         fila.innerHTML = `
-          <td><strong>#${vac.idVacacion}</strong></td>
           <td>
             <div>
               <strong>${vac.nombreEmpleado || 'N/A'}</strong>
