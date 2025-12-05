@@ -280,7 +280,7 @@ const SidebarModule = {
       targetSection.classList.add('active');
 
       // Ocultar sidebar en secciones específicas (opcional)
-      const seccionesConSidebarOculto = ['empleados-section','reportes-section', 'sucursales-section'];
+      const seccionesConSidebarOculto = [''];
       if (seccionesConSidebarOculto.includes(targetId)) {
         this.hideSidebar();
       } else {

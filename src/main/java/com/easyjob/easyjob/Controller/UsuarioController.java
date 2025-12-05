@@ -11,7 +11,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/usuarios")
-@CrossOrigin(origins = "*") // Permite que el JS del dashboard se comunique con este controlador
+@CrossOrigin(origins = "*") 
 public class UsuarioController {
 
     @Autowired

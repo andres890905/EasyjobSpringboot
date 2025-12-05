@@ -47,6 +47,11 @@ public class LoginController {
         if (!usuario.getContrasena().equals(password)) {
             return "redirect:/login?error=Contraseña+incorrecta";
         }
+        
+     // ===== VALIDACIÓN DE ESTADO ACTIVO =====
+        if (!"ACTIVO".equalsIgnoreCase(usuario.getEstado())) {
+            return "redirect:/login?error=Usuario+inactivo.+Contacte+al+administrador";
+        }
 
         // Guardar usuario en sesión
         session.setAttribute("usuarioLogueado", usuario);
