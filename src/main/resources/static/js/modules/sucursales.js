@@ -1,4 +1,4 @@
-// ================= MÓDULO DE SUCURSALES Y ZONAS - CON TABS Y ESTADÍSTICAS =================
+// ================= MÓDULO DE SUCURSALES Y ZONAS =================
 
 const SucursalesZonasModule = {
   sucursales: [],
@@ -10,126 +10,69 @@ const SucursalesZonasModule = {
   inicializado: false,
   tabActual: 'sucursales',
 
-  // Inicializar el módulo
   async init() {
-    if (this.inicializado) {
-      console.log('Módulo ya inicializado, omitiendo...');
-      return;
-    }
-    
-    console.log('Iniciando módulo de sucursales y zonas...');
-    
+    if (this.inicializado) return;
     this.inicializado = true;
     this.initEventListeners();
     await this.cargarDatos();
-    
-    console.log('Módulo iniciado correctamente');
   },
 
-  // Event Listeners
   initEventListeners() {
-    // ===== TABS =====
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    tabButtons.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const tab = e.currentTarget.dataset.tab;
-        this.cambiarTab(tab);
-      });
+    // Tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => this.cambiarTab(e.currentTarget.dataset.tab));
     });
 
-    // Botón "Nueva" dinámico
+    // Botón nuevo
     const btnNuevo = document.getElementById('btn-nuevo');
     if (btnNuevo) {
       btnNuevo.addEventListener('click', () => {
-        if (this.tabActual === 'sucursales') {
-          this.toggleFormSucursal();
-        } else {
-          this.toggleFormZona();
-        }
+        this.tabActual === 'sucursales' ? this.toggleFormSucursal() : this.toggleFormZona();
       });
     }
 
-    // ===== SUCURSALES =====
+    // Sucursales
     const btnGuardarSucursal = document.getElementById('btn-guardar-sucursal');
-    if (btnGuardarSucursal) {
-      btnGuardarSucursal.addEventListener('click', () => this.guardarSucursal());
-    }
+    if (btnGuardarSucursal) btnGuardarSucursal.addEventListener('click', () => this.guardarSucursal());
 
     const btnCancelarSucursal = document.getElementById('btn-cancelar-sucursal');
-    if (btnCancelarSucursal) {
-      btnCancelarSucursal.addEventListener('click', () => this.cancelarFormSucursal());
-    }
+    if (btnCancelarSucursal) btnCancelarSucursal.addEventListener('click', () => this.cancelarFormSucursal());
 
-    // ===== ZONAS =====
+    // Zonas
     const btnGuardarZona = document.getElementById('btn-guardar-zona');
-    if (btnGuardarZona) {
-      btnGuardarZona.addEventListener('click', () => this.guardarZona());
-    }
+    if (btnGuardarZona) btnGuardarZona.addEventListener('click', () => this.guardarZona());
 
     const btnCancelarZona = document.getElementById('btn-cancelar-zona');
-    if (btnCancelarZona) {
-      btnCancelarZona.addEventListener('click', () => this.cancelarFormZona());
-    }
+    if (btnCancelarZona) btnCancelarZona.addEventListener('click', () => this.cancelarFormZona());
   },
 
-  // Cambiar entre tabs
   cambiarTab(tab) {
     this.tabActual = tab;
-
-    // Actualizar botones de tabs
     document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.classList.remove('active');
-      if (btn.dataset.tab === tab) {
-        btn.classList.add('active');
-      }
+      btn.classList.toggle('active', btn.dataset.tab === tab);
     });
-
-    // Actualizar contenido de tabs
     document.querySelectorAll('.tab-pane').forEach(pane => {
       pane.classList.remove('active');
     });
     document.getElementById(`tab-${tab}`).classList.add('active');
-
-    // Ocultar formularios al cambiar de tab
     this.cancelarFormSucursal();
     this.cancelarFormZona();
   },
 
-  // Cargar todos los datos en el orden correcto
   async cargarDatos() {
     try {
-      // 1. Cargar empleados para obtener conteos
       await this.cargarEmpleados();
-      
-      // 2. Cargar supervisores
       await this.cargarSupervisores();
-      
-      // 3. Cargar zonas
       await this.cargarZonasData();
-      
-      // 4. Cargar sucursales
       await this.cargarSucursales();
-      
-      // 5. Renderizar zonas
       this.renderZonas();
-      
-      // 6. Actualizar estadísticas
       this.actualizarEstadisticas();
-      
-      console.log('Datos cargados:', {
-        sucursales: this.sucursales.length,
-        zonas: this.zonas.length,
-        supervisores: this.supervisores.length,
-        empleados: this.empleados.length
-      });
-      
     } catch (error) {
       console.error('Error en carga de datos:', error);
       this.mostrarMensaje('Error al cargar los datos', 'error');
     }
   },
 
-  // Actualizar estadísticas
   actualizarEstadisticas() {
     document.getElementById('total-sucursales').textContent = this.sucursales.length;
     document.getElementById('total-zonas').textContent = this.zonas.length;
@@ -143,34 +86,18 @@ const SucursalesZonasModule = {
     try {
       const response = await fetch('/empleados/filtrar?sucursalId=todas&rolId=todos');
       if (!response.ok) throw new Error('Error al cargar empleados');
-      
       this.empleados = await response.json();
-      console.log('Empleados cargados:', this.empleados.length);
-      
-      // Log para debugging - ver estructura de datos
-      if (this.empleados.length > 0) {
-        console.log('Ejemplo de empleado:', this.empleados[0]);
-        console.log('Estructura de sucursal en empleado:', this.empleados[0].sucursal);
-      }
     } catch (error) {
       console.error('Error cargando empleados:', error);
       this.empleados = [];
     }
   },
 
-  // Contar empleados por sucursal
   contarEmpleadosPorSucursal(idSucursal) {
-    const count = this.empleados.filter(e => {
-      // Intentar diferentes formatos de estructura de datos
-      const sucursalId = e.sucursal?.idSucursal || 
-                        e.sucursal?.id_sucursal || 
-                        e.idSucursal || 
-                        e.id_sucursal ||
-                        e.sucursal_id;
+    return this.empleados.filter(e => {
+      const sucursalId = e.sucursal?.idSucursal || e.sucursal?.id_sucursal || e.idSucursal || e.id_sucursal || e.sucursal_id;
       return sucursalId == idSucursal;
     }).length;
-    
-    return count;
   },
 
   // ========== SUCURSALES ==========
@@ -210,8 +137,7 @@ const SucursalesZonasModule = {
   },
 
   cancelarFormSucursal() {
-    const formContainer = document.getElementById('form-sucursal-container');
-    formContainer.style.display = 'none';
+    document.getElementById('form-sucursal-container').style.display = 'none';
     document.getElementById('formSucursal').reset();
     this.sucursalEditando = null;
   },
@@ -222,8 +148,6 @@ const SucursalesZonasModule = {
       if (!response.ok) throw new Error('Error al cargar sucursales');
       
       const data = await response.json();
-      
-      // Normalizar los datos
       this.sucursales = data.map(s => ({
         idSucursal: s.idSucursal || s.id_sucursal,
         nombreSucursal: s.nombreSucursal || s.nombre_sucursal || 'Sin nombre',
@@ -234,7 +158,6 @@ const SucursalesZonasModule = {
         correo: s.correo || ''
       }));
       
-      console.log('Sucursales cargadas:', this.sucursales.length);
       this.renderSucursales();
     } catch (error) {
       console.error('Error:', error);
@@ -259,9 +182,6 @@ const SucursalesZonasModule = {
 
     container.innerHTML = this.sucursales.map(s => {
       const empleadosCount = this.contarEmpleadosPorSucursal(s.idSucursal);
-      
-      // Log para debugging
-      console.log(`Sucursal "${s.nombreSucursal}" (ID: ${s.idSucursal}): ${empleadosCount} empleados`);
       
       return `
         <div class="sucursal-card">
@@ -288,19 +208,16 @@ const SucursalesZonasModule = {
                   <i class="fas fa-city"></i>
                   <span><strong>${s.ciudad}</strong></span>
                 </div>
-                
                 <div class="sucursal-info">
                   <i class="fas fa-location-dot"></i>
                   <span>${s.direccion}</span>
                 </div>
-                
                 ${s.telefono ? `
                   <div class="sucursal-info">
                     <i class="fas fa-phone"></i>
                     <span>${s.telefono}</span>
                   </div>
                 ` : ''}
-                
                 ${s.correo ? `
                   <div class="sucursal-info">
                     <i class="fas fa-envelope"></i>
@@ -321,6 +238,11 @@ const SucursalesZonasModule = {
                     onclick="SucursalesZonasModule.eliminarSucursal(${s.idSucursal})" 
                     title="Eliminar">
               <i class="fas fa-trash"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-info" 
+                    onclick="SucursalesZonasModule.enviarCorreoIndividual(${s.idSucursal}, '${s.nombreSucursal}')" 
+                    title="Enviar correo">
+              <i class="fas fa-envelope"></i>
             </button>
           </div>
         </div>
@@ -378,7 +300,6 @@ const SucursalesZonasModule = {
     try {
       const response = await fetch(`/sucursales/${id}`);
       if (!response.ok) throw new Error('Error al obtener sucursal');
-      
       const sucursal = await response.json();
       this.toggleFormSucursal(sucursal);
     } catch (error) {
@@ -447,8 +368,7 @@ const SucursalesZonasModule = {
   },
 
   cancelarFormZona() {
-    const formContainer = document.getElementById('form-zona-container');
-    formContainer.style.display = 'none';
+    document.getElementById('form-zona-container').style.display = 'none';
     document.getElementById('formZona').reset();
     this.zonaEditando = null;
   },
@@ -459,25 +379,16 @@ const SucursalesZonasModule = {
       if (!response.ok) throw new Error('Error al cargar zonas');
       
       const data = await response.json();
-      
-      // Normalizar los datos
       this.zonas = data.map(z => ({
         idZona: z.idZona || z.id_zona,
         nombreZona: z.nombreZona || z.nombre_zona || 'Sin nombre',
         supervisor: z.supervisor || null,
         idusuarios: z.idusuarios || (z.supervisor ? z.supervisor.idusuarios : null)
       }));
-      
-      console.log('Zonas cargadas:', this.zonas.length);
     } catch (error) {
       console.error('Error:', error);
       this.mostrarMensaje('Error al cargar zonas', 'error');
     }
-  },
-
-  async cargarZonas() {
-    await this.cargarZonasData();
-    this.renderZonas();
   },
 
   renderZonas() {
@@ -521,6 +432,11 @@ const SucursalesZonasModule = {
         </div>
         
         <div class="btn-actions">
+          <button class="btn btn-sm btn-outline-info" 
+                  onclick="SucursalesZonasModule.verDetalleZona(${z.idZona})" 
+                  title="Ver detalle">
+            <i class="fas fa-eye"></i>
+          </button>
           <button class="btn btn-sm btn-outline-success" 
                   onclick="SucursalesZonasModule.editarZona(${z.idZona})" 
                   title="Editar">
@@ -536,9 +452,270 @@ const SucursalesZonasModule = {
     `).join('');
   },
 
+  // NUEVA FUNCIÓN: Ver detalle de la zona
+  async verDetalleZona(idZona) {
+    try {
+      const response = await fetch(`/api/zonas/${idZona}`);
+      if (!response.ok) throw new Error('Error al cargar zona');
+      
+      const zona = await response.json();
+      const sucursalesZona = this.sucursales.filter(s => s.idZona == idZona);
+      
+      console.log('=== DEBUG ZONA ===');
+      console.log('Zona completa:', zona);
+      console.log('Sucursales encontradas:', sucursalesZona.length);
+      console.log('Detalle sucursales:', sucursalesZona);
+      
+      // Buscar el supervisor - probar múltiples formas
+      let supervisorId = null;
+      
+      // Opción 1: zona.supervisor.idusuarios
+      if (zona.supervisor && zona.supervisor.idusuarios) {
+        supervisorId = zona.supervisor.idusuarios;
+        console.log('Supervisor ID (opción 1 - zona.supervisor.idusuarios):', supervisorId);
+      }
+      // Opción 2: zona.idusuarios
+      else if (zona.idusuarios) {
+        supervisorId = zona.idusuarios;
+        console.log('Supervisor ID (opción 2 - zona.idusuarios):', supervisorId);
+      }
+      // Opción 3: zona.supervisor.id
+      else if (zona.supervisor && zona.supervisor.id) {
+        supervisorId = zona.supervisor.id;
+        console.log('Supervisor ID (opción 3 - zona.supervisor.id):', supervisorId);
+      }
+      
+      console.log('Supervisor ID final:', supervisorId);
+      console.log('Total supervisores disponibles:', this.supervisores.length);
+      
+      const supervisor = supervisorId ? 
+        this.supervisores.find(s => s.idusuarios == supervisorId) : 
+        null;
+      
+      console.log('Supervisor encontrado:', supervisor);
+      console.log('==================');
+      
+      this.mostrarModalDetalleZona(zona, sucursalesZona, supervisor);
+    } catch (error) {
+      console.error('Error:', error);
+      this.mostrarMensaje('Error al cargar el detalle de la zona', 'error');
+    }
+  },
+
+  mostrarModalDetalleZona(zona, sucursales, supervisor) {
+    console.log('=== MOSTRANDO MODAL ===');
+    console.log('Zona:', zona.nombreZona);
+    console.log('Sucursales en zona:', sucursales.length);
+    console.log('Supervisor:', supervisor);
+    
+    // Crear el modal
+    const modalHTML = `
+      <div class="modal fade" id="modalDetalleZona" tabindex="-1" aria-labelledby="modalDetalleZonaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+              <h5 class="modal-title" id="modalDetalleZonaLabel">
+                <i class="fas fa-map-marked-alt me-2"></i>
+                Detalle de Zona: ${zona.nombreZona}
+              </h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body">
+              <!-- Información del Supervisor -->
+              <div class="card mb-3">
+                <div class="card-header bg-light">
+                  <h6 class="mb-0">
+                    <i class="fas fa-user-tie me-2"></i>
+                    Supervisor Asignado
+                  </h6>
+                </div>
+                <div class="card-body">
+                  ${supervisor ? `
+                    <div class="row">
+                      <div class="col-md-6">
+                        <p class="mb-2">
+                          <strong>Nombre:</strong> ${supervisor.nombre} ${supervisor.apellido}
+                        </p>
+                        <p class="mb-2">
+                          <strong>Correo:</strong> ${supervisor.correo || 'No especificado'}
+                        </p>
+                      </div>
+                      <div class="col-md-6">
+                        <p class="mb-2">
+                          <strong>Cédula:</strong> ${supervisor.idusuarios}
+                        </p>
+                        <p class="mb-2">
+                          <strong>Estado:</strong> 
+                          <span class="badge ${supervisor.estado === 'ACTIVO' ? 'bg-success' : 'bg-secondary'}">
+                            ${supervisor.estado || 'No especificado'}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  ` : `
+                    <p class="text-muted mb-0">
+                      <i class="fas fa-exclamation-circle me-2"></i>
+                      No hay supervisor asignado a esta zona
+                    </p>
+                  `}
+                </div>
+              </div>
+
+              <!-- Estadísticas de la Zona -->
+              <div class="card mb-3">
+                <div class="card-header bg-light">
+                  <h6 class="mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>
+                    Estadísticas
+                  </h6>
+                </div>
+                <div class="card-body">
+                  <div class="row text-center">
+                    <div class="col-md-4">
+                      <div class="stat-box">
+                        <i class="fas fa-building fa-2x text-primary mb-2"></i>
+                        <h3 class="mb-0">${sucursales.length}</h3>
+                        <small class="text-muted">Sucursales</small>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="stat-box">
+                        <i class="fas fa-users fa-2x text-success mb-2"></i>
+                        <h3 class="mb-0">${this.contarEmpleadosPorZona(sucursales)}</h3>
+                        <small class="text-muted">Empleados</small>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="stat-box">
+                        <i class="fas fa-map-marker-alt fa-2x text-info mb-2"></i>
+                        <h3 class="mb-0">${this.contarCiudadesPorZona(sucursales)}</h3>
+                        <small class="text-muted">Ciudades</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lista de Sucursales -->
+              <div class="card">
+                <div class="card-header bg-light">
+                  <h6 class="mb-0">
+                    <i class="fas fa-store me-2"></i>
+                    Sucursales (${sucursales.length})
+                  </h6>
+                </div>
+                <div class="card-body p-0">
+                  ${sucursales.length > 0 ? `
+                    <div class="table-responsive">
+                      <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                          <tr>
+                            <th>Nombre</th>
+                            <th>Dirección</th>
+                            <th>Ciudad</th>
+                            <th>Teléfono</th>
+                            <th>Empleados</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          ${sucursales.map(s => {
+                            const empleadosCount = this.contarEmpleadosPorSucursal(s.idSucursal);
+                            return `
+                              <tr>
+                                <td>
+                                  <i class="fas fa-store-alt text-primary me-2"></i>
+                                  <strong>${s.nombreSucursal || 'Sin nombre'}</strong>
+                                </td>
+                                <td>${s.direccion || 'No especificada'}</td>
+                                <td>
+                                  <i class="fas fa-map-marker-alt text-muted me-1"></i>
+                                  ${s.ciudad || 'No especificada'}
+                                </td>
+                                <td>
+                                  ${s.telefono ? `<i class="fas fa-phone text-muted me-1"></i>${s.telefono}` : '-'}
+                                </td>
+                                <td>
+                                  <span class="badge bg-info">${empleadosCount} empleado${empleadosCount !== 1 ? 's' : ''}</span>
+                                </td>
+                              </tr>
+                            `;
+                          }).join('')}
+                        </tbody>
+                      </table>
+                    </div>
+                  ` : `
+                    <div class="p-4 text-center text-muted">
+                      <i class="fas fa-inbox fa-3x mb-3"></i>
+                      <p class="mb-0">No hay sucursales en esta zona</p>
+                    </div>
+                  `}
+                </div>
+              </div>
+            </div>
+            
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <i class="fas fa-times me-2"></i>Cerrar
+              </button>
+              <button type="button" class="btn btn-primary" 
+                      onclick="SucursalesZonasModule.editarZonaDesdeModal(${zona.idZona})"
+                      data-bs-dismiss="modal">
+                <i class="fas fa-edit me-2"></i>Editar Zona
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Remover modal anterior si existe
+    const modalAnterior = document.getElementById('modalDetalleZona');
+    if (modalAnterior) {
+      modalAnterior.remove();
+    }
+
+    // Agregar modal al DOM
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    // Mostrar el modal usando Bootstrap
+    const modal = new bootstrap.Modal(document.getElementById('modalDetalleZona'));
+    modal.show();
+
+    // Limpiar el modal del DOM cuando se cierre
+    document.getElementById('modalDetalleZona').addEventListener('hidden.bs.modal', function () {
+      this.remove();
+    });
+  },
+
+  // Funciones auxiliares para estadísticas
+  contarEmpleadosPorZona(sucursales) {
+    console.log('=== CONTANDO EMPLEADOS POR ZONA ===');
+    console.log('Sucursales recibidas:', sucursales.length);
+    
+    let total = 0;
+    sucursales.forEach(sucursal => {
+      const empleadosEnSucursal = this.contarEmpleadosPorSucursal(sucursal.idSucursal);
+      console.log(`Sucursal "${sucursal.nombreSucursal}" (ID: ${sucursal.idSucursal}): ${empleadosEnSucursal} empleados`);
+      total += empleadosEnSucursal;
+    });
+    
+    console.log(`Total empleados en zona: ${total}`);
+    console.log('===================================');
+    return total;
+  },
+
+  contarCiudadesPorZona(sucursales) {
+    const ciudades = new Set(sucursales.map(s => s.ciudad).filter(c => c));
+    return ciudades.size;
+  },
+
+  editarZonaDesdeModal(idZona) {
+    this.editarZona(idZona);
+  },
+
   getNombreSupervisor(idSupervisor) {
     if (!idSupervisor) return 'Sin asignar';
-    
     const supervisor = this.supervisores.find(s => s.idusuarios == idSupervisor);
     return supervisor ? `${supervisor.nombre} ${supervisor.apellido}` : 'Sin asignar';
   },
@@ -560,7 +737,7 @@ const SucursalesZonasModule = {
     };
 
     try {
-      const url = this.zonaEditando ? `/api/zonas/${this.zonaEditando}` : '/zonas';
+      const url = this.zonaEditando ? `/api/zonas/${this.zonaEditando}` : '/api/zonas';
       const method = this.zonaEditando ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
@@ -587,7 +764,6 @@ const SucursalesZonasModule = {
     try {
       const response = await fetch(`/api/zonas/${id}`);
       if (!response.ok) throw new Error('Error al obtener zona');
-      
       const zona = await response.json();
       this.toggleFormZona(zona);
     } catch (error) {
@@ -632,78 +808,199 @@ const SucursalesZonasModule = {
       this.supervisores = todos.filter(u => 
         u.rol?.tipo_rol === 'SUPERVISOR' || u.rol?.tipo_rol === 'Supervisor'
       );
-      
-      console.log('Supervisores cargados:', this.supervisores.length);
     } catch (error) {
       console.error('Error cargando supervisores:', error);
       this.supervisores = [];
     }
   },
 
+  // ========== CORREOS ==========
+
+  enviarCorreoIndividual(idSucursal, nombreSucursal) {
+    this.mostrarModalCorreo('individual', idSucursal, nombreSucursal);
+  },
+
+  enviarCorreoMasivo() {
+    this.mostrarModalCorreo('masivo', null, null);
+  },
+
+  mostrarModalCorreo(tipo, idSucursal, nombreSucursal) {
+    const gradiente = tipo === 'masivo' 
+      ? 'linear-gradient(135deg, #0891b2 0%, #0e7490 100%)' 
+      : 'linear-gradient(135deg, #1e88e5 0%, #1976d2 100%)';
+
+    const modalHTML = `
+      <div id="modal-correo-overlay" class="modal-overlay">
+        <div id="modal-correo-content" class="modal-content">
+          <div class="modal-header" style="background: ${gradiente};">
+            <div>
+              <h3 class="modal-title">
+                <i class="fas ${tipo === 'masivo' ? 'fa-users' : 'fa-envelope'}"></i>
+                ${tipo === 'masivo' ? 'Envío Masivo' : 'Envío Individual'}
+              </h3>
+              <p class="modal-subtitle">
+                ${tipo === 'masivo' 
+                  ? `Enviar a todas las sucursales (${this.sucursales.length})` 
+                  : `Enviar a: ${nombreSucursal}`
+                }
+              </p>
+            </div>
+            <button onclick="SucursalesZonasModule.cerrarModalCorreo()" class="btn-close-modal">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <div class="modal-body">
+            ${tipo === 'individual' ? `
+              <div class="modal-info-box">
+                <i class="fas fa-building"></i>
+                <div>
+                  <p class="info-title">${nombreSucursal}</p>
+                  <p class="info-subtitle">ID: ${idSucursal}</p>
+                </div>
+              </div>
+            ` : ''}
+
+            <div class="form-group">
+              <label>
+                <i class="fas fa-tag"></i>
+                Asunto *
+              </label>
+              <input 
+                type="text" 
+                id="modal-correo-asunto" 
+                class="form-control"
+                placeholder="Ej: Información importante sobre inventario"
+              >
+            </div>
+
+            <div class="form-group">
+              <label>
+                <i class="fas fa-message"></i>
+                Mensaje *
+              </label>
+              <textarea 
+                id="modal-correo-mensaje" 
+                rows="6"
+                class="form-control"
+                placeholder="Escribe tu mensaje aquí..."
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button onclick="SucursalesZonasModule.cerrarModalCorreo()" class="btn btn-secondary">
+              <i class="fas fa-times"></i>
+              Cancelar
+            </button>
+            <button onclick="SucursalesZonasModule.procesarEnvioCorreo('${tipo}', ${idSucursal})" 
+                    id="btn-enviar-correo-modal" 
+                    class="btn btn-primary"
+                    style="background: ${gradiente};">
+              <i class="fas fa-paper-plane"></i>
+              Enviar Correo
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    setTimeout(() => document.getElementById('modal-correo-asunto').focus(), 100);
+  },
+
+  cerrarModalCorreo() {
+    const modal = document.getElementById('modal-correo-overlay');
+    if (modal) modal.remove();
+  },
+
+  async procesarEnvioCorreo(tipo, idSucursal) {
+    const asunto = document.getElementById('modal-correo-asunto').value.trim();
+    const mensaje = document.getElementById('modal-correo-mensaje').value.trim();
+
+    if (!asunto) {
+      this.mostrarMensaje('Por favor ingresa un asunto', 'warning');
+      document.getElementById('modal-correo-asunto').focus();
+      return;
+    }
+
+    if (!mensaje) {
+      this.mostrarMensaje('Por favor ingresa un mensaje', 'warning');
+      document.getElementById('modal-correo-mensaje').focus();
+      return;
+    }
+
+    if (tipo === 'masivo') {
+      if (!confirm(`¿Enviar este correo a ${this.sucursales.length} sucursales?\n\nEsta acción no se puede deshacer.`)) {
+        return;
+      }
+    }
+
+    const btnEnviar = document.getElementById('btn-enviar-correo-modal');
+    const textoOriginal = btnEnviar.innerHTML;
+    btnEnviar.disabled = true;
+    btnEnviar.classList.add('loading');
+    btnEnviar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+    await this.enviarCorreo(tipo, idSucursal, asunto, mensaje);
+
+    btnEnviar.disabled = false;
+    btnEnviar.classList.remove('loading');
+    btnEnviar.innerHTML = textoOriginal;
+    this.cerrarModalCorreo();
+  },
+
+  async enviarCorreo(tipo, idSucursal, asunto, mensaje) {
+    try {
+      const url = tipo === 'individual'
+        ? `/correo-sucursales/enviar/${idSucursal}`
+        : '/correo-sucursales/enviar-todas';
+
+      const params = new URLSearchParams();
+      params.append('asunto', asunto);
+      params.append('mensaje', mensaje);
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString()
+      });
+
+      const result = await response.text();
+      this.mostrarMensaje(response.ok ? result : 'Error al enviar correo', response.ok ? 'success' : 'error');
+    } catch (error) {
+      console.error('Error:', error);
+      this.mostrarMensaje('Error de conexión', 'error');
+    }
+  },
+
   // ========== UTILIDADES ==========
 
   mostrarMensaje(mensaje, tipo = 'success') {
-    const colores = {
-      success: '#10b981',
-      error: '#ef4444',
-      warning: '#f59e0b',
-      info: '#3b82f6'
-    };
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${tipo}`;
+    notification.innerHTML = `
+      <i class="fas fa-${this.getIconoMensaje(tipo)}"></i>
+      <span>${mensaje}</span>
+    `;
+    document.body.appendChild(notification);
 
+    setTimeout(() => {
+      notification.classList.add('fade-out');
+      setTimeout(() => notification.remove(), 300);
+    }, 3500);
+  },
+
+  getIconoMensaje(tipo) {
     const iconos = {
       success: 'check-circle',
       error: 'exclamation-circle',
       warning: 'exclamation-triangle',
       info: 'info-circle'
     };
-
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: white;
-      color: #1e293b;
-      padding: 16px 24px;
-      border-radius: 12px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-      z-index: 9999;
-      font-weight: 500;
-      min-width: 320px;
-      border-left: 4px solid ${colores[tipo]};
-      animation: slideInRight 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    `;
-    
-    notification.innerHTML = `
-      <i class="fas fa-${iconos[tipo]}" style="color: ${colores[tipo]}; font-size: 1.2rem;"></i>
-      <span>${mensaje}</span>
-    `;
-
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-      notification.style.animation = 'slideOutRight 0.3s ease';
-      setTimeout(() => notification.remove(), 300);
-    }, 3500);
+    return iconos[tipo] || 'info-circle';
   }
 };
-
-// CSS para animaciones
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes slideInRight {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
-  @keyframes slideOutRight {
-    from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(100%); opacity: 0; }
-  }
-`;
-document.head.appendChild(style);
 
 // Inicializar
 document.addEventListener('DOMContentLoaded', () => {
@@ -713,5 +1010,4 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// Exponer globalmente
 window.SucursalesZonasModule = SucursalesZonasModule;

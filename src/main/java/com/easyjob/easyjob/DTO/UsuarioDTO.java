@@ -11,6 +11,10 @@ public class UsuarioDTO {
     private Double salario;
     private String sucursal;
     private String rol;
+    
+ // Constructor sin argumentos (requerido para Jackson)
+    public UsuarioDTO() {
+    }
 
     // Constructor
     public UsuarioDTO(Long id, String nombreCompleto, String correo, String telefono,
