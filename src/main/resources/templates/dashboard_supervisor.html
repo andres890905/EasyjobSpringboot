@@ -24,7 +24,7 @@
     <li><a class="nav-link" href="#" id="btnIncapacidades"><i class="fas fa-file-medical me-2"></i>Incapacidades</a></li>
     <li><a class="nav-link" href="#" id="btnVacaciones"><i class="fas fa-umbrella-beach me-2"></i>Vacaciones</a></li>
     <li><a class="nav-link" href="#" id="btnTraslados"><i class="fas fa-exchange-alt me-2"></i>Traslados</a></li>
-    <li><a class="nav-link" href="#" id="btnReportes"><i class="fas fa-chart-line me-2"></i>Reportes</a></li>
+    <li><a class="nav-link" href="#" id="btnReportes"><i class="fas fa-chart-line me-2"></i>Notificaciones<span th:if="${notificacionesNoLeidas > 0}" class="notification-dot" th:text="${notificacionesNoLeidas}"></span></a></li>
     <li><a class="nav-link text-danger" href="/logout" id="btnCerrarSesion"><i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión</a></li>
   </ul>
 </nav>
@@ -502,47 +502,59 @@
 
   <!-- Sección Reportes -->
   <div id="seccionReportes" style="display: none;">
-    <h2 class="mb-4"><i class="fas fa-chart-line"></i>Reportes y Estadísticas</h2>
-    <div class="card card-custom p-4">
-      <h4 class="mb-4">Generar Reporte</h4>
-      <form id="formReportes">
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label for="tipoReporte" class="form-label">Tipo de Reporte</label>
-            <select class="form-control" id="tipoReporte">
-              <option value="">Seleccione...</option>
-              <option value="asistencia">Asistencia</option>
-              <option value="incapacidades">Incapacidades</option>
-              <option value="vacaciones">Vacaciones</option>
-              <option value="nomina">Nómina</option>
-            </select>
+      <!-- Header con título y controles -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2><i class="fas fa-bell"></i> Notificaciones</h2>
+          <div>
+              <span class="badge bg-primary fs-6 me-2" id="contadorNotificaciones">
+                  <i class="fas fa-envelope"></i> 
+                  <span th:text="${notificacionesNoLeidas}" id="badgeNoLeidas">0</span> sin leer
+              </span>
+              <button class="btn btn-sm btn-outline-primary" onclick="actualizarNotificaciones()">
+                  <i class="fas fa-sync-alt"></i> Actualizar
+              </button>
           </div>
-          <div class="col-md-6">
-            <label for="periodoReporte" class="form-label">Período</label>
-            <select class="form-control" id="periodoReporte">
-              <option value="">Seleccione...</option>
-              <option value="semanal">Semanal</option>
-              <option value="mensual">Mensual</option>
-              <option value="trimestral">Trimestral</option>
-              <option value="anual">Anual</option>
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label for="fechaInicioReporte" class="form-label">Fecha Inicio</label>
-            <input type="date" class="form-control" id="fechaInicioReporte" />
-          </div>
-          <div class="col-md-6">
-            <label for="fechaFinReporte" class="form-label">Fecha Fin</label>
-            <input type="date" class="form-control" id="fechaFinReporte" />
-          </div>
-        </div>
-        <button type="submit" class="btn btn-primary mt-3">
-          <i class="fas fa-file-download me-2"></i>Generar Reporte
-        </button>
-      </form>
-    </div>
-  </div>
+      </div>
 
+      <!-- Card de Filtros -->
+      <div class="card card-custom p-4 mb-3">
+          <div class="d-flex justify-content-between align-items-center">
+              <div class="btn-group" role="group">
+                  <input type="radio" class="btn-check" name="filtroNotif" id="todasNotif" value="todas" checked>
+                  <label class="btn btn-outline-primary" for="todasNotif">
+                      <i class="fas fa-list"></i> Todas
+                  </label>
+                  
+                  <input type="radio" class="btn-check" name="filtroNotif" id="noLeidasNotif" value="noLeidas">
+                  <label class="btn btn-outline-primary" for="noLeidasNotif">
+                      <i class="fas fa-envelope"></i> No leídas
+                  </label>
+                  
+                  <input type="radio" class="btn-check" name="filtroNotif" id="leidasNotif" value="leidas">
+                  <label class="btn btn-outline-secondary" for="leidasNotif">
+                      <i class="fas fa-envelope-open"></i> Leídas
+                  </label>
+              </div>
+              
+              <button class="btn btn-success" onclick="marcarTodasLeidas()" id="btnMarcarTodas">
+                  <i class="fas fa-check-double"></i> Marcar todas como leídas
+              </button>
+          </div>
+      </div>
+
+      <!-- Contenedor de Notificaciones -->
+      <div id="notificacionesContainer">
+          <!-- Loading inicial -->
+          <div id="loadingNotificaciones" class="text-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Cargando...</span>
+              </div>
+              <p class="mt-2 text-muted">Cargando notificaciones...</p>
+          </div>
+          
+          <!-- Se llenarán dinámicamente con JavaScript -->
+      </div>
+  </div>
 </main>
 <script th:inline="javascript">
         /*<![CDATA[*/

@@ -85,7 +85,15 @@
 
   <!-- ========== SECCIÓN HOME ========== -->
   <section id="home-section" class="content-section active">
+	<!-- MENSAJE DE BIENVENIDA SLIDER -->
+	<div id="mensaje-bienvenida" th:if="${mensajeBienvenida}" 
+	     th:text="${mensajeBienvenida}" 
+	     class="alert-slide alert alert-success alert-dismissible" 
+	     role="alert">
+	  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+	</div>
 	<div th:replace="~{fragments/home :: home-fragment}"></div>
+	
   </section>
 
   <!-- ========== SECCIÓN EMPLEADOS ========== -->

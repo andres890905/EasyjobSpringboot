@@ -953,8 +953,8 @@ const SucursalesZonasModule = {
   async enviarCorreo(tipo, idSucursal, asunto, mensaje) {
     try {
       const url = tipo === 'individual'
-        ? `/correo-sucursales/enviar/${idSucursal}`
-        : '/correo-sucursales/enviar-todas';
+        ? `/brevo-correo-sucursales/enviar/${idSucursal}`
+        : '/brevo-correo-sucursales/enviar-todas';
 
       const params = new URLSearchParams();
       params.append('asunto', asunto);
