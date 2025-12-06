@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div th:fragment="home-fragment">
+        
+        <!-- Sección Home Dashboard -->
+        <div id="home-section">
+            
+            <!-- Header con glassmorphism -->
+            <div class="dashboard-header">
+                <div class="header-content">
+                    <h1>
+                        <i class="fas fa-chart-line"></i>
+                        Dashboard Analítico
+                    </h1>
+                    <p id="fecha-actual">Cargando...</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-refresh" onclick="HomeModule.cargarDatos()" title="Actualizar datos">
+                        <i class="fas fa-sync-alt"></i>
+                        Actualizar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Fila 1: Métricas Principales -->
+            <div class="stats-row">
+                
+                <!-- Total Empleados -->
+                <div class="stat-main-card">
+                    <h4>Total empleados</h4>
+                    <h2 id="total-empleados">0</h2>
+                </div>
+
+                <!-- Banner con métricas demográficas -->
+                <div class="demographics-banner">
+                    <div class="demo-item">
+                        <h4>Edad media</h4>
+                        <h2 id="edad-media">0</h2>
+                    </div>
+                    <div class="demo-item">
+                        <h4>Antigüedad media</h4>
+                        <h2 id="antiguedad-media">0</h2>
+                    </div>
+                    <div class="demo-item">
+                        <h4>Empleados Activos</h4>
+                        <h2 id="empleados-activos">0</h2>
+                    </div>
+                    <div class="demo-item">
+                        <h4>Empleados Inactivos</h4>
+                        <h2 id="empleados-inactivos">0</h2>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Fila 3: Primera fila de gráficos -->
+            <div class="charts-row">
+                
+                <!-- Gráfico: Estado de Usuarios -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h4>
+                            <i class="fas fa-toggle-on"></i>
+                            Estado de Usuarios
+                        </h4>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="chartEstados" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Gráfico: Empleados por Rol -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h4>
+                            <i class="fas fa-user-tag"></i>
+                            Empleados por rol
+                        </h4>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="chartRoles" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Gráfico: Distribución por Edad -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h4>
+                            <i class="fas fa-chart-bar"></i>
+                            Rangos de Edad
+                        </h4>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="chartEdades" height="200"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Fila 4: Segunda fila de gráficos -->
+            <div class="charts-row">
+                
+                <!-- Gráfico: Top Sucursales -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h4>
+                            <i class="fas fa-building"></i>
+                            Top Sucursales
+                        </h4>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="chartSucursales" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Gráfico: Usuarios por Sucursal -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h4>
+                            <i class="fas fa-store"></i>
+                            Usuarios por Sucursal
+                        </h4>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="chartSucursalesBarras" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Gráfico: Descansos vs Dominicales -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h4>
+                            <i class="fas fa-pie-chart"></i>
+                            Descansos vs Dominicales
+                        </h4>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="chartDistribucionDias" height="200"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Fila 5: Gráfico de Horas Extra (Full Width) -->
+            <div class="charts-row">
+                
+                <!-- Gráfico: Horas Extra por Empleado -->
+                <div class="chart-card chart-card-full">
+                    <div class="chart-header">
+                        <h4>
+                            <i class="fas fa-clock"></i>
+                            Horas Extra por Empleado (Top 10)
+                        </h4>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="chartHorasExtra" height="200"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        
+    </div>
+    
+    <script th:src="@{/js/modules/home.js}"></script>
+</body>
+</html>

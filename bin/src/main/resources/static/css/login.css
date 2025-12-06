@@ -1,0 +1,217 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  height: 100vh;
+  background: url("/imagenes/fondo2.jpg") no-repeat center center;
+  background-size: cover;
+  position: relative;
+}
+
+/* Capa oscura sobre el fondo */
+body::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.45);
+  z-index: 0;
+}
+
+/* CONTENEDOR PRINCIPAL */
+.main-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100vh;
+  padding: 0 150px;
+  position: relative;
+  z-index: 1;
+}
+
+/* COLUMNA IZQUIERDA */
+.contenido {
+  color: #fff;
+  max-width: 500px;
+}
+
+.logo-bg {
+  background-color: rgba(113, 222, 236, 0.8);
+  padding:5px;
+  border-radius: 12px;
+  display: inline-block;
+  
+}
+
+.logo {
+  width: 100px;
+  height: auto;
+}
+
+.contenido h1 {
+  font-size: 52px;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.contenido p {
+  font-size: 18px;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+.social-icons {
+  margin-top: 20px;
+}
+
+.social-icons i {
+  margin-right: 15px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.social-icons i:hover {
+  color: #71deec;
+}
+
+/* FORMULARIO */
+.form-container {
+  padding: 40px;
+  border-radius: 12px;
+  width: 350px;
+}
+
+.login-form h3 {
+  text-align: center;
+  color: #fff;
+  margin-bottom: 40px;
+  font-weight: 800;
+  font-size: 25px;
+  font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  color: #fff;
+  font-size: 14px;
+  display: block;
+  margin-bottom: 5px;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+}
+
+.remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  color: #fff;
+  font-size: 14px;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+.btn-primary {
+  width: 40%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background-color: #71deec;
+  color: #181717;
+  font-weight: bold;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  cursor: pointer;
+  transition: background 0.3s;
+  align-items: center;
+}
+
+.btn-primary:hover {
+  background-color: #5bc0d0;
+}
+
+.forgot {
+  display: block;
+  margin-top: 40px;
+  text-align: center;
+  color: #fff;
+  font-size: 14px;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  text-decoration: none;
+}
+
+.forgot:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .main-container {
+    flex-direction: column;
+    text-align: center;
+    padding: 40px;
+  }
+
+  .form-container {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .contenido {
+    margin-bottom: 40px;
+  }
+}
+/* MENSAJE DE ERROR MEJORADO */
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  padding: 12px 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(114, 28, 36, 0.2);
+  animation: slideDown 0.3s ease-out;
+  opacity: 1;
+  transition: opacity 0.5s ease-out;
+}
+
+.error-message::before {
+  content: "⚠️";
+  margin-right: 10px;
+  font-size: 16px;
+}
+
+.error-message.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.error-message .close-btn {
+  background: none;
+  border: none;
+  color: #721c24;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 10px;
+  font-weight: bold;
+  transition: transform 0.2s;
+}
+
+.error-message .close-btn:hover {
+  transform: scale(1.2);
+}

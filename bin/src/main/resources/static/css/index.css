@@ -1,0 +1,769 @@
+/* ============================= */
+/* ======== GENERAL ============ */
+/* ============================= */
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #F5F5F5;
+  color: #333333;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ============================= */
+/* ======== NAVBAR ============= */
+/* ============================= */
+.navbar {
+  background-color: transparent; /* Fondo transparente */
+  position: absolute; /* Encima del hero */
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 3; /* Encima de todo */
+  padding: 1rem 2rem;
+  box-shadow: none; /* Quitar sombra para que se mezcle */
+  backdrop-filter: none; /* Opcional: quita blur si quieres total transparencia */
+}
+
+.navbar-brand img.logo {
+  height: 60px;
+  width: auto;
+  border-radius: 5px;
+}
+.navbar-brand .brand-text {
+  font-family: 'Allura', cursive;
+  font-size: 1.8rem;
+  color: #ffffff;
+  margin-left: 8px;
+  transition: all 0.3s ease;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.4); /* Sombra para destacar sobre fondos */
+}
+
+
+
+
+/* Botones navbar */
+.navbar-nav .btn-nav {
+  background-color: #1F3B73;
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 25px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.navbar-nav .btn-nav:hover {
+  background-color: #FF6F00;
+  box-shadow: 0 0 10px rgba(255,111,0,0.5);
+  transform: scale(1.05);
+}
+
+/* ============================= */
+/* ======== HERO SECTION ======= */
+/* ============================= */
+.hero-section {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+ 
+  overflow: hidden;
+  padding: 20px;
+}
+
+/* Imagen de fondo */
+.hero-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.65);
+  z-index: 1;
+  transition: transform 0.5s ease;
+}
+
+.hero-img:hover {
+  transform: scale(1.05);
+}
+
+/* Contenido */
+.hero {
+  position: relative;
+  z-index: 2; /* Asegura que el contenido esté encima de la imagen */
+  max-width: 900px;
+  color: #fff;
+  padding: 20px;
+}
+
+.hero h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #fff;
+  text-shadow: 
+    1px 1px 2px rgba(0,0,0,0.7),
+    2px 2px 6px rgba(0,0,0,0.5),
+    0 0 10px rgba(0,0,0,0.3);
+}
+
+
+.hero p {
+  font-size: 1.3rem;
+  line-height: 1.6;
+  margin-bottom: 30px;
+  color: #fff;
+  text-shadow: 
+    1px 1px 2px rgba(0,0,0,0.6),
+    2px 2px 6px rgba(0,0,0,0.4),
+    0 0 8px rgba(0,0,0,0.3);
+}
+
+
+/* Botón con efecto neón */
+.btn-neon {
+  position: relative; /* Importante para z-index */
+  z-index: 3; /* Encima de todo */
+  font-size: 1.2rem;
+  padding: 0.8rem 2.5rem;
+  background-color: #070155;
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.btn-neon:hover {
+  background-color: #d17118;
+
+  transform: scale(1.05);
+}
+.hero-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.hero-slider .hero-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.65);
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+.hero-slider .hero-img.active {
+  opacity: 1;
+}
+
+/* ============================= */
+/* ======== ANIMACIONES ======== */
+/* ============================= */
+
+/* Fade-in para título y texto */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 1s forwards;
+}
+
+.fade-in.delay-1 {
+  animation-delay: 0.5s;
+}
+
+/* Bounce para el botón */
+.bounce {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: bounceIn 1s forwards;
+  animation-delay: 1s;
+}
+
+/* Keyframes */
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-10px);
+  }
+  80% {
+    transform: translateY(5px);
+  }
+  100% {
+    opacity: 1; /* Asegura que no desaparezca */
+    transform: translateY(0);
+  }
+}
+
+
+/* ============================= */
+/* ======== RESPONSIVE ========= */
+/* ============================= */
+@media (max-width: 992px) {
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+  .hero p {
+    font-size: 1.1rem;
+  }
+  .btn-neon {
+    font-size: 1rem;
+    padding: 0.6rem 2rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero h1 {
+    font-size: 2rem;
+  }
+  .hero p {
+    font-size: 1rem;
+  }
+  .btn-neon {
+    font-size: 0.95rem;
+    padding: 0.5rem 1.8rem;
+  }
+}
+
+/* ============================= */
+/* ======== TÍTULO CON DEGRADADO ===== */
+/* ============================= */
+.section-title-gradient {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 1.8rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #1F3B73, #0dcaf0); /* azul oscuro a celeste */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  text-align: center;
+  margin-bottom: 40px;
+  margin-right: 5px;
+  transition: all 0.3s ease;
+  background-size: 200% 100%; /* permite movimiento */
+  background-position: 0% 0%;
+  animation: gradientShift 5s linear infinite; /* animación horizontal */
+}
+
+/* Hover sutil */
+.section-title-gradient:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+/* Animación del fondo */
+@keyframes gradientShift {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 0%; }
+  100% { background-position: 0% 0%; }
+}
+
+
+
+/* ======== BOTONES DE CATEGORÍA (Neumorphism) =========== */
+.category-btn {
+  border: none;
+  border-radius: 25px;
+  padding: 12px 25px;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #1a1a6b; /* color base neutro */
+  box-shadow: 5px 5px 15px rgba(0,0,0,0.1), -5px -5px 15px rgba(255,255,255,0.7);
+  color: #fbfcfa;
+}
+
+/* Botón activo */
+.category-btn.active {
+  background: linear-gradient(145deg, #FF6F00, #FFA500);
+  color: #fff;
+  box-shadow: 5px 5px 20px rgba(255,111,0,0.4), -5px -5px 20px rgba(255,170,0,0.3);
+}
+
+/* Hover efecto neumorphism */
+.category-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 8px 8px 20px rgba(0,0,0,0.15), -8px -8px 20px rgba(255,255,255,0.8);
+}
+
+/* Iconos dentro de los botones */
+.category-btn i {
+  margin-right: 8px;
+  font-size: 1.1rem;
+}
+
+
+/* ============================= */
+/* ======== CONTENIDO DINÁMICO ======== */
+.content-area {
+  
+  border-radius: 15px;
+  padding: 30px;
+  margin-top: 30px;
+  transition: all 0.5s ease;
+}
+
+/* Imagen de categoría */
+.image-container {
+  width: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+}
+
+.image-container img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.image-container:hover {
+  transform: scale(1.05);
+}
+
+/* Texto de contenido */
+.content-area h3 {
+  font-weight: 700;
+  font-size: 1.8rem;
+  color: #1F3B73;
+}
+
+.content-area p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #333;
+}
+
+/* Responsive: en móviles la imagen arriba y texto abajo */
+@media (max-width: 992px) {
+  .content-area .row {
+    flex-direction: column;
+  }
+  .image-container {
+    margin-bottom: 20px;
+  }
+}
+
+/* ============================= */
+/* ======== NOVEDADES ========== */
+/* ============================= */
+h2.text-center {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 2rem; /* tamaño más profesional */
+  color: #fff;
+  text-align: center;
+  padding: 15px 25px;
+  border-radius: 12px;
+
+  /* Fondo degradado animado */
+  background: linear-gradient(90deg, #1F3B73, #0dcaf0, #1F3B73);
+  background-size: 200% 100%;
+  background-position: 0% 0%;
+
+  /* Sombras y efecto suave */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+
+  /* Animación */
+  animation: gradientShift 6s linear infinite;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 0%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+/* Contenedor de novedades */
+.container .row .col .overlay-card {
+  border-radius: 15px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+/* Imagen de la tarjeta */
+.overlay-card .card-img {
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+/* Efecto hover en la imagen */
+.overlay-card:hover .card-img {
+  transform: scale(1.05);
+}
+
+/* Overlay oscuro con transparencia */
+.overlay-card .card-img-overlay {
+  background: rgba(0, 0, 0, 0.4);
+  transition: background 0.3s ease;
+  border-radius: 0 0 15px 15px;
+}
+
+/* Hover: overlay más oscuro */
+.overlay-card:hover .card-img-overlay {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* Título y texto */
+.overlay-card .card-title {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #0dcaf0;
+  margin-bottom: 0.5rem;
+  text-shadow: 1px 1px 5px rgba(0,0,0,0.7);
+}
+
+.overlay-card .card-text {
+  font-size: 0.95rem;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
+}
+
+/* Sombra y elevación al hover de la tarjeta */
+.overlay-card:hover {
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  transform: translateY(-5px);
+}
+/* ============================= */
+/* ======== TESTIMONIOS ======== */
+/* ============================= */
+.testimonios-section {
+  background: linear-gradient(135deg, #6681b6 0%, #0dcaf0 100%);
+  color: #fff;
+  padding: 60px 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.testimonios-section h3 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 50px;
+  text-align: center;
+}
+
+/* Slider estilo cinta */
+.testimonios-slider {
+  display: flex;
+  gap: 30px;
+  animation: slide 25s linear infinite;
+}
+
+/* Cada testimonio */
+.testimonial {
+  flex: 0 0 300px;
+  background-color: rgba(255,255,255,0.12); /* un poco más visible */
+  padding: 20px;
+  border-radius: 15px;
+  text-align: center;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+}
+
+.testimonial:hover {
+  transform: scale(1.05);
+}
+
+/* Foto de usuario */
+.testimonial-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+  border: 2px solid #FF6F00;
+}
+
+/* Estrellas */
+.stars {
+  color: #FFD700;
+  margin-bottom: 15px;
+  font-size: 1rem;
+}
+
+.testimonial p {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.testimonial h5 {
+  font-weight: 600;
+  color: #FF6F00;
+}
+
+/* Animación horizontal tipo cinta */
+@keyframes slide {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); } /* usar duplicados de HTML */
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .testimonial {
+    flex: 0 0 250px;
+  }
+  .testimonios-slider {
+    gap: 20px;
+  }
+}
+
+
+
+
+/* ============================= */
+/* ======== NEON HOVER ========== */
+.neon-hover {
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.neon-hover:hover {
+  color: #FF6F00;
+  text-shadow: 0 0 5px #FF6F00, 0 0 10px #FF6F00;
+  transform: scale(1.05);
+}
+
+
+
+.section-divider {
+  border: 0; /* elimina la línea predeterminada */
+  height: 4px; /* grosor de la línea */
+  background: linear-gradient(to right, #1F3B73, #0dcaf0); /* gradiente azul oscuro a celeste */
+  border-radius: 2px; /* esquinas redondeadas */
+  margin: 60px 0; /* espacio arriba y abajo */
+  width: 80%; /* ancho de la línea */
+  margin-left: auto;
+  margin-right: auto; /* centra la línea */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2); /* sombra sutil */
+}
+
+/* ============================= */
+ /* ======== Beneficios ============ */
+ .benefit-card {
+  background-color: #fff;
+  border-radius: 15px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.benefit-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.benefit-icon {
+  font-size: 2.5rem;
+}
+
+.benefit-card h5 {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.benefit-card p {
+  font-size: 0.95rem;
+  color: #555;
+}
+/* ============================= */
+/* ======== BENEFICIOS ========= */
+/* ============================= */
+/* ======== BENEFICIOS ========= */
+.beneficios-easyjob {
+  color: #222;
+}
+
+.beneficios-easyjob h4 {
+  color: #1F3B73;
+}
+
+.beneficios-easyjob img {
+  max-width: 90%;
+  transition: transform 0.4s ease;
+}
+
+.beneficios-easyjob img:hover {
+  transform: scale(1.03);
+}
+
+.beneficios-easyjob ul li {
+  font-size: 1.05rem;
+  margin-bottom: 8px;
+}
+
+.beneficios-easyjob .badge {
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+}
+
+.beneficios-easyjob p {
+  line-height: 1.7;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .beneficios-easyjob {
+    text-align: center;
+  }
+  .beneficios-easyjob img {
+    margin-top: 20px;
+  }
+}
+/* ============================= */
+/* ======== EMPRESAS ======== */
+
+.empresas-section h2.text-center {
+  margin-bottom: 80px; /* aumenta el espacio inferior */
+  
+}
+.empresas-section {
+
+  overflow: hidden;
+  padding-top: 100px;
+  padding-bottom: 80px;
+  position: relative;
+}
+
+.slider {
+  height: 100px;
+  margin: auto;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.slide-track {
+  display: flex;
+  width: calc(250px * 12);
+  animation: scroll 30s linear infinite;
+}
+
+.slide {
+  height: 100px;
+  width: 250px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.slide img {
+  width: 100px;
+  height: auto;
+  opacity: 0.8;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.slide img:hover {
+  filter: grayscale(0%);
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ============================= */
+/* ======== FOOTER ============ */
+.footer {
+  background-color: #32353b;
+  color: #24cdeb;
+  padding-top: 40px;
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.3);
+}
+
+.footer h5 {
+  letter-spacing: 1px;
+}
+
+
+.footer p {
+  font-size: 15px;
+  color: #f1f1f1;
+}
+
+/* Enlaces */
+.footer .footer-link {
+  color: #dcdcdc;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer .footer-link:hover {
+  color: #1d2027;
+}
+
+/* Redes sociales */
+.footer .social-icons a {
+  color: #0e0c6e;
+  font-size: 1.5rem;
+  margin-right: 15px;
+  transition: all 0.3s ease;
+  
+}
+
+.footer .social-icons a:hover {
+  color: #fff;
+  transform: scale(1.2);
+  text-shadow: 0 0 10px #fff, 0 0 20px #ffc107;
+}
+
+/* Input de suscripción */
+.footer input[type="email"] {
+  border: none;
+  border-radius: 20px;
+  padding: 8px 15px;
+}
+
+.footer button {
+  border-radius: 20px;
+  color: #1F3B73;
+  font-weight: bold;
+}
+
+.footer button:hover {
+  background-color: #fff;
+  color: #1F3B73;
+}
+
+

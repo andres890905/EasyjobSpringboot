@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Easy Job</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <!-- Iconos y fuentes -->
+  <link href="https://fonts.googleapis.com/css2?family=Allura&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<link rel="stylesheet"  href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+  <!-- CSS propio -->
+  <link rel="stylesheet" href="css/index.css"/>
+</head>
+<body>
+
+<!-- ================= NAVBAR ================= -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-transparent py-3">
+  <div class="container-fluid">
+    <!-- Logo -->
+   <a class="navbar-brand d-flex align-items-center neon-hover" href="#">
+  <img src="imagenes/Logof.jpeg" alt="Logo de Easy Job" class="logo">
+  <span class="ms-2 brand-text">Easy Job</span>
+</a>
+
+
+    <!-- Toggler para mobile -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
+      aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Links -->
+    <div  class="collapse navbar-collapse justify-content-end" id="navbarNavAltMarkup">
+      <div class="navbar-nav gap-3">
+        <a class="nav-link btn-nav" th:href="@{/login}">Login</a>
+        <a class="nav-link btn-nav" href="#">Sobre Nosotros</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+<!-- ================= HERO ================= -->
+<div class="hero-section">
+  <!-- Contenedor de imágenes -->
+  <div class="hero-slider">
+    <img src="imagenes/trabajadores.jpg" class="hero-img active" alt="Trabajador 1">
+    <img src="imagenes/trabajadores2.jpg" class="hero-img" alt="Trabajador 2">
+    <img src="imagenes/trabajadores3.jpg" class="hero-img" alt="Trabajador 3">
+  </div>
+
+  <!-- Contenido sobre la imagen -->
+  <div class="hero">
+    <h1 class="fade-in">Tu futuro laboral, más cerca</h1>
+    <p class="fade-in delay-1">Easy Job facilita la gestión laboral de empleados y empleadores desde un solo lugar,
+       integrando herramientas digitales que optimizan la comunicación,
+        agilizan los procesos administrativos y fortalecen el desarrollo humano dentro de las empresas..</p>
+    <a href="#" class="btn-neon bounce">Conoce más</a>
+  </div>
+</div>
+
+
+
+<hr class="section-divider">
+
+<!-- ================= ¿QUÉ OFRECEMOS? ================= -->
+<section id="Servicios" class="what-we-offer text-center py-5">
+  <div class="container">
+
+    <!-- Título con fondo degradado -->
+    <h2 class="section-title-gradient py-5">¿Qué ofrecemos?</h2>
+
+    <!-- Botones de categoría -->
+    <div class="d-flex justify-content-center flex-wrap gap-3 mb-4">
+      <button onclick="showCategory('personal')" class="category-btn active" id="btn-personal">
+        <i class="fas fa-users me-2"></i>Gestión De Personal
+      </button>
+      <button onclick="showCategory('capacitaciones')" class="category-btn" id="btn-capacitaciones">
+        <i class="fas fa-graduation-cap me-2"></i>Capacitaciones
+      </button>
+      <button onclick="showCategory('asesoria')" class="category-btn" id="btn-asesoria">
+        <i class="fas fa-gavel me-2"></i>Asesoría Laboral
+      </button>
+      <button onclick="showCategory('digital')" class="category-btn" id="btn-digital">
+        <i class="fas fa-digital-tachograph me-2"></i>Transformación Digital
+      </button>
+    </div>
+
+    <!-- Contenido dinámico -->
+    <div class="content-area show" id="content-area">
+      <div class="row align-items-center content-row">
+        <!-- Imagen a la izquierda -->
+        <div class="col-lg-4 mb-4">
+          <div class="image-container" id="main-image">
+            <img src="imagenes/personal.jpg" alt="Gestión De Personal">
+          </div>
+        </div>
+
+        <!-- Texto a la derecha -->
+        <div class="col-lg-8 text-content">
+          <h3 id="category-title" class="mb-3">Gestión De Personal</h3>
+          <p id="category-description" class="lead mb-0">
+            Optimiza la gestión de tu equipo humano con soluciones integrales que abarcan desde la selección hasta el desarrollo profesional.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ================= NOVEDADES ================= -->
+<!-- ================= NOVEDADES ================= -->
+<section id="novedades" class="py-5">
+  <div class="container my-4 pt-4">
+    <h2 class="text-center my-4 pt-5 section-title">Novedades</h2>
+    <div class="row row-cols-1 row-cols-md-3 pt-5 g-4">
+      <div class="col">
+        <div class="card h-100 position-relative text-white overlay-card">
+          <img src="imagenes/vaciones.webp" class="card-img" alt="Vacaciones">
+          <div class="card-img-overlay d-flex flex-column justify-content-end bg-dark bg-opacity-50 p-3">
+            <h5 class="card-title text-info">Plataforma De Vacaciones</h5>
+            <p class="card-text text-white">Consulta tus días acumulados y solicita vacaciones fácilmente.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card h-100 position-relative text-white overlay-card">
+          <img src="imagenes/capacitacion.jpg" class="card-img" alt="Capacitación">
+          <div class="card-img-overlay d-flex flex-column justify-content-end bg-dark bg-opacity-50 p-3">
+            <h5 class="card-title text-info">Sube Tus Incapacidades</h5>
+            <p class="card-text text-white">Reporta tus incapacidades médicas y adjunta soportes fácilmente.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card h-100 position-relative text-white overlay-card">
+          <img src="imagenes/entrevista.jpg" class="card-img" alt="Entrevista">
+          <div class="card-img-overlay d-flex flex-column justify-content-end bg-dark bg-opacity-50 p-3">
+            <h5 class="card-title text-info">Solicita Tus Certificados</h5>
+            <p class="card-text text-white">Obtén certificados laborales y constancias en segundos.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+<!-- ================= TESTIMONIOS ================= -->
+<section class="testimonios-section py-5">
+  <div class="container">
+    <h3 class="text-center mb-5">Opiniones de nuestros usuarios</h3>
+    <div class="testimonios-slider">
+      
+      <div class="testimonial">
+        <img src="imagenes/testimonio3.jpeg" alt="Juan Pérez" class="testimonial-img">
+        <div class="stars">
+          <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+          <i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+        </div>
+        <p>"Easy Job me permitió encontrar empleo rápido y gestionar mis vacaciones sin complicaciones."</p>
+        <h5>- Juan Pérez</h5>
+      </div>
+
+      <div class="testimonial">
+        <img src="imagenes/testimonio2.jpg" alt="María López" class="testimonial-img">
+        <div class="stars">
+          <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+          <i class="fas fa-star"></i><i class="far fa-star"></i>
+        </div>
+        <p>"La plataforma es intuitiva y profesional. Recomiendo Easy Job a todas las empresas."</p>
+        <h5>- María López</h5>
+      </div>
+
+      <div class="testimonial">
+        <img src="imagenes/testimonio4.jpeg" alt="Carlos Ramírez" class="testimonial-img">
+        <div class="stars">
+          <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+          <i class="fas fa-star-half-alt"></i><i class="far fa-star"></i>
+        </div>
+        <p>"Gracias a Easy Job, nuestra empresa pudo optimizar la gestión de personal de manera eficiente."</p>
+        <h5>- Carlos Ramírez</h5>
+      </div>
+
+      <div class="testimonial">
+        <img src="imagenes/testimonio1.jpg" alt="Ana Gómez" class="testimonial-img">
+        <div class="stars">
+          <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+          <i class="fas fa-star"></i><i class="fas fa-star"></i>
+        </div>
+        <p>"Los certificados laborales se descargan en segundos, ¡muy práctico!"</p>
+        <h5>- Ana Gómez</h5>
+      </div>
+
+
+      <div class="testimonial">
+        <img src="imagenes/testimonio3.jpeg" alt="Juan Pérez" class="testimonial-img">
+        <div class="stars">
+          <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+          <i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+        </div>
+        <p>"Easy Job me permitió encontrar empleo rápido y gestionar mis vacaciones sin complicaciones."</p>
+        <h5>- Juan Pérez</h5>
+      </div>
+       <div class="testimonial">
+        <img src="imagenes/testimonio2.jpg" alt="María López" class="testimonial-img">
+        <div class="stars">
+          <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+          <i class="fas fa-star"></i><i class="far fa-star"></i>
+        </div>
+        <p>"La plataforma es intuitiva y profesional. Recomiendo Easy Job a todas las empresas."</p>
+        <h5>- María López</h5>
+      </div>
+
+        <div class="testimonial">
+        <img src="imagenes/testimonio4.jpeg" alt="Carlos Ramírez" class="testimonial-img">
+        <div class="stars">
+          <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+          <i class="fas fa-star-half-alt"></i><i class="far fa-star"></i>
+        </div>
+        <p>"Gracias a Easy Job, nuestra empresa pudo optimizar la gestión de personal de manera eficiente."</p>
+        <h5>- Carlos Ramírez</h5>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<hr class="section-divider">
+<!-- ================= BENEFICIOS ================= -->
+<!-- ================= BENEFICIOS ================= -->
+<section class="beneficios-easyjob container my-5 py-5">
+
+  <h2 class="text-center fw-bold display-6 mb-5">Beneficios de Easy Job</h2>
+
+  <!-- Bloque 1: Administrador -->
+  <div class="row align-items-center mb-5">
+    <div class="col-lg-6">
+      <span class="badge bg-info text-dark mb-3">Panel Administrador</span>
+      <h4 class="fw-bold">Gestión total del sistema</h4>
+      <p class="text-muted fs-5">Controla usuarios, asigna horarios y administra sedes fácilmente desde un solo panel centralizado.</p>
+      <ul class="list-unstyled">
+        <li><i class="bi bi-check-circle-fill text-info me-2"></i> Supervisión global de empleados</li>
+        <li><i class="bi bi-check-circle-fill text-info me-2"></i> Control de roles y accesos</li>
+        <li><i class="bi bi-check-circle-fill text-info me-2"></i> Reportes automáticos</li>
+      </ul>
+    </div>
+    <div class="col-lg-6 text-center">
+      <img src="imagenes/paneladmin.png" alt="Panel Administrador" class="img-fluid rounded-4 shadow-sm">
+    </div>
+  </div>
+
+  <!-- Bloque 2: Supervisor -->
+  <div class="row align-items-center flex-lg-row-reverse mb-5">
+    <div class="col-lg-6">
+      <span class="badge bg-info text-dark mb-3">Panel Supervisor</span>
+      <h4 class="fw-bold">Gestión de equipos y productividad</h4>
+      <p class="text-muted fs-5">Aprueba incapacidades, permisos y vacaciones, y monitorea el rendimiento del equipo en tiempo real.</p>
+      <ul class="list-unstyled">
+        <li><i class="bi bi-check-circle-fill text-info me-2"></i> Aprobación de solicitudes</li>
+        <li><i class="bi bi-check-circle-fill text-info me-2"></i> Seguimiento de desempeño</li>
+        <li><i class="bi bi-check-circle-fill text-info me-2"></i> Comunicación directa con RRHH</li>
+      </ul>
+    </div>
+    <div class="col-lg-6 text-center">
+      <img src="imagenes/panelsuper.png" alt="Panel Supervisor" class="img-fluid rounded-4 shadow-sm">
+    </div>
+  </div>
+
+  <!-- Bloque 3: Empleado -->
+  <div class="row align-items-center">
+    <div class="col-lg-6">
+      <span class="badge bg-info text-dark mb-3">Panel Empleado</span>
+      <h4 class="fw-bold">Tu información siempre disponible</h4>
+      <p class="text-muted fs-5">Consulta tus horarios, registra incapacidades y descarga certificados desde una interfaz intuitiva.</p>
+      <ul class="list-unstyled">
+        <li><i class="bi bi-check-circle-fill text-info me-2"></i> Acceso a hoja de vida</li>
+        <li><i class="bi bi-check-circle-fill text-info me-2"></i> Solicitud de vacaciones</li>
+        <li><i class="bi bi-check-circle-fill text-info me-2"></i> Descarga de certificados laborales</li>
+      </ul>
+    </div>
+    <div class="col-lg-6 text-center">
+      <img src="imagenes/panelempleado.png" alt="Panel Empleado" class="img-fluid rounded-4 shadow-sm">
+    </div>
+  </div>
+
+</section>
+
+
+
+<hr class="section-divider">
+<!-- ================= EMPRESAS ================= -->
+<section class="empresas-section py-5">
+  <div class="container">
+    <h2 class="text-center fw-bold display-6 ">Empresas que confian en Nosotros</h2>
+
+    <div class="slider">
+      <div class="slide-track">
+        <!-- Logos duplicados para efecto infinito -->
+        <div class="slide"><img src="imagenes/logo1.png" alt="Logo 1"></div>
+        <div class="slide"><img src="imagenes/logo2.png" alt="Logo 2"></div>
+        <div class="slide"><img src="imagenes/logo3.webp" alt="Logo 3"></div>
+        <div class="slide"><img src="imagenes/Logo.png" alt="Logo 4"></div>
+        <div class="slide"><img src="imagenes/Logof.jpeg" alt="Logo 5"></div>
+        <div class="slide"><img src="imagenes/logo6.png" alt="Logo 6"></div>
+
+        <!-- Duplicado para efecto infinito -->
+         <div class="slide"><img src="imagenes/logo1.png" alt="Logo 1"></div>
+        <div class="slide"><img src="imagenes/logo2.png" alt="Logo 2"></div>
+        <div class="slide"><img src="imagenes/logo3.webp" alt="Logo 3"></div>
+        <div class="slide"><img src="imagenes/Logo.png" alt="Logo 4"></div>
+        <div class="slide"><img src="imagenes/Logof.jpeg" alt="Logo 5"></div>
+        <div class="slide"><img src="imagenes/logo6.png" alt="Logo 6"></div>
+        
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer">
+  <div class="container py-5">
+    <div class="row text-center text-md-start">
+      
+      <!-- Columna 1: Información de la empresa -->
+      <div class="col-md-4 mb-4">
+        <h5 class="fw-bold text-info mb-3 neon-text">Easy Job</h5>
+        <p>
+          Plataforma que conecta empleados, supervisores y administradores, 
+          facilitando la gestión laboral y la comunicación empresarial.
+        </p>
+        <p><i class="bi bi-geo-alt-fill text-info"></i> Bogotá, Colombia</p>
+        <p><i class="bi bi-envelope-fill text-info"></i> info@easyjob.com</p>
+      </div>
+
+      <!-- Columna 2: Enlaces rápidos -->
+      <div class="col-md-4 mb-4">
+        <h5 class="fw-bold text-info mb-3 neon-text">Enlaces Rápidos</h5>
+        <ul class="list-unstyled">
+          <li><a href="#" class="footer-link">Inicio</a></li>
+          <li><a href="#novedades" class="footer-link">Novedades</a></li>
+          <li><a href="#Servicios" class="footer-link">Servicios</a></li>
+          <li><a href="#contacto" class="footer-link">Contáctanos</a></li>
+        </ul>
+      </div>
+
+      <!-- Columna 3: Redes sociales -->
+      <div class="col-md-4 mb-4">
+        <h5 class="fw-bold text-info mb-3 neon-text">Síguenos</h5>
+        <div class="social-icons mb-3">
+          <a href="#"><i class="bi bi-facebook"></i></a>
+          <a href="#"><i class="bi bi-instagram"></i></a>
+          <a href="#"><i class="bi bi-linkedin"></i></a>
+          <a href="#"><i class="bi bi-twitter-x"></i></a>
+        </div>
+        <p>Suscríbete para recibir novedades y actualizaciones.</p>
+        <form class="d-flex justify-content-center justify-content-md-start">
+          <input type="email" class="form-control me-2 w-75" placeholder="Tu correo" />
+          <button class="btn btn-info">Enviar</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="text-center border-top border-light mt-4 pt-3">
+    <small>© 2025 Easy Job - Todos los derechos reservados</small>
+  </div>
+</footer>
+
+
+
+<!-- ================= SCRIPTS ================= -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/index.js"></script>
+
+</body>
+</html>

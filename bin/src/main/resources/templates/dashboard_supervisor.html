@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - Easy Job</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Allura&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/dashboard_supervisor.css">
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <a class="navbar-brand" href="#">
+    <img th:src="@{/imagenes/Logof.jpeg}" src="/imagenes/Logof.jpeg" alt=""> Supervisor
+  </a>
+  <ul class="nav flex-column">
+    <li><a class="nav-link active" href="#" id="btnDashboard"><i class="fas fa-home me-2"></i>Dashboard</a></li>
+    <li><a class="nav-link" href="#" id="btnEmpleados"><i class="fas fa-users me-2"></i>Empleados</a></li>
+    <li><a class="nav-link" href="#" id="btnHorarios"><i class="fas fa-calendar-alt me-2"></i>Horarios</a></li>
+    <li><a class="nav-link" href="#" id="btnIncapacidades"><i class="fas fa-file-medical me-2"></i>Incapacidades</a></li>
+    <li><a class="nav-link" href="#" id="btnVacaciones"><i class="fas fa-umbrella-beach me-2"></i>Vacaciones</a></li>
+    <li><a class="nav-link" href="#" id="btnTraslados"><i class="fas fa-exchange-alt me-2"></i>Traslados</a></li>
+    <li><a class="nav-link" href="#" id="btnReportes"><i class="fas fa-chart-line me-2"></i>Reportes</a></li>
+    <li><a class="nav-link text-danger" href="/logout" id="btnCerrarSesion"><i class="fas fa-sign-out-alt me-2"></i>Cerrar sesión</a></li>
+  </ul>
+</nav>
+
+<!-- Main Content -->
+<main class="main-content">
+  
+  <!-- Sección Dashboard -->
+  <div id="seccionDashboard">
+    <h2 class="mb-4">Panel de Supervisor</h2>
+
+    <!-- ✅ NUEVO: Tarjeta de Bienvenida con Avatar -->
+    <div class="card card-custom p-4 mb-4">
+      <div class="row align-items-center">
+        <!-- Avatar del Supervisor -->
+        <div class="col-md-2 text-center">
+          <div class="dashboard-avatar">
+            <span th:text="${usuario.nombre.substring(0,1) + usuario.apellido.substring(0,1)}">JD</span>
+          </div>
+        </div>
+        
+        <!-- Información del Supervisor -->
+        <div class="col-md-10">
+          <h3 class="text-primary mb-2">
+            
+            ¡Bienvenido <span th:text="${usuario.nombre + ' ' + usuario.apellido}">Jose David Rodriguez</span>!
+          </h3>
+          <p class="lead mb-3">
+            <span class="badge bg-primary me-2">
+              <i class="fas fa-user-tie me-1"></i>
+              <span th:text="${usuario.rol.tipo_rol}">Supervisor</span>
+            </span>
+            <span class="badge bg-info">
+              <i class="fas fa-map-marker-alt me-1"></i>
+              <span id="dashboardZone">Cargando zona...</span>
+            </span>
+          </p>
+          <p class="text-muted mb-0">
+            <i class="fas fa-envelope me-2"></i><span th:text="${usuario.correo}">jose.rodriguez@empresa.com</span>
+          </p>
+        </div>
+      </div>
+      
+      <hr class="my-4">
+      
+      
+    </div>
+
+    <!-- ✅ Cards de estadísticas (actualizadas para la zona) -->
+    <h4 class="mb-3"><i class="fas fa-chart-bar me-2"></i>Estadísticas de mi Zona</h4>
+    <div class="row g-4">
+      <div class="col-md-3">
+        <div class="card card-custom p-3 text-center stat-card">
+          <i class="fas fa-users fa-3x text-primary mb-3"></i>
+          <h4 class="mb-2" id="totalEmpleados">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+          </h4>
+          <p class="text-muted mb-0">Empleados en mi Zona</p>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="card card-custom p-3 text-center stat-card">
+          <i class="fas fa-calendar-check fa-3x text-success mb-3"></i>
+          <h4 class="mb-2" id="totalVacaciones">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+          </h4>
+          <p class="text-muted mb-0">En Vacaciones</p>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="card card-custom p-3 text-center stat-card">
+          <i class="fas fa-file-medical fa-3x text-warning mb-3"></i>
+          <h4 class="mb-2" id="totalIncapacidades">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+          </h4>
+          <p class="text-muted mb-0">Incapacidades Activas</p>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="card card-custom p-3 text-center stat-card">
+          <i class="fas fa-building fa-3x text-info mb-3"></i>
+          <h4 class="mb-2" id="totalSucursales">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+          </h4>
+          <p class="text-muted mb-0">Sucursales</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ✅ NUEVO: Actividad Reciente -->
+    <div class="row mt-4">
+      <div class="col-md-6">
+        <div class="card card-custom p-4">
+          <h5 class="mb-3">
+            <i class="fas fa-clock me-2 text-primary"></i>Actividad Reciente
+          </h5>
+          <div id="actividadReciente">
+            <div class="text-center py-3">
+              <div class="spinner-border text-primary" role="status"></div>
+              <p class="text-muted mt-2">Cargando actividad...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6">
+        <div class="card card-custom p-4">
+          <h5 class="mb-3">
+            <i class="fas fa-exclamation-triangle me-2 text-warning"></i>Alertas Pendientes
+          </h5>
+          <div id="alertasPendientes">
+            <div class="text-center py-3">
+              <div class="spinner-border text-warning" role="status"></div>
+              <p class="text-muted mt-2">Cargando alertas...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección Empleados -->
+  <div id="seccionEmpleados" style="display: none;">
+    <h2 class="mb-4">
+      <i class="fas fa-users me-2"></i>Gestión de Empleados
+    </h2>
+
+    <!-- ✅ NUEVO: Listado de empleados de la zona -->
+    <div id="listadoEmpleados" class="mb-4">
+      <!-- Se carga dinámicamente con JavaScript -->
+    </div>
+
+    <!-- Búsqueda individual -->
+    <h4 class="mb-3">
+      <i class="fas fa-user-search me-2"></i>Buscar Empleado Específico
+    </h4>
+    <div class="card card-custom p-4 mb-4">
+      <form id="form-busqueda">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="idEmpleado" class="form-label">
+              <i class="fas fa-id-card me-1"></i>ID/Cédula del Empleado
+            </label>
+            <input type="text" class="form-control" id="idEmpleado" 
+                   placeholder="Ej: 1001" />
+          </div>
+          <div class="col-md-6">
+            <label for="nombreEmpleado" class="form-label">
+              <i class="fas fa-user me-1"></i>Nombre del Empleado
+            </label>
+            <input type="text" class="form-control" id="nombreEmpleado" 
+                   placeholder="Ej: Fernanda" />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">
+          <i class="fas fa-search me-2"></i>Buscar
+        </button>
+      </form>
+    </div>
+
+    <!-- Resultado de búsqueda individual -->
+    <div id="resultadoEmpleado" class="card card-custom p-4 mt-4" style="display: none;"></div>
+  </div>
+
+  <!-- ================= SECCIÓN HORARIOS COMPLETA ================= -->
+  <div id="seccionHorarios" style="display: none;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2>
+        <i class="fas fa-calendar-alt text-primary"></i> 
+        Gestión de Horarios
+      </h2>
+      <button class="btn btn-outline-primary" onclick="cargarHorarios()">
+        <i class="fas fa-sync-alt me-2"></i>Actualizar Lista
+      </button>
+    </div>
+
+    <!-- ===== Card de Búsqueda y Asignación ===== -->
+    <div class="card card-custom p-4 mb-4 shadow-sm">
+      <h4 class="mb-3 text-primary">
+        <i class="fas fa-user-clock me-2"></i>Asignar Nuevo Horario
+      </h4>
+      <p class="text-muted mb-4">
+        Busque al empleado por su cédula para asignarle un horario de trabajo
+      </p>
+
+      <form id="formBuscarHorario">
+        <div class="row g-3">
+          <div class="col-md-8">
+            <label for="idHorarioEmpleado" class="form-label">
+              <i class="fas fa-id-card me-1"></i>Cédula del Empleado *
+            </label>
+            <input 
+              type="number" 
+              class="form-control form-control-lg" 
+              id="idHorarioEmpleado" 
+              placeholder="Ej: 1001234567" 
+              required 
+            />
+            <small class="text-muted">Ingrese el número de cédula completo</small>
+          </div>
+
+          <div class="col-md-4 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary btn-lg w-100">
+              <i class="fas fa-search me-2"></i>Buscar Empleado
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- ===== Resultado de Búsqueda (Se llena dinámicamente) ===== -->
+    <div id="resultadoHorario" class="card card-custom p-4 mb-4 shadow-sm" style="display: none;">
+      <!-- El contenido se genera desde JavaScript -->
+    </div>
+
+    <!-- ===== FILTROS AVANZADOS ===== -->
+    <div class="card card-custom p-4 mb-4 shadow-sm">
+      <h5 class="text-primary mb-3">
+        <i class="fas fa-filter me-2"></i>Filtros de Búsqueda
+      </h5>
+      
+      <div class="row g-3">
+        <!-- Filtro por Vista -->
+        <div class="col-md-3">
+          <label class="form-label">
+            <i class="fas fa-eye me-1"></i>Vista
+          </label>
+          <select id="filtroVista" class="form-select" onchange="cambiarVista()">
+            <option value="todos">Todos los horarios</option>
+            <option value="empleado">Por empleado</option>
+            <option value="supervisor">Por supervisor</option>
+            <option value="mes">Por mes</option>
+          </select>
+        </div>
+
+        <!-- Filtro por ID Usuario (se muestra según vista) -->
+        <div class="col-md-3" id="filtroIdContainer" style="display: none;">
+          <label class="form-label">
+            <i class="fas fa-id-card me-1"></i>ID <span id="tipoIdLabel">Usuario</span>
+          </label>
+          <input 
+            type="number" 
+            id="filtroIdUsuario" 
+            class="form-control" 
+            placeholder="Ingrese ID"
+          />
+        </div>
+
+        <!-- Filtro por Año (para vista mensual) -->
+        <div class="col-md-3" id="filtroYearContainer" style="display: none;">
+          <label class="form-label">
+            <i class="fas fa-calendar me-1"></i>Año
+          </label>
+          <input 
+            type="number" 
+            id="filtroYear" 
+            class="form-control" 
+            value="2025"
+            min="2020"
+            max="2030"
+          />
+        </div>
+
+        <!-- Filtro por Mes (para vista mensual) -->
+        <div class="col-md-3" id="filtroMonthContainer" style="display: none;">
+          <label class="form-label">
+            <i class="fas fa-calendar-day me-1"></i>Mes
+          </label>
+          <select id="filtroMonth" class="form-select">
+            <option value="1">Enero</option>
+            <option value="2">Febrero</option>
+            <option value="3">Marzo</option>
+            <option value="4">Abril</option>
+            <option value="5">Mayo</option>
+            <option value="6">Junio</option>
+            <option value="7">Julio</option>
+            <option value="8">Agosto</option>
+            <option value="9">Septiembre</option>
+            <option value="10">Octubre</option>
+            <option value="11">Noviembre</option>
+            <option value="12">Diciembre</option>
+          </select>
+        </div>
+
+        <!-- Botón Aplicar Filtros -->
+        <div class="col-md-3 d-flex align-items-end">
+          <button class="btn btn-success w-100" onclick="aplicarFiltros()">
+            <i class="fas fa-check me-2"></i>Aplicar Filtros
+          </button>
+        </div>
+      </div>
+
+      <!-- Info de filtros aplicados -->
+      <div id="infoFiltros" class="alert alert-info mt-3" style="display: none;">
+        <i class="fas fa-info-circle me-2"></i>
+        <span id="textoFiltros"></span>
+      </div>
+    </div>
+
+    <!-- ===== Tabla de Horarios Registrados ===== -->
+    <div class="card card-custom p-4 shadow-sm">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="text-primary mb-0">
+          <i class="fas fa-list me-2"></i>Horarios Registrados
+        </h4>
+        <span class="badge bg-primary" id="contadorHorarios">0 horarios</span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle" id="tablaHorarios">
+          <thead class="table-primary">
+            <tr>
+              <th style="width: 180px;">Empleado
+              </th>
+              <th style="width: 120px;">
+                Fecha
+              </th>
+              <th style="width: 100px;">
+                Entrada
+              </th>
+              <th style="width: 100px;">
+                Salida
+              </th>
+              <th>
+                Descripción
+              </th>
+              <th style="width: 120px;" class="text-center">
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="8" class="text-center py-4 text-muted">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="mt-2 mb-0">Cargando horarios...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mensaje si no hay horarios -->
+      <div id="mensajeVacio" class="text-center py-5" style="display: none;">
+        <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+        <h5 class="text-muted">No hay horarios registrados</h5>
+        <p class="text-muted">Asigne el primer horario usando el formulario superior</p>
+      </div>
+    </div>
+
+    
+  </div>
+  <!-- Sección Incapacidades -->
+  <div id="seccionIncapacidades" style="display: none;">
+    <h2 class="mb-4"><i class="fas fa-file-medical"></i>Gestión de Incapacidades</h2>
+    <div class="card card-custom p-4">
+      <h4 class="mb-4">Registrar Nueva Incapacidad</h4>
+      <form id="formIncapacidades">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="empleadoIncapacidad" class="form-label">Empleado</label>
+            <input type="text" class="form-control" id="empleadoIncapacidad" placeholder="Nombre o ID del empleado" />
+          </div>
+          <div class="col-md-6">
+            <label for="tipoIncapacidad" class="form-label">Tipo de Incapacidad</label>
+            <select class="form-control" id="tipoIncapacidad">
+              <option value="">Seleccione...</option>
+              <option value="enfermedad">Enfermedad General</option>
+              <option value="accidente">Accidente Laboral</option>
+              <option value="maternidad">Maternidad</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="fechaInicioIncapacidad" class="form-label">Fecha Inicio</label>
+            <input type="date" class="form-control" id="fechaInicioIncapacidad" />
+          </div>
+          <div class="col-md-6">
+            <label for="fechaFinIncapacidad" class="form-label">Fecha Fin</label>
+            <input type="date" class="form-control" id="fechaFinIncapacidad" />
+          </div>
+          <div class="col-md-12">
+            <label for="observacionesIncapacidad" class="form-label">Observaciones</label>
+            <textarea class="form-control" id="observacionesIncapacidad" rows="3" placeholder="Detalles adicionales..."></textarea>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">
+          <i class="fas fa-save me-2"></i>Registrar Incapacidad
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Sección Vacaciones -->
+  <div id="seccionVacaciones" style="display: none;">
+    <h2 class="mb-4"><i class="fas fa-umbrella-beach"></i>Gestión de Vacaciones</h2>
+    <div class="card card-custom p-4">
+      <h4 class="mb-4">Solicitar Vacaciones</h4>
+      <form id="formVacaciones">
+  <h5 class="mb-3 text-primary"><i class="fas fa-plane-departure me-2"></i>Gestión de Vacaciones</h5>
+  
+  <div class="mb-3">
+    <label for="idVacacion" class="form-label">ID de Solicitud</label>
+    <input type="number" class="form-control" id="idVacacion" placeholder="Ingrese el ID de la solicitud" required>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Acción</label><br>
+    <label class="me-3"><input type="radio" name="accionVacaciones" value="Aprobado"> Aprobar</label>
+    <label><input type="radio" name="accionVacaciones" value="Rechazado"> Rechazar</label>
+  </div>
+
+  <div class="mb-3">
+    <label for="comentariosVacaciones" class="form-label">Comentarios (opcional)</label>
+    <textarea class="form-control" id="comentariosVacaciones" rows="3" placeholder="Escriba observaciones si lo desea"></textarea>
+  </div>
+
+  <button type="submit" class="btn btn-primary w-100">
+    <i class="fas fa-save me-2"></i>Actualizar Estado
+  </button>
+</form>
+
+
+    </div>
+  </div>
+
+  <!-- Sección Traslados -->
+  <div id="seccionTraslados" style="display: none;">
+    <h2 class="mb-4"><i class="fas fa-exchange-alt"></i>Gestión de Traslados</h2>
+    <div class="card card-custom p-4">
+      <h4 class="mb-4">Registrar Traslado</h4>
+      <form id="formTraslados">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="empleadoTraslado" class="form-label">Empleado</label>
+            <input type="text" class="form-control" id="empleadoTraslado" placeholder="Nombre o ID del empleado" />
+          </div>
+          <div class="col-md-6">
+            <label for="sucursalActual" class="form-label">Sucursal Actual</label>
+            <select class="form-control" id="sucursalActual">
+              <option value="">Seleccione...</option>
+              <option value="principal">Sede Principal</option>
+              <option value="norte">Sede Norte</option>
+              <option value="sur">Sede Sur</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="sucursalDestino" class="form-label">Sucursal Destino</label>
+            <select class="form-control" id="sucursalDestino">
+              <option value="">Seleccione...</option>
+              <option value="principal">Sede Principal</option>
+              <option value="norte">Sede Norte</option>
+              <option value="sur">Sede Sur</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="fechaTraslado" class="form-label">Fecha de Traslado</label>
+            <input type="date" class="form-control" id="fechaTraslado" />
+          </div>
+          <div class="col-md-12">
+            <label for="motivoTraslado" class="form-label">Motivo del Traslado</label>
+            <textarea class="form-control" id="motivoTraslado" rows="3" placeholder="Razón del traslado..."></textarea>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">
+          <i class="fas fa-exchange-alt me-2"></i>Registrar Traslado
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Sección Reportes -->
+  <div id="seccionReportes" style="display: none;">
+    <h2 class="mb-4"><i class="fas fa-chart-line"></i>Reportes y Estadísticas</h2>
+    <div class="card card-custom p-4">
+      <h4 class="mb-4">Generar Reporte</h4>
+      <form id="formReportes">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="tipoReporte" class="form-label">Tipo de Reporte</label>
+            <select class="form-control" id="tipoReporte">
+              <option value="">Seleccione...</option>
+              <option value="asistencia">Asistencia</option>
+              <option value="incapacidades">Incapacidades</option>
+              <option value="vacaciones">Vacaciones</option>
+              <option value="nomina">Nómina</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="periodoReporte" class="form-label">Período</label>
+            <select class="form-control" id="periodoReporte">
+              <option value="">Seleccione...</option>
+              <option value="semanal">Semanal</option>
+              <option value="mensual">Mensual</option>
+              <option value="trimestral">Trimestral</option>
+              <option value="anual">Anual</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="fechaInicioReporte" class="form-label">Fecha Inicio</label>
+            <input type="date" class="form-control" id="fechaInicioReporte" />
+          </div>
+          <div class="col-md-6">
+            <label for="fechaFinReporte" class="form-label">Fecha Fin</label>
+            <input type="date" class="form-control" id="fechaFinReporte" />
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">
+          <i class="fas fa-file-download me-2"></i>Generar Reporte
+        </button>
+      </form>
+    </div>
+  </div>
+
+</main>
+<script th:inline="javascript">
+        /*<![CDATA[*/
+        // Guardar datos del usuario logueado en sessionStorage
+        const usuarioId = /*[[${usuarioId}]]*/ 0;
+        const usuarioNombre = /*[[${usuarioNombre}]]*/ '';
+        const usuarioApellido = /*[[${usuarioApellido}]]*/ '';
+        const usuarioCorreo = /*[[${usuarioCorreo}]]*/ '';
+        
+        if (usuarioId && usuarioId > 0) {
+            sessionStorage.setItem('idUsuario', usuarioId.toString());
+            sessionStorage.setItem('nombreUsuario', usuarioNombre + ' ' + usuarioApellido);
+            sessionStorage.setItem('correoUsuario', usuarioCorreo);
+            console.log('✅ Datos del supervisor guardados en sessionStorage');
+            console.log('   ID:', usuarioId);
+            console.log('   Nombre:', usuarioNombre, usuarioApellido);
+        } else {
+            console.error('❌ No se recibió ID de usuario desde el servidor');
+            // Opcional: redirigir al login si no hay datos
+            // window.location.href = '/login?error=Sesión+inválida';
+        }
+        /*]]>*/
+    </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/dashboard_supervisor.js"></script>
+</body>
+</html>

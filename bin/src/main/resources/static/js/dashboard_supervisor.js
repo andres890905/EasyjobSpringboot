@@ -1,28 +1,18 @@
 // ================= DASHBOARD SUPERVISOR - OPTIMIZADO Y CORREGIDO ==================
+
+// ====== CONSTANTES Y CONFIGURACIÓN ======
 const API_BASE_URL = 'http://localhost:9090/api';
 const ENDPOINTS = {
   empleados: '/usuarios/empleados',
   buscarUsuario: '/usuarios/buscar',
   empleadosZona: '/usuarios/zona',
   programacion: '/programacion',
-
-  // INCAPACIDADES
-  incapacidades: '/incapacidades',              // listar / crear
-  incapacidadPorUsuario: '/incapacidades/usuario',  
-  aprobarIncapacidad: (id) => `/incapacidades/${id}/aprobar`,
-  rechazarIncapacidad: (id) => `/incapacidades/${id}/rechazar`,
-
-  // VACACIONES
-  vacaciones: '/vacaciones',
-  vacacionesTodas: '/vacaciones/todas',
-  vacacionesPorZona: (id) => `/vacaciones/zona/${id}`,
-  cambiarEstadoVacacion: (id) => `/vacaciones/${id}/estado`,
-
+  incapacidades: '/incapacidades/registrar',
+  vacaciones: '/vacaciones/actualizar',
   traslados: '/traslados/registrar',
   reportes: '/reportes/generar',
   zonasSupervisor: ''
 };
-
 
 // ====== VARIABLES GLOBALES ======
 let empleadoSeleccionado = null;
@@ -1683,442 +1673,111 @@ const Horarios = {
     this.cargarDesdeURL(url);
   }
   }
- // ====== GESTIÓN DE INCAPACIDADES ======
-  const Incapacidades = {
-    init() {
-      this.cargarIncapacidades();
-      
-      // Vincular botón de refrescar si existe
-      const btnRefresh = document.getElementById('btnRefreshIncapacidades');
-      if (btnRefresh) {
-        btnRefresh.addEventListener('click', () => this.cargarIncapacidades());
-      }
-    },
-
-    async cargarIncapacidades() {
-      const tabla = document.getElementById('tablaIncapacidades');
-      const tbody = tabla?.querySelector('tbody') || tabla;
-      
-      if (!tbody) {
-        console.error('❌ No se encontró la tabla de incapacidades');
-        return;
-      }
-
-      // Mostrar loading
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="8" class="text-center py-4">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Cargando...</span>
-            </div>
-            <p class="mt-3 text-muted">Cargando incapacidades...</p>
-          </td>
-        </tr>
-      `;
-
-      try {
-        // ✅ Cargar incapacidades de la zona del supervisor
-        let url = ENDPOINTS.incapacidades;
-        
-        if (supervisorActual) {
-          console.log('🔍 Cargando incapacidades del supervisor:', supervisorActual);
-          url = `${ENDPOINTS.incapacidades}/zona/${supervisorActual}`;
-        }
-        
-        console.log('📋 URL de incapacidades:', url);
-        const data = await API.get(url);
-        
-        tbody.innerHTML = '';
-
-        if (!data || data.length === 0) {
-          tbody.innerHTML = `
-            <tr>
-              <td colspan="8" class="text-center text-muted py-4">
-                <i class="fas fa-inbox fa-3x mb-3"></i>
-                <p>No hay incapacidades registradas</p>
-              </td>
-            </tr>
-          `;
-          return;
-        }
-
-        // Renderizar incapacidades
-        data.forEach(inc => {
-          const fila = document.createElement('tr');
-          
-          // Determinar si se pueden mostrar botones (solo PENDIENTES)
-          const esPendiente = inc.estado && inc.estado.toUpperCase() === 'PENDIENTE';
-          const botonesAccion = esPendiente ? `
-            <button 
-              class="btn btn-success btn-sm me-1" 
-              onclick="Incapacidades.aprobar('${inc.idIncapacidad}')"
-              title="Aprobar">
-              <i class="fas fa-check"></i> Aprobar
-            </button>
-            <button 
-              class="btn btn-danger btn-sm" 
-              onclick="Incapacidades.rechazar('${inc.idIncapacidad}')"
-              title="Rechazar">
-              <i class="fas fa-times"></i> Rechazar
-            </button>
-          ` : `
-            <span class="text-muted"><i class="fas fa-check-circle"></i> Procesada</span>
-          `;
-
-          // Botón para descargar archivo si existe
-          const botonArchivo = inc.archivoSoporte ? `
-            <a 
-              href="http://localhost:9090/api/incapacidades/archivo/${inc.archivoSoporte}"
-              class="btn btn-info btn-sm"
-              title="Descargar soporte"
-              download>
-              <i class="fas fa-download"></i> Archivo
-            </a>
-          ` : `
-            <span class="text-muted text-sm"><i class="fas fa-times-circle"></i> Sin archivo</span>
-          `;
-
-          fila.innerHTML = `
-            <td>
-              <div>
-                <strong>${inc.nombreEmpleado || 'N/A'}</strong>
-                <br>
-                <small class="text-muted">ID: ${inc.idusuarios}</small>
-              </div>
-            </td>
-            <td>
-              <span class="badge bg-info">
-                ${inc.tipo || 'General'}
-              </span>
-            </td>
-            <td>
-              <small>
-                <i class="fas fa-calendar-day me-1"></i>
-                ${Utils.formatearFechaCorta(inc.fechaInicio)}
-              </small>
-            </td>
-            <td>
-              <small>
-                <i class="fas fa-calendar-day me-1"></i>
-                ${Utils.formatearFechaCorta(inc.fechaFin)}
-              </small>
-            </td>
-            <td>
-              <small class="text-muted">
-                ${inc.motivo || '<em>Sin motivo</em>'}
-              </small>
-            </td>
-            <td class="text-center">
-              <span class="badge bg-${this.colorEstado(inc.estado)}">
-                ${inc.estado}
-              </span>
-            </td>
-            <td class="text-center">
-              ${botonArchivo}
-            </td>
-            <td class="text-center">
-              ${botonesAccion}
-            </td>
-          `;
-          
-          tbody.appendChild(fila);
-        });
-
-        Utils.mostrarAlerta(`✅ ${data.length} incapacidad(es) cargada(s)`, 'success');
-
-      } catch (error) {
-        console.error('❌ Error al cargar incapacidades:', error);
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="9" class="text-center text-danger py-4">
-              <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
-              <p>Error al cargar incapacidades: ${error.message}</p>
-              <button class="btn btn-primary btn-sm" onclick="Incapacidades.cargarIncapacidades()">
-                <i class="fas fa-redo me-2"></i>Reintentar
-              </button>
-            </td>
-          </tr>
-        `;
-      }
-    },
-
-    async aprobar(id) {
-      if (!confirm('¿Está seguro de aprobar esta incapacidad?')) return;
-
-      try {
-        // ✅ Usar el endpoint correcto de ENDPOINTS
-        await API.put(ENDPOINTS.aprobarIncapacidad(id), {});
-        Utils.mostrarAlerta('✅ Incapacidad aprobada correctamente', 'success');
-        this.cargarIncapacidades();
-      } catch (error) {
-        console.error('❌ Error al aprobar:', error);
-        Utils.mostrarAlerta('❌ Error al aprobar: ' + error.message, 'danger');
-      }
-    },
-
-    async rechazar(id) {
-      const motivo = prompt('Ingrese el motivo del rechazo (opcional):');
-      
-      if (motivo === null) return; // Usuario canceló
-
-      try {
-        // ✅ Usar el endpoint correcto de ENDPOINTS
-        await API.put(ENDPOINTS.rechazarIncapacidad(id), { 
-          motivo: motivo.trim() || 'Sin motivo especificado' 
-        });
-        Utils.mostrarAlerta('✅ Incapacidad rechazada correctamente', 'success');
-        this.cargarIncapacidades();
-      } catch (error) {
-        console.error('❌ Error al rechazar:', error);
-        Utils.mostrarAlerta('❌ Error al rechazar: ' + error.message, 'danger');
-      }
-    },
-
-    colorEstado(estado) {
-      const colores = {
-        'PENDIENTE': 'warning',
-        'APROBADA': 'success',
-        'APROBADO': 'success',
-        'RECHAZADA': 'danger',
-        'RECHAZADO': 'danger',
-        'CANCELADA': 'secondary',
-        'CANCELADO': 'secondary'
-      };
-      return colores[estado?.toUpperCase()] || 'secondary';
+// ====== GESTIÓN DE INCAPACIDADES ======
+const Incapacidades = {
+  init() {
+    const form = document.getElementById('formIncapacidades');
+    if (form) {
+      form.addEventListener('submit', (e) => this.registrar(e));
     }
-  };
+  },
 
+  async registrar(e) {
+    e.preventDefault();
+
+    const empleado = document.getElementById('empleadoIncapacidad').value;
+    const tipo = document.getElementById('tipoIncapacidad').value;
+    const fechaInicio = document.getElementById('fechaInicioIncapacidad').value;
+    const fechaFin = document.getElementById('fechaFinIncapacidad').value;
+    const observaciones = document.getElementById('observacionesIncapacidad').value;
+
+    if (!empleado || !tipo || !fechaInicio || !fechaFin) {
+      Utils.mostrarAlerta('Complete todos los campos requeridos', 'warning');
+      return;
+    }
+
+    if (!Utils.validarFechas(fechaInicio, fechaFin)) {
+      Utils.mostrarAlerta('La fecha de inicio debe ser anterior a la fecha fin', 'warning');
+      return;
+    }
+
+    const datos = {
+      empleado,
+      tipo,
+      fechaInicio,
+      fechaFin,
+      observaciones
+    };
+
+    try {
+      const data = await API.post(ENDPOINTS.incapacidades, datos);
+      
+      if (data.success) {
+        Utils.mostrarAlerta('Incapacidad registrada correctamente', 'success');
+        e.target.reset();
+      } else {
+        Utils.mostrarAlerta('Error al registrar incapacidad', 'danger');
+      }
+    } catch (error) {
+      Utils.mostrarAlerta('Error de conexión con el servidor', 'danger');
+      console.error('Error:', error);
+    }
+  }
+};
 
 // ====== GESTIÓN DE VACACIONES ======
 const Vacaciones = {
   init() {
-    this.cargarVacaciones();
-    
-    // Vincular botón de refrescar si existe
-    const btnRefresh = document.getElementById('btnRefreshVacaciones');
-    if (btnRefresh) {
-      btnRefresh.addEventListener('click', () => this.cargarVacaciones());
+    const form = document.getElementById('formVacaciones');
+    if (form) {
+      form.addEventListener('submit', (e) => this.actualizar(e));
     }
   },
 
-  async cargarVacaciones() {
-    const tabla = document.getElementById('tablaVacaciones');
-    const tbody = tabla?.querySelector('tbody') || tabla;
-    
-    if (!tbody) {
-      console.error('❌ No se encontró la tabla de vacaciones');
+  async actualizar(e) {
+    e.preventDefault();
+
+    const idVacacion = document.getElementById('idVacacion').value;
+    const accion = document.querySelector('input[name="accionVacaciones"]:checked');
+    const comentarios = document.getElementById('comentariosVacaciones').value;
+
+    if (!idVacacion) {
+      Utils.mostrarAlerta('Por favor ingrese el ID de la solicitud', 'warning');
       return;
     }
 
-    // Mostrar loading
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="8" class="text-center py-4">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Cargando...</span>
-          </div>
-          <p class="mt-3 text-muted">Cargando vacaciones...</p>
-        </td>
-      </tr>
-    `;
-
-    try {
-      // ✅ Cargar vacaciones de la zona del supervisor
-      let url = ENDPOINTS.vacacionesTodas;
-      
-      if (supervisorActual) {
-        console.log('🔍 Cargando vacaciones del supervisor:', supervisorActual);
-        url = ENDPOINTS.vacacionesPorZona(supervisorActual);
-      }
-      
-      console.log('📋 URL de vacaciones:', url);
-      let data = [];
-      
-      try {
-        data = await API.get(url);
-        console.log('✅ Vacaciones obtenidas:', data);
-      } catch (error) {
-        console.warn('⚠️ Error al cargar vacaciones por zona, intentando sin filtro:', error.message);
-        
-        // Fallback: intentar cargar todas las vacaciones
-        try {
-          data = await API.get(ENDPOINTS.vacacionesTodas);
-          console.log('✅ Vacaciones (sin filtro) obtenidas:', data);
-        } catch (error2) {
-          console.error('❌ Error al cargar vacaciones:', error2.message);
-          throw error2;
-        }
-      }
-      
-      tbody.innerHTML = '';      if (!data || data.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="8" class="text-center text-muted py-4">
-              <i class="fas fa-inbox fa-3x mb-3"></i>
-              <p>No hay solicitudes de vacaciones registradas</p>
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      // Renderizar vacaciones
-      data.forEach(vac => {
-        const fila = document.createElement('tr');
-        
-        // Determinar si se pueden mostrar botones (solo PENDIENTE)
-        const esPendiente = vac.estado && vac.estado.toUpperCase() === 'PENDIENTE';
-        const botonesAccion = esPendiente ? `
-          <button 
-            class="btn btn-success btn-sm me-1" 
-            onclick="Vacaciones.aprobar('${vac.idVacacion}')"
-            title="Aprobar">
-            <i class="fas fa-check"></i> Aprobar
-          </button>
-          <button 
-            class="btn btn-danger btn-sm" 
-            onclick="Vacaciones.rechazar('${vac.idVacacion}')"
-            title="Rechazar">
-            <i class="fas fa-times"></i> Rechazar
-          </button>
-        ` : `
-          <span class="text-muted"><i class="fas fa-check-circle"></i> Procesada</span>
-        `;
-
-        fila.innerHTML = `
-          <td>
-            <div>
-              <strong>${vac.nombreEmpleado || 'N/A'}</strong>
-              <br>
-              <small class="text-muted">ID: ${vac.idUsuario}</small>
-            </div>
-          </td>
-          <td>
-            <small>
-              <i class="fas fa-calendar-day me-1"></i>
-              ${Utils.formatearFechaCorta(vac.fechaInicio)}
-            </small>
-          </td>
-          <td>
-            <small>
-              <i class="fas fa-calendar-day me-1"></i>
-              ${Utils.formatearFechaCorta(vac.fechaFin)}
-            </small>
-          </td>
-          <td class="text-center">
-            <span class="badge bg-info">
-              ${this.calcularDias(vac.fechaInicio, vac.fechaFin)} días
-            </span>
-          </td>
-          <td>
-            <small class="text-muted">
-              ${vac.comentarios || '<em>Sin comentarios</em>'}
-            </small>
-          </td>
-          <td class="text-center">
-            <span class="badge bg-${this.colorEstado(vac.estado)}">
-              ${vac.estado}
-            </span>
-          </td>
-          <td class="text-center">
-            ${botonesAccion}
-          </td>
-        `;
-        
-        tbody.appendChild(fila);
-      });
-
-      Utils.mostrarAlerta(`✅ ${data.length} solicitud(es) de vacaciones cargada(s)`, 'success');
-
-    } catch (error) {
-      console.error('❌ Error al cargar vacaciones:', error);
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="8" class="text-center text-danger py-4">
-            <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
-            <p><strong>Error al cargar las vacaciones</strong></p>
-            <p class="small">${error.message || 'Intente nuevamente'}</p>
-          </td>
-        </tr>
-      `;
-    }
-  },
-
-  async aprobar(idVacacion) {
-    if (!confirm('¿Estás seguro de que deseas APROBAR esta solicitud de vacaciones?')) {
+    if (!accion) {
+      Utils.mostrarAlerta('Por favor seleccione una acción (Aprobar o Rechazar)', 'warning');
       return;
     }
 
-    try {
-      console.log('📤 Aprobando vacación:', idVacacion);
-      const url = `${ENDPOINTS.cambiarEstadoVacacion(idVacacion)}?estado=Aprobado`;
-      console.log('🔗 URL:', url);
-      
-      const response = await API.put(url, {});
-      console.log('✅ Respuesta del servidor:', response);
-      
-      Utils.mostrarAlerta('✅ Solicitud de vacaciones aprobada correctamente', 'success');
-      
-      // Pequeño delay para asegurar que la BD actualizó
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      await this.cargarVacaciones();
-    } catch (error) {
-      console.error('❌ Error:', error);
-      Utils.mostrarAlerta('❌ Error al aprobar la solicitud: ' + error.message, 'danger');
-    }
-  },
-
-  async rechazar(idVacacion) {
-    if (!confirm('¿Estás seguro de que deseas RECHAZAR esta solicitud de vacaciones?')) {
-      return;
-    }
-
-    try {
-      console.log('📤 Rechazando vacación:', idVacacion);
-      const url = `${ENDPOINTS.cambiarEstadoVacacion(idVacacion)}?estado=Rechazado`;
-      console.log('🔗 URL:', url);
-      
-      const response = await API.put(url, {});
-      console.log('✅ Respuesta del servidor:', response);
-      
-      Utils.mostrarAlerta('✅ Solicitud de vacaciones rechazada correctamente', 'success');
-      
-      // Pequeño delay para asegurar que la BD actualizó
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      await this.cargarVacaciones();
-    } catch (error) {
-      console.error('❌ Error:', error);
-      Utils.mostrarAlerta('❌ Error al rechazar la solicitud: ' + error.message, 'danger');
-    }
-  },
-
-  calcularDias(inicio, fin) {
-    if (!inicio || !fin) return 0;
-    const start = new Date(inicio);
-    const end = new Date(fin);
-    return Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
-  },
-
-  colorEstado(estado) {
-    const colores = {
-      'PENDIENTE': 'warning',
-      'Pendiente': 'warning',
-      'APROBADO': 'success',
-      'Aprobado': 'success',
-      'APROBADA': 'success',
-      'Aprobada': 'success',
-      'RECHAZADO': 'danger',
-      'Rechazado': 'danger',
-      'RECHAZADA': 'danger',
-      'Rechazada': 'danger',
-      'CANCELADO': 'secondary',
-      'Cancelado': 'secondary',
-      'CANCELADA': 'secondary',
-      'Cancelada': 'secondary'
+    const datos = {
+      idVacacion: parseInt(idVacacion),
+      estado: accion.value,
+      comentarios
     };
-    return colores[estado] || 'secondary';
+
+    const btnSubmit = e.target.querySelector('button[type="submit"]');
+    const textoOriginal = btnSubmit.innerHTML;
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Procesando...';
+
+    try {
+      const data = await API.post(ENDPOINTS.vacaciones, datos);
+      
+      if (data.success) {
+        Utils.mostrarAlerta(`Solicitud ${accion.value.toLowerCase()}a correctamente`, 'success');
+        e.target.reset();
+      } else {
+        Utils.mostrarAlerta('Error al procesar la solicitud', 'danger');
+      }
+    } catch (error) {
+      Utils.mostrarAlerta('Error de conexión con el servidor', 'danger');
+      console.error('Error:', error);
+    } finally {
+      btnSubmit.disabled = false;
+      btnSubmit.innerHTML = textoOriginal;
+    }
   }
 };
 
@@ -2270,249 +1929,6 @@ window.editarHorario = function(id) {
 window.eliminarHorario = function(id) {
   Horarios.eliminar(id);
 };
-let notificacionesData = [];
-    
-    // Cargar notificaciones al mostrar la sección
-    function cargarNotificacionesSeccion() {
-        actualizarNotificaciones();
-    }
-    
-    // Función para actualizar notificaciones
-    function actualizarNotificaciones() {
-        fetch('/api/supervisor/notificaciones')
-            .then(response => response.json())
-            .then(data => {
-                notificacionesData = data.notificaciones;
-                renderNotificaciones(notificacionesData);
-                actualizarBadge(data.noLeidas);
-                
-                // Ocultar loading
-                const loading = document.getElementById('loadingNotificaciones');
-                if (loading) loading.style.display = 'none';
-            })
-            .catch(error => {
-                console.error('Error al cargar notificaciones:', error);
-                mostrarError();
-            });
-    }
-    
-    // Renderizar notificaciones en el DOM
-    function renderNotificaciones(notificaciones) {
-        const container = document.getElementById('notificacionesContainer');
-        
-        if (!container) return;
-        
-        if (notificaciones.length === 0) {
-            container.innerHTML = `
-                <div class="card card-custom">
-                    <div class="empty-state">
-                        <i class="fas fa-bell-slash"></i>
-                        <h5>No hay notificaciones</h5>
-                        <p>Cuando el administrador cree nuevos empleados, aparecerán notificaciones aquí</p>
-                    </div>
-                </div>
-            `;
-            return;
-        }
-        
-        let html = '';
-        notificaciones.forEach((notif, index) => {
-            const esLeida = notif.leida;
-            const claseLeida = esLeida ? 'read' : 'unread';
-            const iconoClase = esLeida ? 'read' : '';
-            
-            html += `
-                <div class="notification-card card card-custom ${claseLeida}" 
-                     data-index="${index}" 
-                     data-leida="${esLeida}"
-                     onclick="verDetalleNotificacion(${index})">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-auto">
-                                <div class="notification-icon ${iconoClase}">
-                                    <i class="fas fa-user-plus"></i>
-                                </div>
-                            </div>
-                            
-                            <div class="col">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div class="flex-grow-1">
-                                        <h5 class="mb-1">
-                                            ${notif.titulo}
-                                            ${!esLeida ? '<span class="badge bg-primary ms-2 badge-new">Nueva</span>' : ''}
-                                        </h5>
-                                        <p class="mb-2 text-muted">${notif.mensaje}</p>
-                                        <small class="notification-time">
-                                            <i class="fas fa-clock"></i> ${notif.fechaFormateada}
-                                        </small>
-                                    </div>
-                                    
-                                    <div class="ms-3">
-                                        ${!esLeida ? `
-                                            <button class="btn btn-sm btn-outline-primary" 
-                                                    onclick="event.stopPropagation(); marcarLeida(${index})">
-                                                <i class="fas fa-check"></i> Marcar leída
-                                            </button>
-                                        ` : `
-                                            <span class="badge bg-secondary">
-                                                <i class="fas fa-check-double"></i> Leída
-                                            </span>
-                                        `}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-        
-        container.innerHTML = html;
-    }
-    
-    // Filtrar notificaciones
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('input[name="filtroNotif"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                const filtro = this.value;
-                let notificacionesFiltradas = notificacionesData;
-                
-                if (filtro === 'noLeidas') {
-                    notificacionesFiltradas = notificacionesData.filter(n => !n.leida);
-                } else if (filtro === 'leidas') {
-                    notificacionesFiltradas = notificacionesData.filter(n => n.leida);
-                }
-                
-                renderNotificaciones(notificacionesFiltradas);
-            });
-        });
-    });
-    
-    // Ver detalle de notificación
-    function verDetalleNotificacion(index) {
-        const notif = notificacionesData[index];
-        
-        // Si no está leída, marcarla automáticamente
-        if (!notif.leida) {
-            marcarLeida(index);
-        }
-    }
-    
-    // Marcar una notificación como leída
-    function marcarLeida(index) {
-        fetch('/api/supervisor/notificaciones/leer', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'indice=' + index
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('✅ Notificación marcada como leída');
-            actualizarNotificaciones();
-            mostrarToast('Notificación marcada como leída', 'success');
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            mostrarToast('Error al marcar la notificación', 'error');
-        });
-    }
-    
-    // Marcar todas como leídas
-    function marcarTodasLeidas() {
-        const noLeidas = notificacionesData.filter(n => !n.leida).length;
-        
-        if (noLeidas === 0) {
-            mostrarToast('No hay notificaciones sin leer', 'info');
-            return;
-        }
-        
-        if (!confirm(`¿Marcar ${noLeidas} notificación(es) como leídas?`)) {
-            return;
-        }
-        
-        fetch('/api/supervisor/notificaciones/leer-todas', {
-            method: 'POST'
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('✅ Todas las notificaciones marcadas como leídas');
-            actualizarNotificaciones();
-            mostrarToast('Todas las notificaciones marcadas como leídas', 'success');
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            mostrarToast('Error al marcar las notificaciones', 'error');
-        });
-    }
-    
-    // Actualizar badge de notificaciones
-    function actualizarBadge(cantidad) {
-        const badge = document.getElementById('badgeNoLeidas');
-        if (badge) {
-            badge.textContent = cantidad;
-        }
-        
-        // Ocultar/mostrar botón de marcar todas
-        const btnMarcarTodas = document.getElementById('btnMarcarTodas');
-        if (btnMarcarTodas) {
-            btnMarcarTodas.style.display = cantidad > 0 ? '' : 'none';
-        }
-        
-        // Actualizar badge en el menú lateral si existe
-        const menuBadge = document.querySelector('[onclick*="seccionReportes"] .badge');
-        if (menuBadge) {
-            menuBadge.textContent = cantidad;
-            menuBadge.style.display = cantidad > 0 ? '' : 'none';
-        }
-    }
-    
-    // Mostrar error
-    function mostrarError() {
-        const container = document.getElementById('notificacionesContainer');
-        if (container) {
-            container.innerHTML = `
-                <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    Error al cargar las notificaciones. 
-                    <button class="btn btn-sm btn-outline-danger ms-2" onclick="actualizarNotificaciones()">
-                        <i class="fas fa-sync-alt"></i> Reintentar
-                    </button>
-                </div>
-            `;
-        }
-    }
-    
-    // Mostrar toast de notificación
-    function mostrarToast(mensaje, tipo = 'info') {
-        const colores = {
-            'success': 'bg-success',
-            'error': 'bg-danger',
-            'info': 'bg-info',
-            'warning': 'bg-warning'
-        };
-        
-        const toastContainer = document.createElement('div');
-        toastContainer.style.position = 'fixed';
-        toastContainer.style.top = '20px';
-        toastContainer.style.right = '20px';
-        toastContainer.style.zIndex = '9999';
-        
-        const toast = document.createElement('div');
-        toast.className = `alert ${colores[tipo]} alert-dismissible fade show`;
-        toast.innerHTML = `
-            ${mensaje}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        
-        toastContainer.appendChild(toast);
-        document.body.appendChild(toastContainer);
-        
-        setTimeout(() => {
-            toastContainer.remove();
-        }, 3000);
-    }
 
 // ====== INICIALIZACIÓN PRINCIPAL ======
 document.addEventListener('DOMContentLoaded', function() {

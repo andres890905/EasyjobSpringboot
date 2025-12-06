@@ -188,143 +188,54 @@ function editarDatosPersonales() {
 // ========================
 // SECCIÓN: VACACIONES
 // ========================
-async function loadVacacionesSection(container) {
-  // Mostrar loading mientras se cargan los datos
+function loadVacacionesSection(container) {
+  const diasDisponibles = empleadoData.diasVacacionesDisponibles || 0;
+  const diasUsados = empleadoData.diasVacacionesUsados || 0;
+  
   container.innerHTML = `
     <div class="card">
       <h2 style="margin-top: 20px;">🌴 Vacaciones</h2>
-      <div style="margin-top: 30px; text-align: center;">
-        <div class="spinner-border" role="status">
-          <span class="visually-hidden">Cargando...</span>
+      <div style="margin-top: 30px;">
+        <div class="info-box">
+          <h4>Días disponibles</h4>
+          <p style="font-size: 32px; font-weight: bold; color: #2c3e50; margin: 0;">
+            ${diasDisponibles} días
+          </p>
         </div>
-        <p style="color: #999; margin-top: 10px;">Cargando información de vacaciones...</p>
+        
+        <div class="info-box">
+          <h4>Días utilizados este año</h4>
+          <p style="font-size: 24px; font-weight: bold; color: #555; margin: 0;">
+            ${diasUsados} días
+          </p>
+        </div>
+        
+        <h4 style="margin: 20px 0 10px;">Mis Solicitudes:</h4>
+        <div id="listaSolicitudesVacaciones">
+          ${solicitudes.vacaciones.length === 0 ? 
+            '<p style="color: #999;">No hay solicitudes registradas</p>' : 
+            solicitudes.vacaciones.map(s => `
+              <div class="solicitud-item">
+                <div>
+                  <strong>${s.fechaInicio} al ${s.fechaFin}</strong>
+                  <small>${s.dias} días - ${s.motivo}</small>
+                </div>
+                <span class="badge ${s.estado}">${s.estado}</span>
+              </div>
+            `).join('')}
+        </div>
+        
+        <button class="btn-primary" onclick="mostrarFormularioVacaciones()">
+          ➕ Solicitar Vacaciones
+        </button>
       </div>
     </div>
   `;
-  
-  try {
-    // Cargar vacaciones del empleado
-    const response = await fetch(`http://localhost:9090/api/vacaciones/usuario/${empleadoData.idusuarios}`);
-    
-    if (!response.ok) {
-      throw new Error(`Error al cargar vacaciones: ${response.status}`);
-    }
-    
-    const vacacionesDB = await response.json();
-    console.log('✅ Vacaciones cargadas:', vacacionesDB);
-    
-    // Crear HTML del historial
-    const historialHTML = vacacionesDB.length === 0 
-      ? '<p style="color: #999;">No hay solicitudes de vacaciones registradas</p>'
-      : vacacionesDB.map(vac => `
-          <div class="solicitud-item" style="border-left: 4px solid ${getColorEstado(vac.estado)}; padding: 15px; margin-bottom: 10px; background: #f9f9f9; border-radius: 4px;">
-            <div style="display: flex; justify-content: space-between; align-items: start;">
-              <div style="flex: 1;">
-                <strong style="font-size: 16px;">📅 ${formatearFecha(vac.fechaInicio)} al ${formatearFecha(vac.fechaFin)}</strong>
-                <div style="color: #666; margin-top: 5px;">
-                  <small>⏱️ ${calcularDiasVacaciones(vac.fechaInicio, vac.fechaFin)} días solicitados</small>
-                </div>
-                <div style="color: #666; margin-top: 5px;">
-                  <small>💬 ${vac.comentarios || '<em>Sin comentarios</em>'}</small>
-                </div>
-              </div>
-              <span class="badge" style="background-color: ${getColorBadgeEstado(vac.estado)}; color: white; padding: 5px 10px; border-radius: 20px; margin-left: 10px;">
-                ${vac.estado || 'Pendiente'}
-              </span>
-            </div>
-          </div>
-        `).join('');
-    
-    // Renderizar la sección completa
-    container.innerHTML = `
-      <div class="card">
-        <h2 style="margin-top: 20px;">🌴 Vacaciones</h2>
-        <div style="margin-top: 30px;">
-          <h4 style="margin: 0 0 15px; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px;">📋 Historial de Solicitudes</h4>
-          <div id="listaSolicitudesVacaciones">
-            ${historialHTML}
-          </div>
-          
-          <button class="btn-primary" onclick="mostrarFormularioVacaciones()" style="margin-top: 20px;">
-            ➕ Solicitar Vacaciones
-          </button>
-        </div>
-      </div>
-    `;
-    
-  } catch (error) {
-    console.error('❌ Error al cargar vacaciones:', error);
-    container.innerHTML = `
-      <div class="card">
-        <h2 style="margin-top: 20px;">🌴 Vacaciones</h2>
-        <div style="margin-top: 30px;">
-          <div class="alert alert-danger" style="color: #721c24; background-color: #f8d7da; padding: 12px; border-radius: 4px; margin-bottom: 20px;">
-            <strong>⚠️ Error al cargar las vacaciones</strong>
-            <p style="margin: 5px 0 0 0; font-size: 14px;">${error.message}</p>
-          </div>
-          
-          <button class="btn-primary" onclick="mostrarFormularioVacaciones()" style="margin-top: 20px;">
-            ➕ Solicitar Vacaciones
-          </button>
-        </div>
-      </div>
-    `;
-  }
-}
-
-function getColorEstado(estado) {
-  const colores = {
-    'PENDIENTE': '#ffc107',
-    'Pendiente': '#ffc107',
-    'APROBADO': '#28a745',
-    'Aprobado': '#28a745',
-    'APROBADA': '#28a745',
-    'Aprobada': '#28a745',
-    'RECHAZADO': '#dc3545',
-    'Rechazado': '#dc3545',
-    'RECHAZADA': '#dc3545',
-    'Rechazada': '#dc3545'
-  };
-  return colores[estado] || '#6c757d';
-}
-
-function getColorBadgeEstado(estado) {
-  const colores = {
-    'PENDIENTE': '#ffc107',
-    'Pendiente': '#ffc107',
-    'APROBADO': '#28a745',
-    'Aprobado': '#28a745',
-    'APROBADA': '#28a745',
-    'Aprobada': '#28a745',
-    'RECHAZADO': '#dc3545',
-    'Rechazado': '#dc3545',
-    'RECHAZADA': '#dc3545',
-    'Rechazada': '#dc3545'
-  };
-  return colores[estado] || '#6c757d';
-}
-
-function formatearFecha(fecha) {
-  if (!fecha) return 'N/A';
-  const date = new Date(fecha);
-  return date.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' });
-}
-
-function calcularDiasVacaciones(inicio, fin) {
-  if (!inicio || !fin) return 0;
-  const start = new Date(inicio);
-  const end = new Date(fin);
-  return Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
 }
 
 function mostrarFormularioVacaciones() {
   const container = document.getElementById('mainContent');
   const hoy = new Date().toISOString().split('T')[0];
-  
-  // Calcular fecha máxima (1 año desde hoy)
-  const fechaMaxima = new Date();
-  fechaMaxima.setFullYear(fechaMaxima.getFullYear() + 1);
-  const maxDate = fechaMaxima.toISOString().split('T')[0];
   
   container.innerHTML = `
     <div class="card">
@@ -332,27 +243,22 @@ function mostrarFormularioVacaciones() {
       <form id="formVacaciones" style="margin-top: 30px;">
         <div class="form-group">
           <label>Fecha de Inicio: *</label>
-          <input type="date" id="fechaInicio" min="${hoy}" max="${maxDate}" required>
-          <small style="color: #999;">Selecciona una fecha desde hoy hasta ${maxDate}</small>
+          <input type="date" id="fechaInicio" min="${hoy}" required>
         </div>
         
         <div class="form-group">
           <label>Fecha de Fin: *</label>
-          <input type="date" id="fechaFin" min="${hoy}" max="${maxDate}" required>
-          <small style="color: #999;">La fecha fin debe ser igual o posterior a la fecha inicio</small>
+          <input type="date" id="fechaFin" min="${hoy}" required>
         </div>
         
         <div class="form-group">
           <label>Días solicitados:</label>
-          <input type="text" id="diasCalculados" value="0 días" disabled style="background: #f5f5f5;">
+          <input type="text" id="diasCalculados" value="0 días" disabled>
         </div>
         
         <div class="form-group">
           <label>Motivo: *</label>
           <textarea id="motivo" rows="4" placeholder="Describe el motivo de tu solicitud..." required></textarea>
-        </div>
-        
-        <div id="errorMessage" style="display: none; background: #f8d7da; color: #721c24; padding: 12px; border-radius: 4px; margin-bottom: 20px; border-left: 4px solid #dc3545;">
         </div>
         
         <div class="form-actions">
@@ -366,44 +272,17 @@ function mostrarFormularioVacaciones() {
   const fechaInicioInput = document.getElementById('fechaInicio');
   const fechaFinInput = document.getElementById('fechaFin');
   const diasCalculadosInput = document.getElementById('diasCalculados');
-  const errorMessageDiv = document.getElementById('errorMessage');
-  
-  function mostrarError(mensaje) {
-    errorMessageDiv.style.display = 'block';
-    errorMessageDiv.innerHTML = `<strong>⚠️ Error:</strong> ${mensaje}`;
-  }
-  
-  function ocultarError() {
-    errorMessageDiv.style.display = 'none';
-  }
   
   function calcularDias() {
-    ocultarError();
-    
-    if (!fechaInicioInput.value || !fechaFinInput.value) {
-      diasCalculadosInput.value = '0 días';
-      return;
-    }
-    
     const inicio = new Date(fechaInicioInput.value);
     const fin = new Date(fechaFinInput.value);
     
-    // Validaciones
-    if (inicio > fin) {
-      mostrarError('La fecha de fin no puede ser anterior a la fecha de inicio');
+    if (fechaInicioInput.value && fechaFinInput.value && fin >= inicio) {
+      const dias = Math.ceil((fin - inicio) / (1000 * 60 * 60 * 24)) + 1;
+      diasCalculadosInput.value = `${dias} días`;
+    } else {
       diasCalculadosInput.value = '0 días';
-      return;
     }
-    
-    const hoyDate = new Date(hoy);
-    if (inicio < hoyDate) {
-      mostrarError('La fecha de inicio no puede ser anterior a hoy');
-      diasCalculadosInput.value = '0 días';
-      return;
-    }
-    
-    const dias = Math.ceil((fin - inicio) / (1000 * 60 * 60 * 24)) + 1;
-    diasCalculadosInput.value = `${dias} días`;
   }
   
   fechaInicioInput.addEventListener('change', calcularDias);
@@ -411,74 +290,48 @@ function mostrarFormularioVacaciones() {
   
   document.getElementById('formVacaciones').addEventListener('submit', async function(e) {
     e.preventDefault();
-    ocultarError();
     
     const inicio = document.getElementById('fechaInicio').value;
     const fin = document.getElementById('fechaFin').value;
     const motivo = document.getElementById('motivo').value;
+    const dias = Math.ceil((new Date(fin) - new Date(inicio)) / (1000 * 60 * 60 * 24)) + 1;
     
-    // Validaciones finales
-    if (!inicio || !fin) {
-      mostrarError('Las fechas son requeridas');
+    const diasDisponibles = empleadoData.diasVacacionesDisponibles || 0;
+    
+    if (dias > diasDisponibles) {
+      showNotification(`No tienes suficientes días disponibles. Solo tienes ${diasDisponibles} días.`, 'error');
       return;
     }
     
-    const inicioDate = new Date(inicio);
-    const finDate = new Date(fin);
-    
-    if (inicioDate > finDate) {
-      mostrarError('La fecha de fin debe ser igual o posterior a la fecha de inicio');
-      return;
-    }
-    
-    if (inicioDate.getFullYear() < 2020 || inicioDate.getFullYear() > 2100) {
-      mostrarError('Año de inicio inválido. Verifica que hayas ingresado correctamente la fecha');
-      return;
-    }
-    
-    if (finDate.getFullYear() < 2020 || finDate.getFullYear() > 2100) {
-      mostrarError('Año de fin inválido. Verifica que hayas ingresado correctamente la fecha');
-      return;
-    }
-    
-    const dias = Math.ceil((finDate - inicioDate) / (1000 * 60 * 60 * 24)) + 1;
-    
+    // TODO: Integrar con API cuando esté disponible
+    /*
     try {
-      console.log('📤 Enviando solicitud de vacaciones...');
-      
-      const datos = {
-        idUsuario: empleadoData.idusuarios,
-        fechaInicio: inicio,
-        fechaFin: fin,
-        comentarios: motivo,
-        estado: 'Pendiente'
-      };
-      
-      console.log('📝 Datos a enviar:', datos);
-      
-      const res = await fetch('http://localhost:9090/api/vacaciones/crear', {
+      const res = await fetch('/api/empleado/vacaciones', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(datos)
+        body: JSON.stringify({ inicio, fin, motivo, dias })
       });
       
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(`Error ${res.status}: ${errorText}`);
-      }
-      
+      if (!res.ok) throw new Error('Error al enviar solicitud');
       const data = await res.json();
-      console.log('✅ Solicitud guardada:', data);
-      
-      showNotification('✅ Solicitud de vacaciones enviada exitosamente', 'success');
-      
-      // Pequeño delay y luego recargar
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      loadSection('vacaciones');
+      solicitudes.vacaciones.push(data);
     } catch (err) {
-      console.error('❌ Error:', err);
-      mostrarError(err.message);
+      showNotification(err.message, 'error');
+      return;
     }
+    */
+    
+    solicitudes.vacaciones.push({
+      fechaInicio: inicio,
+      fechaFin: fin,
+      motivo: motivo,
+      dias: dias,
+      estado: 'pendiente',
+      fecha: new Date().toLocaleDateString('es-CO')
+    });
+    
+    showNotification('Solicitud de vacaciones enviada exitosamente', 'success');
+    loadSection('vacaciones');
   });
 }
 
@@ -486,128 +339,33 @@ function mostrarFormularioVacaciones() {
 // SECCIÓN: INCAPACIDADES
 // ========================
 function loadIncapacidadesSection(container) {
-  if (!empleadoData) {
-    container.innerHTML = `
-      <div class="card">
-        <h2 style="margin-top: 20px;">🏥 Incapacidades</h2>
-        <p style="padding: 20px; color: #999;">Cargando información del empleado...</p>
-      </div>
-    `;
-    return;
-  }
-
-  // Mostrar loading
   container.innerHTML = `
     <div class="card">
       <h2 style="margin-top: 20px;">🏥 Incapacidades</h2>
-      <div style="text-align: center; padding: 40px;">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Cargando...</span>
+      <div style="margin-top: 30px;">
+        <div class="info-box">
+          <h4>Historial de incapacidades</h4>
+          <div id="listaIncapacidades">
+            ${solicitudes.incapacidades.length === 0 ? 
+              '<p style="color: #999; margin: 0;">No hay registros de incapacidades</p>' :
+              solicitudes.incapacidades.map(inc => `
+                <div class="solicitud-item">
+                  <div>
+                    <strong>${inc.fechaInicio} al ${inc.fechaFin}</strong>
+                    <small>${inc.tipo} - ${inc.dias} días</small>
+                  </div>
+                  <span class="badge ${inc.estado}">${inc.estado}</span>
+                </div>
+              `).join('')}
+          </div>
         </div>
-        <p style="color: #999; margin-top: 10px;">Cargando tu historial de incapacidades...</p>
+        
+        <button class="btn-primary" onclick="mostrarFormularioIncapacidad()">
+          ➕ Reportar Incapacidad
+        </button>
       </div>
     </div>
   `;
-
-  // Cargar incapacidades del empleado desde la base de datos
-  fetch(`http://localhost:9090/api/incapacidades/usuario/${empleadoData.idusuarios}`)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-      return response.json();
-    })
-    .then(incapacidades => {
-      console.log('✅ Incapacidades cargadas:', incapacidades);
-
-      // Mapear estados para mostrar con badges de colores
-      const incapacidadesHTML = incapacidades.length === 0 ? 
-        '<p style="color: #999; margin: 0;">No hay registros de incapacidades</p>' :
-        incapacidades.map(inc => {
-          const estadoBadge = inc.estado === 'APROBADA' ? 'success' : 
-                             inc.estado === 'RECHAZADA' ? 'danger' : 'warning';
-          const icono = inc.estado === 'APROBADA' ? '✓' : 
-                       inc.estado === 'RECHAZADA' ? '✗' : '⏳';
-          
-          const botonArchivo = inc.archivoSoporte ? 
-            `<a href="http://localhost:9090/api/incapacidades/archivo/${inc.archivoSoporte}" 
-                class="btn-secondary" style="margin-left: 10px; padding: 5px 10px; border-radius: 3px; text-decoration: none; font-size: 12px;">
-              📥 Descargar
-            </a>` : 
-            '<span style="color: #999; font-size: 12px; margin-left: 10px;">Sin archivo</span>';
-          
-          return `
-            <div class="solicitud-item" style="padding: 15px; border-left: 4px solid #${estadoBadge === 'success' ? '28a745' : estadoBadge === 'danger' ? 'dc3545' : 'ffc107'}; margin-bottom: 10px;">
-              <div>
-                <strong>${inc.fechaInicio} al ${inc.fechaFin}</strong>
-                <small style="display: block; margin-top: 5px;">
-                  <strong>Tipo:</strong> ${inc.tipo || 'General'} | 
-                  <strong>Motivo:</strong> ${inc.motivo || 'N/A'}
-                </small>
-              </div>
-              <div style="display: flex; align-items: center;">
-                <span class="badge bg-${estadoBadge}" style="font-size: 12px;">
-                  ${icono} ${inc.estado}
-                </span>
-                ${botonArchivo}
-              </div>
-            </div>
-          `;
-        }).join('');
-
-      // Actualizar el contenedor con el historial
-      container.innerHTML = `
-        <div class="card">
-          <h2 style="margin-top: 20px;">🏥 Incapacidades</h2>
-          <div style="margin-top: 30px;">
-            <div class="info-box">
-              <h4>Historial de incapacidades</h4>
-              <div id="listaIncapacidades">
-                ${incapacidadesHTML}
-              </div>
-            </div>
-            
-            <button class="btn-primary" onclick="mostrarFormularioIncapacidad()">
-              ➕ Reportar Incapacidad
-            </button>
-          </div>
-        </div>
-      `;
-    })
-    .catch(error => {
-      console.error('❌ Error al cargar incapacidades:', error);
-      container.innerHTML = `
-        <div class="card">
-          <h2 style="margin-top: 20px;">🏥 Incapacidades</h2>
-          <div style="margin-top: 30px;">
-            <div class="alert alert-danger" style="padding: 15px; border-radius: 5px;">
-              <strong>Error:</strong> No se pudieron cargar las incapacidades. ${error.message}
-            </div>
-            
-            <div class="info-box" style="margin-top: 20px;">
-              <h4>Historial de incapacidades (sin sincronizar)</h4>
-              <div id="listaIncapacidades">
-                ${solicitudes.incapacidades.length === 0 ? 
-                  '<p style="color: #999; margin: 0;">No hay registros de incapacidades</p>' :
-                  solicitudes.incapacidades.map(inc => `
-                    <div class="solicitud-item">
-                      <div>
-                        <strong>${inc.fechaInicio} al ${inc.fechaFin}</strong>
-                        <small>${inc.tipo} - ${inc.dias} días</small>
-                      </div>
-                      <span class="badge ${inc.estado}">${inc.estado}</span>
-                    </div>
-                  `).join('')}
-              </div>
-            </div>
-            
-            <button class="btn-primary" onclick="mostrarFormularioIncapacidad()">
-              ➕ Reportar Incapacidad
-            </button>
-          </div>
-        </div>
-      `;
-    });
 }
 
 function mostrarFormularioIncapacidad() {
@@ -649,14 +407,6 @@ function mostrarFormularioIncapacidad() {
           <label>Observaciones: *</label>
           <textarea id="observaciones" rows="4" placeholder="Detalles adicionales..." required></textarea>
         </div>
-
-        <div class="form-group">
-          <label>📎 Archivo de Soporte (PDF, JPG, PNG):</label>
-          <input type="file" id="archivoSoporte" accept=".pdf,.jpg,.jpeg,.png">
-          <small style="color: #666; display: block; margin-top: 5px;">
-            Adjunta el certificado médico o comprobante de la incapacidad (máx. 5MB) - Opcional
-          </small>
-        </div>
         
         <div class="form-actions">
           <button type="button" class="btn-secondary" onclick="loadSection('incapacidades')">Cancelar</button>
@@ -685,88 +435,27 @@ function mostrarFormularioIncapacidad() {
   fechaInicioInput.addEventListener('change', calcularDias);
   fechaFinInput.addEventListener('change', calcularDias);
   
-  document.getElementById('formIncapacidad').addEventListener('submit', async function(e) {
+  document.getElementById('formIncapacidad').addEventListener('submit', function(e) {
     e.preventDefault();
     
     const tipo = document.getElementById('tipoIncapacidad').value;
     const inicio = document.getElementById('fechaInicioInc').value;
     const fin = document.getElementById('fechaFinInc').value;
     const observaciones = document.getElementById('observaciones').value;
-    const archivoInput = document.getElementById('archivoSoporte');
     const dias = Math.ceil((new Date(fin) - new Date(inicio)) / (1000 * 60 * 60 * 24)) + 1;
     
-    // Validar archivo si existe
-    let archivo = null;
-    if (archivoInput.files && archivoInput.files.length > 0) {
-      archivo = archivoInput.files[0];
-      
-      // Validar tamaño del archivo (máx 5MB)
-      const maxSize = 5 * 1024 * 1024; // 5MB
-      if (archivo.size > maxSize) {
-        showNotification('El archivo es demasiado grande. Máximo 5MB', 'error');
-        return;
-      }
-
-      // Validar tipo de archivo
-      const tiposPermitidos = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
-      if (!tiposPermitidos.includes(archivo.type)) {
-        showNotification('Solo se permiten archivos PDF, JPG o PNG', 'error');
-        return;
-      }
-    }
+    solicitudes.incapacidades.push({
+      tipo, 
+      fechaInicio: inicio, 
+      fechaFin: fin, 
+      dias, 
+      observaciones,
+      estado: 'pendiente',
+      fecha: new Date().toLocaleDateString('es-CO')
+    });
     
-    try {
-      // Mostrar loading
-      showNotification('⏳ Guardando incapacidad...', 'info');
-
-      // Crear FormData para enviar archivo y datos
-      const formData = new FormData();
-      formData.append('idusuarios', empleadoData.idusuarios);
-      formData.append('nombreEmpleado', (empleadoData.nombre || '') + ' ' + (empleadoData.apellido || ''));
-      formData.append('nombreEps', empleadoData.nombreEps || empleadoData.eps || 'EPS No especificada');
-      formData.append('tipo', tipo);
-      formData.append('motivo', observaciones);
-      formData.append('fechaInicio', inicio);
-      formData.append('fechaFin', fin);
-      formData.append('estado', 'PENDIENTE');
-      
-      // Incluir archivo solo si existe
-      if (archivo) {
-        formData.append('archivoSoporte', archivo);
-      }
-
-      // Enviar los datos a la base de datos
-      const response = await fetch('http://localhost:9090/api/incapacidades/upload', {
-        method: 'POST',
-        body: formData // No incluir Content-Type, navegador lo establece automáticamente
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Error ${response.status}: ${errorText}`);
-      }
-      
-      const result = await response.json();
-      console.log('✅ Incapacidad guardada:', result);
-      
-      // Guardar también en memoria
-      solicitudes.incapacidades.push({
-        tipo, 
-        fechaInicio: inicio, 
-        fechaFin: fin, 
-        dias, 
-        observaciones,
-        archivo: archivo ? archivo.name : 'Sin archivo',
-        estado: 'PENDIENTE',
-        fecha: new Date().toLocaleDateString('es-CO')
-      });
-      
-      showNotification('✅ Incapacidad reportada exitosamente. Archivo: ' + archivo.name, 'success');
-      loadSection('incapacidades');
-    } catch (error) {
-      console.error('❌ Error al guardar incapacidad:', error);
-      showNotification('Error al reportar incapacidad: ' + error.message, 'error');
-    }
+    showNotification('Incapacidad reportada exitosamente', 'success');
+    loadSection('incapacidades');
   });
 }
 // ========================
