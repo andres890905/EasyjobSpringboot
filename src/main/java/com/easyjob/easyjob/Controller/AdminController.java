@@ -2,7 +2,6 @@ package com.easyjob.easyjob.Controller;
 
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,6 +23,7 @@ import com.easyjob.easyjob.Model.Usuario;
 import com.easyjob.easyjob.Repository.RolRepository;
 import com.easyjob.easyjob.Repository.SucursalRepository;
 import com.easyjob.easyjob.Repository.UsuarioRepository;
+import com.easyjob.easyjob.Observer.UsuarioSubject;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -38,6 +38,10 @@ public class AdminController {
     
     @Autowired
     private SucursalRepository sucursalRepository;
+    
+    // ✅ INYECTAR EL SUBJECT DEL PATRÓN OBSERVER
+    @Autowired
+    private UsuarioSubject usuarioSubject;
 
     /**
      * Cargar el dashboard del administrador
@@ -45,10 +49,19 @@ public class AdminController {
     @GetMapping("/dashboard_admin")
     public String dashboardAdmin(Model model, HttpSession session) {
         Usuario usuario = (Usuario) session.getAttribute("usuarioLogueado");
+        System.out.println("📌 ENTRANDO AL CONTROLLER DE ADMIN");
 
         // Validar que el usuario esté logueado y sea administrador
         if (usuario == null || !"Administrador".equals(usuario.getRol().getTipo_rol())) {
             return "redirect:/login?error=Debe+iniciar+sesión+como+Administrador";
+        }
+        
+        // Capturar mensaje enviado desde la Strategy
+        String mensajeLogin = (String) session.getAttribute("mensajeAdminLogin");
+        if (mensajeLogin != null) {
+            model.addAttribute("mensajeBienvenida", mensajeLogin);
+            session.removeAttribute("mensajeAdminLogin");
+            System.out.println("📩 MENSAJE EN SESIÓN = " + mensajeLogin);
         }
 
         // Cargar datos iniciales para el dashboard
@@ -75,7 +88,6 @@ public class AdminController {
         try {
             List<Usuario> empleados;
 
-            // Filtrar por sucursal y rol
             if ("todas".equalsIgnoreCase(sucursalId)) {
                 if (rolId == null || rolId.isEmpty() || "todos".equalsIgnoreCase(rolId)) {
                     empleados = usuarioRepository.findAll();
@@ -122,12 +134,13 @@ public class AdminController {
 
     /**
      * Crear un nuevo empleado
+     * ✅ MODIFICADO: Ahora notifica a los supervisores usando el patrón Observer
      */
     @PostMapping("/empleados")
     @ResponseBody
     public ResponseEntity<?> crearEmpleado(@RequestBody Map<String, Object> empleadoData, HttpSession session) {
         try {
-            // Validar que el usuario sea administrador
+            // Validar que sea administrador
             Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
             if (usuarioLogueado == null || !"Administrador".equals(usuarioLogueado.getRol().getTipo_rol())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -135,13 +148,16 @@ public class AdminController {
             }
 
             // Validar datos requeridos
-            if (!empleadoData.containsKey("cedula") || !empleadoData.containsKey("nombre") 
-                || !empleadoData.containsKey("apellido") || !empleadoData.containsKey("correo")) {
+            if (!empleadoData.containsKey("cedula") || 
+                !empleadoData.containsKey("nombre") || 
+                !empleadoData.containsKey("apellido") || 
+                !empleadoData.containsKey("correo")) {
+                
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(Map.of("error", "Faltan campos obligatorios"));
             }
 
-            // Verificar si ya existe un usuario con esa cédula
+            // Verificar si ya existe
             String cedula = empleadoData.get("cedula").toString();
             if (usuarioRepository.existsById(Long.valueOf(cedula))) {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
@@ -177,18 +193,22 @@ public class AdminController {
                 nuevoUsuario.setSalario(Double.valueOf(empleadoData.get("salario").toString()));
             }
 
-            // Asignar contraseña (temporal o generada)
+            // Asignar contraseña
             if (empleadoData.containsKey("password") && !empleadoData.get("password").toString().isEmpty()) {
                 nuevoUsuario.setContrasena(empleadoData.get("password").toString());
             } else {
-                // Generar contraseña temporal
                 nuevoUsuario.setContrasena("Temporal123!");
             }
 
-            // Guardar en la base de datos
+            // Guardar en BD
             Usuario empleadoGuardado = usuarioRepository.save(nuevoUsuario);
 
+            // ✅ PATRÓN OBSERVER: Notificar a todos los supervisores
+            System.out.println("🔔 Notificando creación de empleado a supervisores...");
+            usuarioSubject.notificarCreacionUsuario(empleadoGuardado, usuarioLogueado);
+
             return ResponseEntity.status(HttpStatus.CREATED).body(empleadoGuardado);
+
         } catch (NumberFormatException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", "Formato de datos incorrecto"));
@@ -202,7 +222,7 @@ public class AdminController {
     }
 
     /**
-     * Actualizar un empleado existente
+     * Actualizar un empleado
      */
     @PutMapping("/empleados/{id}")
     @ResponseBody
@@ -212,18 +232,15 @@ public class AdminController {
             HttpSession session) {
         
         try {
-            // Validar que el usuario sea administrador
             Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
             if (usuarioLogueado == null || !"Administrador".equals(usuarioLogueado.getRol().getTipo_rol())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(Map.of("error", "No tiene permisos para editar empleados"));
             }
 
-            // Buscar el usuario existente
             Usuario usuarioExistente = usuarioRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
 
-            // Actualizar campos
             if (empleadoData.containsKey("nombre")) {
                 usuarioExistente.setNombre(empleadoData.get("nombre").toString());
             }
@@ -237,7 +254,6 @@ public class AdminController {
                 usuarioExistente.setSalario(Double.valueOf(empleadoData.get("salario").toString()));
             }
 
-            // Actualizar rol
             if (empleadoData.containsKey("rol_id")) {
                 Integer rolId = Integer.valueOf(empleadoData.get("rol_id").toString());
                 Rol rol = rolRepository.findById(rolId)
@@ -245,7 +261,6 @@ public class AdminController {
                 usuarioExistente.setRol(rol);
             }
 
-            // Actualizar sucursal
             if (empleadoData.containsKey("sucursal_id")) {
                 Long sucursalId = Long.valueOf(empleadoData.get("sucursal_id").toString());
                 Sucursal sucursal = sucursalRepository.findById(sucursalId)
@@ -253,10 +268,10 @@ public class AdminController {
                 usuarioExistente.setSucursal(sucursal);
             }
 
-            // Guardar cambios
             Usuario empleadoActualizado = usuarioRepository.save(usuarioExistente);
 
             return ResponseEntity.ok(empleadoActualizado);
+
         } catch (NumberFormatException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", "Formato de datos incorrecto"));
@@ -270,7 +285,7 @@ public class AdminController {
     }
 
     /**
-     * Cambiar el estado de un empleado (Activo/Inactivo)
+     * Cambiar estado de empleado
      */
     @PutMapping("/empleados/{id}/estado")
     @ResponseBody
@@ -279,7 +294,6 @@ public class AdminController {
             Usuario usuario = usuarioRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
 
-            // Cambiar el estado
             if ("ACTIVO".equals(usuario.getEstado())) {
                 usuario.setEstado("INACTIVO");
             } else {
@@ -289,6 +303,7 @@ public class AdminController {
             Usuario empleadoActualizado = usuarioRepository.save(usuario);
             
             return ResponseEntity.ok(empleadoActualizado);
+
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
@@ -299,13 +314,12 @@ public class AdminController {
     }
 
     /**
-     * Eliminar un empleado (opcional - soft delete cambiando estado)
+     * Eliminar (soft delete)
      */
     @DeleteMapping("/empleados/{id}")
     @ResponseBody
     public ResponseEntity<?> eliminarEmpleado(@PathVariable Long id, HttpSession session) {
         try {
-            // Validar que el usuario sea administrador
             Usuario usuarioLogueado = (Usuario) session.getAttribute("usuarioLogueado");
             if (usuarioLogueado == null || !"Administrador".equals(usuarioLogueado.getRol().getTipo_rol())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -315,14 +329,11 @@ public class AdminController {
             Usuario usuario = usuarioRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
 
-            // Soft delete: cambiar estado a INACTIVO en lugar de eliminar
             usuario.setEstado("INACTIVO");
             usuarioRepository.save(usuario);
 
-            // Si quieres hacer hard delete (eliminar de la BD):
-            // usuarioRepository.deleteById(id);
-
             return ResponseEntity.ok(Map.of("mensaje", "Empleado eliminado correctamente"));
+
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));

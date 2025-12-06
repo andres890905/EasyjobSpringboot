@@ -1929,6 +1929,249 @@ window.editarHorario = function(id) {
 window.eliminarHorario = function(id) {
   Horarios.eliminar(id);
 };
+let notificacionesData = [];
+    
+    // Cargar notificaciones al mostrar la sección
+    function cargarNotificacionesSeccion() {
+        actualizarNotificaciones();
+    }
+    
+    // Función para actualizar notificaciones
+    function actualizarNotificaciones() {
+        fetch('/api/supervisor/notificaciones')
+            .then(response => response.json())
+            .then(data => {
+                notificacionesData = data.notificaciones;
+                renderNotificaciones(notificacionesData);
+                actualizarBadge(data.noLeidas);
+                
+                // Ocultar loading
+                const loading = document.getElementById('loadingNotificaciones');
+                if (loading) loading.style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error al cargar notificaciones:', error);
+                mostrarError();
+            });
+    }
+    
+    // Renderizar notificaciones en el DOM
+    function renderNotificaciones(notificaciones) {
+        const container = document.getElementById('notificacionesContainer');
+        
+        if (!container) return;
+        
+        if (notificaciones.length === 0) {
+            container.innerHTML = `
+                <div class="card card-custom">
+                    <div class="empty-state">
+                        <i class="fas fa-bell-slash"></i>
+                        <h5>No hay notificaciones</h5>
+                        <p>Cuando el administrador cree nuevos empleados, aparecerán notificaciones aquí</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        let html = '';
+        notificaciones.forEach((notif, index) => {
+            const esLeida = notif.leida;
+            const claseLeida = esLeida ? 'read' : 'unread';
+            const iconoClase = esLeida ? 'read' : '';
+            
+            html += `
+                <div class="notification-card card card-custom ${claseLeida}" 
+                     data-index="${index}" 
+                     data-leida="${esLeida}"
+                     onclick="verDetalleNotificacion(${index})">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <div class="notification-icon ${iconoClase}">
+                                    <i class="fas fa-user-plus"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="col">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h5 class="mb-1">
+                                            ${notif.titulo}
+                                            ${!esLeida ? '<span class="badge bg-primary ms-2 badge-new">Nueva</span>' : ''}
+                                        </h5>
+                                        <p class="mb-2 text-muted">${notif.mensaje}</p>
+                                        <small class="notification-time">
+                                            <i class="fas fa-clock"></i> ${notif.fechaFormateada}
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="ms-3">
+                                        ${!esLeida ? `
+                                            <button class="btn btn-sm btn-outline-primary" 
+                                                    onclick="event.stopPropagation(); marcarLeida(${index})">
+                                                <i class="fas fa-check"></i> Marcar leída
+                                            </button>
+                                        ` : `
+                                            <span class="badge bg-secondary">
+                                                <i class="fas fa-check-double"></i> Leída
+                                            </span>
+                                        `}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
+    }
+    
+    // Filtrar notificaciones
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('input[name="filtroNotif"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const filtro = this.value;
+                let notificacionesFiltradas = notificacionesData;
+                
+                if (filtro === 'noLeidas') {
+                    notificacionesFiltradas = notificacionesData.filter(n => !n.leida);
+                } else if (filtro === 'leidas') {
+                    notificacionesFiltradas = notificacionesData.filter(n => n.leida);
+                }
+                
+                renderNotificaciones(notificacionesFiltradas);
+            });
+        });
+    });
+    
+    // Ver detalle de notificación
+    function verDetalleNotificacion(index) {
+        const notif = notificacionesData[index];
+        
+        // Si no está leída, marcarla automáticamente
+        if (!notif.leida) {
+            marcarLeida(index);
+        }
+    }
+    
+    // Marcar una notificación como leída
+    function marcarLeida(index) {
+        fetch('/api/supervisor/notificaciones/leer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'indice=' + index
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('✅ Notificación marcada como leída');
+            actualizarNotificaciones();
+            mostrarToast('Notificación marcada como leída', 'success');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarToast('Error al marcar la notificación', 'error');
+        });
+    }
+    
+    // Marcar todas como leídas
+    function marcarTodasLeidas() {
+        const noLeidas = notificacionesData.filter(n => !n.leida).length;
+        
+        if (noLeidas === 0) {
+            mostrarToast('No hay notificaciones sin leer', 'info');
+            return;
+        }
+        
+        if (!confirm(`¿Marcar ${noLeidas} notificación(es) como leídas?`)) {
+            return;
+        }
+        
+        fetch('/api/supervisor/notificaciones/leer-todas', {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('✅ Todas las notificaciones marcadas como leídas');
+            actualizarNotificaciones();
+            mostrarToast('Todas las notificaciones marcadas como leídas', 'success');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarToast('Error al marcar las notificaciones', 'error');
+        });
+    }
+    
+    // Actualizar badge de notificaciones
+    function actualizarBadge(cantidad) {
+        const badge = document.getElementById('badgeNoLeidas');
+        if (badge) {
+            badge.textContent = cantidad;
+        }
+        
+        // Ocultar/mostrar botón de marcar todas
+        const btnMarcarTodas = document.getElementById('btnMarcarTodas');
+        if (btnMarcarTodas) {
+            btnMarcarTodas.style.display = cantidad > 0 ? '' : 'none';
+        }
+        
+        // Actualizar badge en el menú lateral si existe
+        const menuBadge = document.querySelector('[onclick*="seccionReportes"] .badge');
+        if (menuBadge) {
+            menuBadge.textContent = cantidad;
+            menuBadge.style.display = cantidad > 0 ? '' : 'none';
+        }
+    }
+    
+    // Mostrar error
+    function mostrarError() {
+        const container = document.getElementById('notificacionesContainer');
+        if (container) {
+            container.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Error al cargar las notificaciones. 
+                    <button class="btn btn-sm btn-outline-danger ms-2" onclick="actualizarNotificaciones()">
+                        <i class="fas fa-sync-alt"></i> Reintentar
+                    </button>
+                </div>
+            `;
+        }
+    }
+    
+    // Mostrar toast de notificación
+    function mostrarToast(mensaje, tipo = 'info') {
+        const colores = {
+            'success': 'bg-success',
+            'error': 'bg-danger',
+            'info': 'bg-info',
+            'warning': 'bg-warning'
+        };
+        
+        const toastContainer = document.createElement('div');
+        toastContainer.style.position = 'fixed';
+        toastContainer.style.top = '20px';
+        toastContainer.style.right = '20px';
+        toastContainer.style.zIndex = '9999';
+        
+        const toast = document.createElement('div');
+        toast.className = `alert ${colores[tipo]} alert-dismissible fade show`;
+        toast.innerHTML = `
+            ${mensaje}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        toastContainer.appendChild(toast);
+        document.body.appendChild(toastContainer);
+        
+        setTimeout(() => {
+            toastContainer.remove();
+        }, 3000);
+    }
 
 // ====== INICIALIZACIÓN PRINCIPAL ======
 document.addEventListener('DOMContentLoaded', function() {

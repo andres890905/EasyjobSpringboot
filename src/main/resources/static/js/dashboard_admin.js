@@ -1375,7 +1375,28 @@ document.addEventListener('DOMContentLoaded', () => {
   
   console.log('✅ Módulo Ver Empleado y Búsqueda inicializados');
 });
+window.addEventListener('DOMContentLoaded', () => {
+   const mensaje = document.getElementById('mensaje-bienvenida');
+   if (mensaje) {
+     // Mostrar con animación
+     setTimeout(() => {
+       mensaje.classList.add('show-slide');
+     }, 100); // pequeño delay para que CSS tome efecto
 
+     // Desaparecer después de 4 segundos
+     setTimeout(() => {
+       mensaje.classList.remove('show-slide');
+       mensaje.classList.add('hide-slide');
+     }, 4000);
+
+     // Remover del DOM después de la animación
+     mensaje.addEventListener('transitionend', () => {
+       if (mensaje.classList.contains('hide-slide')) {
+         mensaje.remove();
+       }
+     });
+   }
+ });
 
 // ================= INICIALIZACIÓN =================
 document.addEventListener('DOMContentLoaded', () => {
